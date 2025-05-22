@@ -249,13 +249,13 @@ int main(int argc, char *argv[])
             []() { TIME_setCurrentTimezone("Asia/Shanghai");}}, // default from Stock
             new MenuItem{ListItemType::Generic, "保存格式", "要使用的保存格式。\"Retroarch\"使用压缩。\nMinUI: Game.gba.sav, Retroarch: Game.srm, Generic: Game.sav",
             {(int)SAVE_FORMAT_SAV, (int)SAVE_FORMAT_SRM, (int)SAVE_FORMAT_GEN},
-            {"MinUI (default)", "Retroarch", "Generic"}, []() -> std::any
+            {"MinUI (默认)", "全能模拟器", "通用"}, []() -> std::any
             { return CFG_getSaveFormat(); }, [](const std::any &value)
             { CFG_setSaveFormat(std::any_cast<int>(value)); },
             []() { CFG_setSaveFormat(CFG_DEFAULT_SAVEFORMAT);}},
             new MenuItem{ListItemType::Generic, "保存状态格式", "要使用的保存状态格式。\"Retroarch\"使用压缩。\nMinUI: Game.st0, Retroarch: Game.state.0",
             {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM},
-            {"MinUI (default)", "Retroarch"}, []() -> std::any
+            {"MinUI (默认)", "全能模拟器"}, []() -> std::any
             { return CFG_getStateFormat(); }, [](const std::any &value)
             { CFG_setStateFormat(std::any_cast<int>(value)); },
             []() { CFG_setStateFormat(CFG_DEFAULT_STATEFORMAT);}},
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         {
             new MenuItem{ListItemType::Generic, "启用时调整音量", "扬声器音量 (0-20)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}, 
-            {"Unchanged", "Muted", "5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"}, 
+            {"不变", "静音", "5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"}, 
             []() -> std::any { return GetMutedVolume(); },
             [](const std::any &value) { SetMutedVolume(std::any_cast<int>(value)); },
             []() { SetMutedVolume(0); }},
@@ -277,31 +277,31 @@ int main(int argc, char *argv[])
             []() { CFG_setMuteLEDs(CFG_DEFAULT_MUTELEDS); }},
             new MenuItem{ListItemType::Generic, "启用时调整亮度", "显示亮度 (0 到 10)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10}, 
-            {"Unchanged","0","1","2","3","4","5","6","7","8","9","10"},
+            {"不变","0","1","2","3","4","5","6","7","8","9","10"},
             []() -> std::any { return GetMutedBrightness(); }, [](const std::any &value)
             { SetMutedBrightness(std::any_cast<int>(value)); },
             []() { SetMutedBrightness(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
             new MenuItem{ListItemType::Generic, "启用时调整色温", "色温 (0 到 40)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40}, 
-            {"Unchanged","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40"},
+            {"不变","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40"},
             []() -> std::any{ return GetMutedColortemp(); }, [](const std::any &value)
             { SetMutedColortemp(std::any_cast<int>(value)); },
             []() { SetMutedColortemp(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
             new MenuItem{ListItemType::Generic, "启用时调整对比度", "对比度增强 (-4 到 5)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"Unchanged","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            {"不变","-4","-3","-2","-1","0","1","2","3","4","5"}, 
             []() -> std::any  { return GetMutedContrast(); }, [](const std::any &value)
             { SetMutedContrast(std::any_cast<int>(value)); },
             []() { SetMutedContrast(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
             new MenuItem{ListItemType::Generic, "启用时调整饱和度", "饱和度增强 (-5 到 5)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -5,-4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"Unchanged","-5","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            {"不变","-5","-4","-3","-2","-1","0","1","2","3","4","5"}, 
             []() -> std::any{ return GetMutedSaturation(); }, [](const std::any &value)
             { SetMutedSaturation(std::any_cast<int>(value)); },
             []() { SetMutedSaturation(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
             new MenuItem{ListItemType::Generic, "启用时调整曝光", "曝光增强 (-4 到 5)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"Unchanged","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            {"不变","-4","-3","-2","-1","0","1","2","3","4","5"}, 
             []() -> std::any  { return GetMutedExposure(); }, [](const std::any &value)
             { SetMutedExposure(std::any_cast<int>(value)); },
             []() { SetMutedExposure(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
