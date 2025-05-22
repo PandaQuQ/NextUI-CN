@@ -12,9 +12,9 @@ typedef std::shared_lock<Lock> ReadLock;
 using namespace Wifi;
 using namespace std::placeholders;
 
-Menu::Menu(const int &globalQuit) : MenuList(MenuItemType::Fixed, "Network", {}), globalQuit(globalQuit)
+Menu::Menu(const int &globalQuit) : MenuList(MenuItemType::Fixed, "网络", {}), globalQuit(globalQuit)
 {
-    toggleItem = new MenuItem(ListItemType::Generic, "WiFi", "Enable/disable WiFi", {false, true}, {"Off", "On"},
+    toggleItem = new MenuItem(ListItemType::Generic, "WiFi", "启用/禁用 WiFi", {false, true}, {"关闭", "开启"},
                               std::bind(&Menu::getWifToggleState, this),
                               std::bind(&Menu::setWifiToggleState, this, std::placeholders::_1),
                               std::bind(&Menu::resetWifiToggleState, this));
@@ -127,17 +127,17 @@ void Menu::updater()
 
                     MenuList *options;
                     if (connected)
-                        options = new MenuList(MenuItemType::List, "Options",
+                        options = new MenuList(MenuItemType::List, "选项",
                                                {
-                                                   new MenuItem{ListItemType::Button, "Disconnect", "Disconnect from this network.",
+                                                   new MenuItem{ListItemType::Button, "断开连接", "从此网络断开连接。",
                                                                 [&](MenuItem &item) -> InputReactionHint
                                                                 { WIFI_disconnect(); workerDirty = true; return Exit; }},
                                                    new ForgetItem(r, workerDirty)
                                                });
                     else if (hasCredentials)
-                        options = new MenuList(MenuItemType::List, "Options", { new ConnectKnownItem(r, workerDirty), new ForgetItem(r, workerDirty) });
+                        options = new MenuList(MenuItemType::List, "选项", { new ConnectKnownItem(r, workerDirty), new ForgetItem(r, workerDirty) });
                     else
-                        options = new MenuList(MenuItemType::List, "Options", { new ConnectNewItem(r, workerDirty) });
+                        options = new MenuList(MenuItemType::List, "选项", { new ConnectNewItem(r, workerDirty) });
 
                     auto itm = new NetworkItem{r, connected, options};
                     if(connected && !std::string(connection.ip).empty())
@@ -169,15 +169,15 @@ void Menu::updater()
 }
 
 ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "Connect", "Connect to this network.", [&](MenuItem &item) -> InputReactionHint{
-        WIFI_connect(net.ssid, net.security); 
+    : MenuItem(ListItemType::Button, "连接", "连接到此网络。", [&](MenuItem &item) -> InputReactionHint{
+        WIFI_connect(net.ssid, net.security);
         dirty = true;
         return Exit;
     }), net(n)
 {}
 
 ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "Enter WiFi passcode", "Connect to this network.", DeferToSubmenu, new KeyboardPrompt("Enter Wifi passcode", 
+    : MenuItem(ListItemType::Button, "输入 WiFi 密码", "连接到此网络。", DeferToSubmenu, new KeyboardPrompt("输入 WiFi 密码",
         [&](MenuItem &item) -> InputReactionHint {
             WIFI_connectPass(net.ssid, net.security, item.getName().c_str()); 
             dirty = true;
@@ -186,8 +186,8 @@ ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
 {}
 
 ForgetItem::ForgetItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "Forget", "Removes credentials for this network.",
-        [&](MenuItem &item) -> InputReactionHint { 
+    : MenuItem(ListItemType::Button, "忘记", "删除此网络的凭据。",
+        [&](MenuItem &item) -> InputReactionHint {
             WIFI_forget(net.ssid, net.security); 
             dirty = true; 
             return Exit;

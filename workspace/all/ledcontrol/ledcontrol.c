@@ -17,17 +17,17 @@ const char *triggernames[] = {
     "B", "A", "Y", "X", "L", "R", "FN1", "FN2", "MENU", "SELECT", "START", "ALL", "LR", "DPAD"};
 
 const char *effect_names[] = {
-    "Linear", "Breathe", "Interval Breathe", "Static",
-    "Blink 1", "Blink 2", "Blink 3", "Rainbow", "Twinkle",
-    "Fire", "Glitter", "NeonGlow", "Firefly", "Aurora", "Reactive"};
+    "线性", "呼吸", "间隔呼吸", "静态",
+    "闪烁 1", "闪烁 2", "闪烁 3", "彩虹", "闪烁",
+    "火", "闪光", "霓虹灯", "萤火虫", "极光", "反应"};
 const char *topbar_effect_names[] = {
-    "Linear", "Breathe", "Interval Breathe", "Static",
-    "Blink 1", "Blink 2", "Blink 3", "Rainbow", "Twinkle",
-    "Fire", "Glitter", "NeonGlow", "Firefly", "Aurora", "Reactive", "Topbar Rainbow", "Topbar night"};
+    "线性", "呼吸", "间隔呼吸", "静态",
+    "闪烁 1", "闪烁 2", "闪烁 3", "彩虹", "闪烁",
+    "火", "闪光", "霓虹灯", "萤火虫", "极光", "反应", "顶部彩虹", "顶部夜间"};
 const char *lr_effect_names[] = {
-    "Linear", "Breathe", "Interval Breathe", "Static",
-    "Blink 1", "Blink 2", "Blink 3", "Rainbow", "Twinkle",
-    "Fire", "Glitter", "NeonGlow", "Firefly", "Aurora", "Reactive", "LR Rainbow", "LR Reactive"};
+    "线性", "呼吸", "间隔呼吸", "静态",
+    "闪烁 1", "闪烁 2", "闪烁 3", "彩虹", "闪烁",
+    "火", "闪光", "霓虹灯", "萤火虫", "极光", "按键响应", "LR 彩虹", "LR 按键响应"};
 
 
 
@@ -228,10 +228,10 @@ int main(int argc, char *argv[])
     is_brick = exactMatch("brick", device);
     
     if (is_brick) {
-        const char *brick_names[] = {"F1 key", "F2 key", "Top bar", "L&R triggers"};
+        const char *brick_names[] = {"F1 键", "F2 键", "顶部", "L&R 扳机"};
         memcpy(lightnames, brick_names, sizeof(brick_names)); // Copy values
     } else {
-        const char *default_names[] = {"Joysticks", "Logo"};
+        const char *default_names[] = {"摇杆", "Logo"};
         memcpy(lightnames, default_names, sizeof(default_names)); // Copy values
     }
     PLAT_initLeds(lightsDefault);
@@ -317,8 +317,8 @@ int main(int argc, char *argv[])
 
             if (show_setting) GFX_blitHardwareHints(screen, show_setting);
 
-            GFX_blitButtonGroup((char*[]){ "B","BACK", NULL }, 1, screen, 1);
-            GFX_blitButtonGroup((char*[]){ "L/R","Select light", NULL }, 0, screen, 0);
+            GFX_blitButtonGroup((char*[]){ "B","返回", NULL }, 1, screen, 1);
+            GFX_blitButtonGroup((char*[]){ "L/R","选择灯光", NULL }, 0, screen, 0);
 
 
             int max_width = screen->w - SCALE1(PADDING * 2) - ow;
@@ -341,10 +341,10 @@ int main(int argc, char *argv[])
             // this stuff is really not multiplatform at all, need to figure out a way so its not so TrimUI specific
             const char *settings_labels[5]; // Define array with correct size
             if (is_brick) {
-                const char *brick_labels[] = {"Effect", "Color", "Speed", "Brightness", "Info brightness"};
+                const char *brick_labels[] = {"效果", "颜色", "速度", "亮度", "信息亮度"};
                 memcpy(settings_labels, brick_labels, sizeof(brick_labels)); // Copy values
             } else {
-                const char *non_brick_labels[] = {"Effect", "Color", "Speed", "Brightness (All Leds)", "Info brightness (All Leds)"};
+                const char *non_brick_labels[] = {"效果", "颜色", "速度", "亮度 (所有 LED)", "信息亮度 (所有 LED)"};
                 memcpy(settings_labels, non_brick_labels, sizeof(non_brick_labels)); // Copy values
             }
             int settings_values[5] = {

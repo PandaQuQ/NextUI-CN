@@ -727,16 +727,16 @@ int main(int argc, char *argv[])
                 switch (current_zoom)
                 {
                 case 0:
-                    sprintf(display_name, "Battery usage: Last %s", "16 hours");
+                    sprintf(display_name, "电池使用情况: 最近 %s", "16 小时");
                     break;
                 case 1:
-                    sprintf(display_name, "Battery usage: Last %s", "8 hours");
+                    sprintf(display_name, "电池使用情况: 最近 %s", "8 小时");
                     break;
                 case 2:
-                    sprintf(display_name, "Battery usage: Last %s", "4 hours");
+                    sprintf(display_name, "电池使用情况: 最近 %s", "4 小时");
                     break;
                 default:
-                    sprintf(display_name, "Battery usage: Last %s", "8 hours");
+                    sprintf(display_name, "电池使用情况: 最近 %s", "8 小时");
                     break;
                 }
 
@@ -757,9 +757,9 @@ int main(int argc, char *argv[])
             if (show_setting)
                 GFX_blitHardwareHints(screen, show_setting);
             else
-                GFX_blitButtonGroup((char *[]){"L/R", "SCROLL", "L1/R1", "ZOOM", NULL}, 0, screen, 0);
+                GFX_blitButtonGroup((char *[]){"L/R", "滚动", "L1/R1", "缩放", NULL}, 0, screen, 0);
 
-            GFX_blitButtonGroup((char *[]){"B", "BACK", NULL}, 1, screen, 1);
+            GFX_blitButtonGroup((char *[]){"B", "返回", NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;
