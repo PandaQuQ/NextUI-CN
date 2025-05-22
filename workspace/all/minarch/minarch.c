@@ -1474,7 +1474,7 @@ static struct Config {
 			},			[FE_OPT_SYNC_REFERENCE] = {
 				.key	= "minarch_sync_reference",
 				.name	= "核心同步",
-				.desc	= "选择作为帧率参考的来源。\n"原生"使用模拟器帧率，\n"屏幕"使用屏幕的帧率。",
+				.desc	= "选择作为帧率参考的来源。\n\"原生\"使用模拟器帧率，\n\"屏幕\"使用屏幕的帧率。",
 				.default_value = SYNC_SRC_AUTO,
 				.value = SYNC_SRC_AUTO,
 				.count = 3,
