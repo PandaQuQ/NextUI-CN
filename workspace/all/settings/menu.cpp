@@ -80,7 +80,7 @@ void MenuItem::generateDefaultLabels(const std::string& suffix)
         else if (v.type() == typeid(uint32_t))
             labels.push_back(std::to_string(std::any_cast<uint32_t>(v)) + suffix);
         else if (v.type() == typeid(bool))
-            labels.push_back((std::any_cast<bool>(v) ? "On" : "Off") + suffix);
+            labels.push_back((std::any_cast<bool>(v) ? "开" : "关") + suffix);
         else
             assert(false); // needs more string conversion
     }
@@ -767,7 +767,7 @@ void MenuList::drawMain(SDL_Surface *surface, const SDL_Rect &dst)
     }
     else
     {
-        GFX_blitMessageCPP(font.large, "Empty folder", surface, dst);
+        GFX_blitMessageCPP(font.large, "空文件夹", surface, dst);
     }
 }
 

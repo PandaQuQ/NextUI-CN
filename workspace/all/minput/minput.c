@@ -138,11 +138,11 @@ int main(int argc , char* argv[]) {
 				
 				SDL_FillRect(screen, &(SDL_Rect){x,y+SCALE1(PILL_SIZE/2),SCALE1(PILL_SIZE),SCALE1(PILL_SIZE*2)}, THEME_COLOR3);
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,0}, THEME_COLOR3, RGB_WHITE);
-				blitButton("U", screen, PAD_isPressed(BTN_DPAD_UP), x+o, y+o,0);
+				blitButton("上", screen, PAD_isPressed(BTN_DPAD_UP), x+o, y+o,0);
 				
 				y += SCALE1(PILL_SIZE*2);
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,0}, THEME_COLOR3, RGB_WHITE);
-				blitButton("D", screen, PAD_isPressed(BTN_DPAD_DOWN), x+o, y+o,0);
+				blitButton("下", screen, PAD_isPressed(BTN_DPAD_DOWN), x+o, y+o,0);
 				
 				x -= SCALE1(PILL_SIZE);
 				y -= SCALE1(PILL_SIZE);
@@ -150,11 +150,11 @@ int main(int argc , char* argv[]) {
 				SDL_FillRect(screen, &(SDL_Rect){x+SCALE1(PILL_SIZE/2),y,SCALE1(PILL_SIZE*2),SCALE1(PILL_SIZE)}, THEME_COLOR3);
 				
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,0}, THEME_COLOR3, RGB_WHITE);
-				blitButton("L", screen, PAD_isPressed(BTN_DPAD_LEFT), x+o, y+o,0);
+				blitButton("左", screen, PAD_isPressed(BTN_DPAD_LEFT), x+o, y+o,0);
 				
 				x += SCALE1(PILL_SIZE*2);
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,0}, THEME_COLOR3, RGB_WHITE);
-				blitButton("R", screen, PAD_isPressed(BTN_DPAD_RIGHT), x+o, y+o,0);
+				blitButton("右", screen, PAD_isPressed(BTN_DPAD_RIGHT), x+o, y+o,0);
 			}
 			
 			// ABXY group
@@ -193,9 +193,9 @@ int main(int argc , char* argv[]) {
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,SCALE1(98)}, THEME_COLOR3, RGB_WHITE);
 				x += SCALE1(BUTTON_MARGIN);
 				y += SCALE1(BUTTON_MARGIN);
-				blitButton("VOL. -", screen, PAD_isPressed(BTN_MINUS), x, y, w);
+				blitButton("音量 -", screen, PAD_isPressed(BTN_MINUS), x, y, w);
 				x += w + SCALE1(BUTTON_MARGIN);
-				blitButton("VOL. +", screen, PAD_isPressed(BTN_PLUS), x, y, w);
+				blitButton("音量 +", screen, PAD_isPressed(BTN_PLUS), x, y, w);
 				x += w + SCALE1(BUTTON_MARGIN);
 			}
 			
@@ -212,11 +212,11 @@ int main(int argc , char* argv[]) {
 				x += SCALE1(BUTTON_MARGIN);
 				y += SCALE1(BUTTON_MARGIN);
 				if (has_menu) {
-					blitButton("MENU", screen, PAD_isPressed(BTN_MENU), x, y, w);
+					blitButton("菜单", screen, PAD_isPressed(BTN_MENU), x, y, w);
 					x += w + SCALE1(BUTTON_MARGIN);
 				}
 				if (has_power) {
-					blitButton("POWER", screen, PAD_isPressed(BTN_POWER), x, y, w);
+					blitButton("电源", screen, PAD_isPressed(BTN_POWER), x, y, w);
 					x += w + SCALE1(BUTTON_MARGIN);
 				}
 			}
@@ -230,12 +230,12 @@ int main(int argc , char* argv[]) {
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,SCALE1(130)}, THEME_COLOR3, RGB_WHITE);
 				x += SCALE1(BUTTON_MARGIN);
 				y += SCALE1(BUTTON_MARGIN);
-				blitButton("SELECT", screen, PAD_isPressed(BTN_SELECT), x, y, w);
+				blitButton("选择", screen, PAD_isPressed(BTN_SELECT), x, y, w);
 				x += w + SCALE1(BUTTON_MARGIN);
-				blitButton("START", screen, PAD_isPressed(BTN_START), x, y, w);
+				blitButton("开始", screen, PAD_isPressed(BTN_START), x, y, w);
 				x += w + SCALE1(BUTTON_MARGIN);
-				
-				SDL_Surface* text = TTF_RenderUTF8_Blended(font.tiny, "QUIT", COLOR_LIGHT_TEXT);
+
+				SDL_Surface* text = TTF_RenderUTF8_Blended(font.tiny, "退出", COLOR_LIGHT_TEXT);
 				SDL_BlitSurface(text, NULL, screen, &(SDL_Rect){x,y+(SCALE1(BUTTON_SIZE)-text->h)/2});
 				SDL_FreeSurface(text);
 			}
