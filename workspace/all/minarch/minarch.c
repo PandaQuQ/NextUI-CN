@@ -922,43 +922,43 @@ typedef struct OptionList {
 } OptionList;
 
 static char* onoff_labels[] = {
-	"Off",
-	"On",
+	"关",
+	"开",
 	NULL
 };
 static char* scaling_labels[] = {
-	"Native",
-	"Aspect",
-	"Aspect Screen",
-	"Fullscreen",
-	"Cropped",
+	"原生",
+	"自适应",
+	"自适应全屏",
+	"全屏",
+	"裁剪",
 	NULL
 };
 static char* resample_labels[] = {
-	"Low",
-	"Medium",
-	"High",
-	"Max",
+	"低",
+	"中",
+	"高",
+	"极致",
 	NULL
 };
 static char* ambient_labels[] = {
-	"Off",
-	"All",
-	"Top",
-	"FN",
-	"LR",
-	"Top/LR",
+	"关",
+	"全部",
+	"顶部",
+	"FN键",
+	"LR键",
+	"顶部/LR键",
 	NULL
 };
 
 static char* effect_labels[] = {
-	"None",
-	"Line",
-	"Grid",
+	"无",
+	"扫描线",
+	"G扫描网格",
 	NULL
 };
 static char* overlay_labels[] = {
-	"None",
+	"无",
 	NULL
 };
 // static char* sharpness_labels[] = {
@@ -968,24 +968,24 @@ static char* overlay_labels[] = {
 // 	NULL
 // };
 static char* sharpness_labels[] = {
-	"NEAREST",
-	"LINEAR",
+	"临近",
+	"线性",
 	NULL
 };
 static char* tearing_labels[] = {
-	"Off",
-	"Lenient",
-	"Strict",
+	"关",
+	"宽松",
+	"严格",
 	NULL
 };
 static char* sync_ref_labels[] = {
-	"Auto",
-	"Screen",
-	"Native",
+	"自动",
+	"屏幕",
+	"原生",
 	NULL
 };
 static char* max_ff_labels[] = {
-	"None",
+	"关",
 	"2x",
 	"3x",
 	"4x",
@@ -1128,7 +1128,7 @@ static char* offset_labels[] = {
 	NULL,
 };
 static char* nrofshaders_labels[] = {
-	"off",
+	"关",
 	"1",
 	"2",
 	"3",
@@ -1143,18 +1143,18 @@ static char* shupscale_labels[] = {
 	"6",
 	"7",
 	"8",
-	"screen",
+	"屏幕",
 	NULL
 };
 static char* shfilter_labels[] = {
-	"NEAREST",
-	"LINEAR",
+	"临近",
+	"线性",
 	NULL
 };
 static char* shscaletype_labels[] = {
-	"source",
-	"relative",
-	"screen",
+	"原始",
+	"相关",
+	"屏幕",
 	NULL
 };
 
@@ -1231,36 +1231,36 @@ typedef struct ButtonMapping {
 } ButtonMapping;
 
 static ButtonMapping default_button_mapping[] = { // used if pak.cfg doesn't exist or doesn't have bindings
-	{"Up",			RETRO_DEVICE_ID_JOYPAD_UP,		BTN_ID_DPAD_UP},
-	{"Down",		RETRO_DEVICE_ID_JOYPAD_DOWN,	BTN_ID_DPAD_DOWN},
-	{"Left",		RETRO_DEVICE_ID_JOYPAD_LEFT,	BTN_ID_DPAD_LEFT},
-	{"Right",		RETRO_DEVICE_ID_JOYPAD_RIGHT,	BTN_ID_DPAD_RIGHT},
-	{"A Button",	RETRO_DEVICE_ID_JOYPAD_A,		BTN_ID_A},
-	{"B Button",	RETRO_DEVICE_ID_JOYPAD_B,		BTN_ID_B},
-	{"X Button",	RETRO_DEVICE_ID_JOYPAD_X,		BTN_ID_X},
-	{"Y Button",	RETRO_DEVICE_ID_JOYPAD_Y,		BTN_ID_Y},
-	{"Start",		RETRO_DEVICE_ID_JOYPAD_START,	BTN_ID_START},
-	{"Select",		RETRO_DEVICE_ID_JOYPAD_SELECT,	BTN_ID_SELECT},
-	{"L1 Button",	RETRO_DEVICE_ID_JOYPAD_L,		BTN_ID_L1},
-	{"R1 Button",	RETRO_DEVICE_ID_JOYPAD_R,		BTN_ID_R1},
-	{"L2 Button",	RETRO_DEVICE_ID_JOYPAD_L2,		BTN_ID_L2},
-	{"R2 Button",	RETRO_DEVICE_ID_JOYPAD_R2,		BTN_ID_R2},
-	{"L3 Button",	RETRO_DEVICE_ID_JOYPAD_L3,		BTN_ID_L3},
-	{"R3 Button",	RETRO_DEVICE_ID_JOYPAD_R3,		BTN_ID_R3},
+	{"上",			RETRO_DEVICE_ID_JOYPAD_UP,		BTN_ID_DPAD_UP},
+	{"下",		RETRO_DEVICE_ID_JOYPAD_DOWN,	BTN_ID_DPAD_DOWN},
+	{"左",		RETRO_DEVICE_ID_JOYPAD_LEFT,	BTN_ID_DPAD_LEFT},
+	{"右",		RETRO_DEVICE_ID_JOYPAD_RIGHT,	BTN_ID_DPAD_RIGHT},
+	{"A键",	RETRO_DEVICE_ID_JOYPAD_A,		BTN_ID_A},
+	{"B键",	RETRO_DEVICE_ID_JOYPAD_B,		BTN_ID_B},
+	{"X键",	RETRO_DEVICE_ID_JOYPAD_X,		BTN_ID_X},
+	{"Y键",	RETRO_DEVICE_ID_JOYPAD_Y,		BTN_ID_Y},
+	{"开始",		RETRO_DEVICE_ID_JOYPAD_START,	BTN_ID_START},
+	{"选择",		RETRO_DEVICE_ID_JOYPAD_SELECT,	BTN_ID_SELECT},
+	{"L1",	RETRO_DEVICE_ID_JOYPAD_L,		BTN_ID_L1},
+	{"R1",	RETRO_DEVICE_ID_JOYPAD_R,		BTN_ID_R1},
+	{"L2",	RETRO_DEVICE_ID_JOYPAD_L2,		BTN_ID_L2},
+	{"R2",	RETRO_DEVICE_ID_JOYPAD_R2,		BTN_ID_R2},
+	{"L3",	RETRO_DEVICE_ID_JOYPAD_L3,		BTN_ID_L3},
+	{"R3",	RETRO_DEVICE_ID_JOYPAD_R3,		BTN_ID_R3},
 	{NULL,0,0}
 };
 static ButtonMapping button_label_mapping[] = { // used to lookup the retro_id and local btn_id from button name
-	{"NONE",	-1,								BTN_ID_NONE},
-	{"UP",		RETRO_DEVICE_ID_JOYPAD_UP,		BTN_ID_DPAD_UP},
-	{"DOWN",	RETRO_DEVICE_ID_JOYPAD_DOWN,	BTN_ID_DPAD_DOWN},
-	{"LEFT",	RETRO_DEVICE_ID_JOYPAD_LEFT,	BTN_ID_DPAD_LEFT},
-	{"RIGHT",	RETRO_DEVICE_ID_JOYPAD_RIGHT,	BTN_ID_DPAD_RIGHT},
+	{"无",	-1,								BTN_ID_NONE},
+	{"上",		RETRO_DEVICE_ID_JOYPAD_UP,		BTN_ID_DPAD_UP},
+	{"下",	RETRO_DEVICE_ID_JOYPAD_DOWN,	BTN_ID_DPAD_DOWN},
+	{"左",	RETRO_DEVICE_ID_JOYPAD_LEFT,	BTN_ID_DPAD_LEFT},
+	{"右",	RETRO_DEVICE_ID_JOYPAD_RIGHT,	BTN_ID_DPAD_RIGHT},
 	{"A",		RETRO_DEVICE_ID_JOYPAD_A,		BTN_ID_A},
 	{"B",		RETRO_DEVICE_ID_JOYPAD_B,		BTN_ID_B},
 	{"X",		RETRO_DEVICE_ID_JOYPAD_X,		BTN_ID_X},
 	{"Y",		RETRO_DEVICE_ID_JOYPAD_Y,		BTN_ID_Y},
-	{"START",	RETRO_DEVICE_ID_JOYPAD_START,	BTN_ID_START},
-	{"SELECT",	RETRO_DEVICE_ID_JOYPAD_SELECT,	BTN_ID_SELECT},
+	{"开始",	RETRO_DEVICE_ID_JOYPAD_START,	BTN_ID_START},
+	{"选择",	RETRO_DEVICE_ID_JOYPAD_SELECT,	BTN_ID_SELECT},
 	{"L1",		RETRO_DEVICE_ID_JOYPAD_L,		BTN_ID_L1},
 	{"R1",		RETRO_DEVICE_ID_JOYPAD_R,		BTN_ID_R1},
 	{"L2",		RETRO_DEVICE_ID_JOYPAD_L2,		BTN_ID_L2},
@@ -1272,16 +1272,16 @@ static ButtonMapping button_label_mapping[] = { // used to lookup the retro_id a
 static ButtonMapping core_button_mapping[RETRO_BUTTON_COUNT+1] = {0};
 
 static const char* device_button_names[LOCAL_BUTTON_COUNT] = {
-	[BTN_ID_DPAD_UP]	= "UP",
-	[BTN_ID_DPAD_DOWN]	= "DOWN",
-	[BTN_ID_DPAD_LEFT]	= "LEFT",
-	[BTN_ID_DPAD_RIGHT]	= "RIGHT",
-	[BTN_ID_SELECT]		= "SELECT",
-	[BTN_ID_START]		= "START",
-	[BTN_ID_Y]			= "Y",
-	[BTN_ID_X]			= "X",
-	[BTN_ID_B]			= "B",
-	[BTN_ID_A]			= "A",
+	[BTN_ID_DPAD_UP]	= "上",
+	[BTN_ID_DPAD_DOWN]	= "下",
+	[BTN_ID_DPAD_LEFT]	= "左",
+	[BTN_ID_DPAD_RIGHT]	= "右",
+	[BTN_ID_SELECT]		= "选择",
+	[BTN_ID_START]		= "开始",
+	[BTN_ID_Y]			= "Y键",
+	[BTN_ID_X]			= "X键",
+	[BTN_ID_B]			= "B键",
+	[BTN_ID_A]			= "A键",
 	[BTN_ID_L1]			= "L1",
 	[BTN_ID_R1]			= "R1",
 	[BTN_ID_L2]			= "L2",
@@ -1293,53 +1293,52 @@ static const char* device_button_names[LOCAL_BUTTON_COUNT] = {
 
 // NOTE: these must be in BTN_ID_ order also off by 1 because of NONE (which is -1 in BTN_ID_ land)
 static char* button_labels[] = {
-	"NONE", // displayed by default
-	"UP",
-	"DOWN",
-	"LEFT",
-	"RIGHT",
-	"A",
-	"B",
-	"X",
-	"Y",
-	"START",
-	"SELECT",
+	"无", // displayed by default
+	"上",
+	"下",
+	"左",
+	"右",
+	"A键",
+	"B键",
+	"X键",
+	"Y键",
+	"开始",
+	"选择",
 	"L1",
 	"R1",
 	"L2",
 	"R2",
 	"L3",
 	"R3",
-	"MENU+UP",
-	"MENU+DOWN",
-	"MENU+LEFT",
-	"MENU+RIGHT",
-	"MENU+A",
-	"MENU+B",
-	"MENU+X",
-	"MENU+Y",
-	"MENU+START",
-	"MENU+SELECT",
-	"MENU+L1",
-	"MENU+R1",
-	"MENU+L2",
-	"MENU+R2",
-	"MENU+L3",
-	"MENU+R3",
+	"菜单+上",
+	"菜单+下",
+	"菜单+左",
+	"菜单+右",
+	"菜单+A",
+	"菜单+B",
+	"菜单+X",
+	"菜单+Y",
+	"菜单+开始",	"菜单+选择",
+	"菜单+L1",
+	"菜单+R1",
+	"菜单+L2",
+	"菜单+R2",
+	"菜单+L3",
+	"菜单+R3",
 	NULL,
 };
 static char* overclock_labels[] = {
-	"Powersave",
-	"Normal",
-	"Performance",
-	"Auto",
+	"省电",
+	"正常",
+	"性能",
+	"自动",
 	NULL,
 };
 
 // TODO: this should be provided by the core
 static char* gamepad_labels[] = {
-	"Standard",
-	"DualShock",
+	"标准",
+	"Sony DualShock",
 	NULL,
 };
 static char* gamepad_values[] = {
@@ -1356,10 +1355,10 @@ enum {
 
 static inline char* getScreenScalingDesc(void) {
 	if (GFX_supportsOverscan()) {
-		return "Native uses integer scaling. Aspect uses core nreported aspect ratio.\nAspect screen uses screen aspect ratio\n Fullscreen has non-square\npixels. Cropped is integer scaled then cropped.";
+		return "原生使用整数缩放。自适应使用核心报告的宽高比。\n自适应全屏使用屏幕宽高比\n全屏使用非方形\n像素。裁剪是整数缩放后再裁剪。";
 	}
 	else {
-		return "Native uses integer scaling.\nAspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\nFullscreen has non-square pixels.";
+		return "原生使用整数缩放。\n自适应使用核心报告的宽高比。\n自适应全屏使用屏幕宽高比\n全屏使用非方形像素。";
 	}
 }
 static inline int getScreenScalingCount(void) {
@@ -1384,10 +1383,9 @@ static struct Config {
 } config = {
 	.frontend = { // (OptionList)
 		.count = FE_OPT_COUNT,
-		.options = (Option[]){
-			[FE_OPT_SCALING] = {
+		.options = (Option[]){			[FE_OPT_SCALING] = {
 				.key	= "minarch_screen_scaling", 
-				.name	= "Screen Scaling",
+				.name	= "屏幕缩放",
 				.desc	= NULL, // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
@@ -1397,8 +1395,8 @@ static struct Config {
 			},
 			[FE_OPT_RESAMPLING] = {
 				.key	= "minarch__resampling_quality", 
-				.name	= "Audio Resampling Quality",
-				.desc	= "Resampling quality higher takes more CPU", // will call getScreenScalingDesc()
+				.name	= "音频重采样质量",
+				.desc	= "更高的重采样质量需要更多CPU资源", // will call getScreenScalingDesc()
 				.default_value = 2,
 				.value = 2,
 				.count = 4,
@@ -1407,18 +1405,17 @@ static struct Config {
 			},
 			[FE_OPT_AMBIENT] = {
 				.key	= "minarch_ambient", 
-				.name	= "Ambient Mode",
-				.desc	= "Makes your leds follow on screen colors", // will call getScreenScalingDesc()
+				.name	= "氛围灯光模式",
+				.desc	= "让LED灯光跟随屏幕颜色变化", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 6,
 				.values = ambient_labels,
 				.labels = ambient_labels,
-			},
-			[FE_OPT_EFFECT] = {
+			},			[FE_OPT_EFFECT] = {
 				.key	= "minarch_screen_effect",
-				.name	= "Screen Effect",
-				.desc	= "Grid simulates an LCD grid.\nLine simulates CRT scanlines.\nEffects usually look best at native scaling.",
+				.name	= "屏幕特效",
+				.desc	= "网格模拟LCD屏幕网格。\n扫描线模拟CRT显示器。\n特效在原生缩放下效果最佳。",
 				.default_value = 0,
 				.value = 0,
 				.count = 3,
@@ -1427,8 +1424,8 @@ static struct Config {
 			},
 			[FE_OPT_OVERLAY] = {
 				.key	= "minarch_overlay",
-				.name	= "Overlay",
-				.desc	= "Choose a custom overlay png from the Overlays folder",
+				.name	= "叠加层",
+				.desc	= "从叠加层文件夹中选择自定义PNG叠加层",
 				.default_value = 0,
 				.value = 0,
 				.count = 1,
@@ -1437,18 +1434,17 @@ static struct Config {
 			},
 			[FE_OPT_SCREENX] = {
 				.key	= "minarch_screen_offsetx",
-				.name	= "Offset screen X",
-				.desc	= "Offset X pixels",
+				.name	= "屏幕X轴偏移",
+				.desc	= "X轴像素偏移",
 				.default_value = 64,
 				.value = 64,
 				.count = 129,
 				.values = offset_labels,
 				.labels = offset_labels,
-			},
-			[FE_OPT_SCREENY] = {
+			},			[FE_OPT_SCREENY] = {
 				.key	= "minarch_screen_offsety",
-				.name	= "Offset screen Y",
-				.desc	= "Offset Y pixels",
+				.name	= "屏幕Y轴偏移",
+				.desc	= "Y轴像素偏移",
 				.default_value = 64,
 				.value = 64,
 				.count = 129,
@@ -1458,8 +1454,8 @@ static struct Config {
 			[FE_OPT_SHARPNESS] = {
 				// 	.key	= "minarch_screen_sharpness",
 				.key	= "minarch_scale_filter",
-				.name	= "Screen Sharpness",
-				.desc	= "LINEAR smooths lines, but works better when final image is at higher resolution, so either core that outputs higher resolution or upscaling with shaders",
+				.name	= "屏幕锐度",
+				.desc	= "线性平滑边缘，但在高分辨率下效果更好，需要输出分辨率更高的核心或使用着色器进行放大",
 				.default_value = 1,
 				.value = 1,
 				.count = 3,
@@ -1468,18 +1464,17 @@ static struct Config {
 			},
 			[FE_OPT_TEARING] = {
 				.key	= "minarch_prevent_tearing",
-				.name	= "VSync",
-				.desc	= "Wait for vsync before drawing the next frame.\nLenient only waits when within frame budget.\nStrict always waits.",
+				.name	= "垂直同步",
+				.desc	= "在绘制下一帧之前等待垂直同步。\n宽松模式仅在帧预算内等待。\n严格模式始终等待。",
 				.default_value = VSYNC_LENIENT,
 				.value = VSYNC_LENIENT,
 				.count = 3,
 				.values = tearing_labels,
 				.labels = tearing_labels,
-			},
-			[FE_OPT_SYNC_REFERENCE] = {
+			},			[FE_OPT_SYNC_REFERENCE] = {
 				.key	= "minarch_sync_reference",
-				.name	= "Core Sync",
-				.desc	= "Choose what should be used as a\nreference for the frame rate.\n\"Native\" uses the emulator frame rate,\n\"Screen\" uses the frame rate of the screen.",
+				.name	= "核心同步",
+				.desc	= "选择作为帧率参考的来源。\n"原生"使用模拟器帧率，\n"屏幕"使用屏幕的帧率。",
 				.default_value = SYNC_SRC_AUTO,
 				.value = SYNC_SRC_AUTO,
 				.count = 3,
@@ -1488,8 +1483,8 @@ static struct Config {
 			},
 			[FE_OPT_OVERCLOCK] = {
 				.key	= "minarch_cpu_speed",
-				.name	= "CPU Speed",
-				.desc	= "Over- or underclock the CPU to prioritize\npure performance or power savings.",
+				.name	= "CPU速度",
+				.desc	= "超频或降频CPU以优先考虑\n纯性能或省电。",
 				.default_value = 3,
 				.value = 3,
 				.count = 4,
@@ -1498,18 +1493,17 @@ static struct Config {
 			},
 			[FE_OPT_DEBUG] = {
 				.key	= "minarch_debug_hud",
-				.name	= "Debug HUD",
-				.desc	= "Show frames per second, cpu load,\nresolution, and scaler information.",
+				.name	= "调试显示",
+				.desc	= "显示每秒帧数、CPU负载、\n分辨率和缩放器信息。",
 				.default_value = 0,
 				.value = 0,
 				.count = 2,
 				.values = onoff_labels,
 				.labels = onoff_labels,
-			},
-			[FE_OPT_MAXFF] = {
+			},			[FE_OPT_MAXFF] = {
 				.key	= "minarch_max_ff_speed",
-				.name	= "Max FF Speed",
-				.desc	= "Fast forward will not exceed the\nselected speed (but may be less\ndepending on game and emulator).",
+				.name	= "最大快进速度",
+				.desc	= "快进不会超过所选的速度\n（但根据游戏和模拟器的不同，\n实际速度可能会更低）。",
 				.default_value = 3, // 4x
 				.value = 3, // 4x
 				.count = 8,
@@ -1518,8 +1512,8 @@ static struct Config {
 			},
 			[FE_OPT_FF_AUDIO] = {
 				.key	= "minarch__ff_audio", 
-				.name	= "Fast forward audio",
-				.desc	= "Play or mute audio when fast forwarding.",
+				.name	= "快进时播放音频",
+				.desc	= "快进时播放或静音音频。",
 				.default_value = 0,
 				.value = 0,
 				.count = 2,
@@ -1537,11 +1531,10 @@ static struct Config {
 	},
 	.shaders = { // (OptionList)
 		.count = 18,
-		.options = (Option[]){
-			[SH_EXTRASETTINGS] = {
+		.options = (Option[]){			[SH_EXTRASETTINGS] = {
 				.key	= "minarch_shaders_settings", 
-				.name	= "Optional Shaders Settings",
-				.desc	= "If shaders have extra settings they will show up in this settings menu", // will call getScreenScalingDesc()
+				.name	= "可选着色器设置",
+				.desc	= "如果着色器有额外设置，它们将显示在此设置菜单中", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 0,
@@ -1550,8 +1543,8 @@ static struct Config {
 			},
 			[SH_SHADERS_PRESET] = {
 				.key	= "minarch_shaders_preset", 
-				.name	= "Shader / Emulator Settings Preset",
-				.desc	= "Load a premade shaders/emulators config, to try out a preset but not permantly overwite your current settings, exit the game without saving settings!", // will call getScreenScalingDesc()
+				.name	= "着色器/模拟器设置预设",
+				.desc	= "加载预制的着色器/模拟器配置，如果只想尝试预设而不永久覆盖当前设置，请不保存设置直接退出游戏！", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 0,
@@ -1560,19 +1553,18 @@ static struct Config {
 			},
 			[SH_NROFSHADERS] = {
 				.key	= "minarch_nrofshaders", 
-				.name	= "Number of Shaders",
-				.desc	= "Number of shaders 1 to 3", // will call getScreenScalingDesc()
+				.name	= "着色器数量",
+				.desc	= "着色器数量1到3", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 4,
 				.values = nrofshaders_labels,
 				.labels = nrofshaders_labels,
 			},
-			
-			[SH_SHADER1] = {
+					[SH_SHADER1] = {
 				.key	= "minarch_shader1", 
-				.name	= "Shader 1",
-				.desc	= "Shader 1 program to run", // will call getScreenScalingDesc()
+				.name	= "着色器1",
+				.desc	= "要运行的着色器1程序", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 0,
@@ -1581,8 +1573,8 @@ static struct Config {
 			},
 			[SH_SHADER1_FILTER] = {
 				.key	= "minarch_shader1_filter", 
-				.name	= "Shader 1 Filter",
-				.desc	= "Method of upscaling, NEAREST or LINEAR", // will call getScreenScalingDesc()
+				.name	= "着色器1滤镜",
+				.desc	= "放大方法，临近或线性", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 2,
@@ -1591,18 +1583,17 @@ static struct Config {
 			},
 			[SH_SRCTYPE1] = {
 				.key	= "minarch_shader1_srctype", 
-				.name	= "Shader 1 Source type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器1源类型",
+				.desc	= "选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 3,
 				.values = shscaletype_labels,
 				.labels = shscaletype_labels,
-			},
-			[SH_SCALETYPE1] = {
+			},			[SH_SCALETYPE1] = {
 				.key	= "minarch_shader1_scaletype", 
-				.name	= "Shader 1 Texture Type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器1纹理类型",
+				.desc	= "选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 3,
@@ -1611,8 +1602,8 @@ static struct Config {
 			},
 			[SH_UPSCALE1] = {
 				.key	= "minarch_shader1_upscale", 
-				.name	= "Shader 1 Scale",
-				.desc	= "This will scale images x times, screen scales to screens resolution (can hit performance)", // will call getScreenScalingDesc()
+				.name	= "着色器1缩放",
+				.desc	= "将图像放大x倍，屏幕选项会缩放到屏幕分辨率（可能影响性能）", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 9,
@@ -1621,19 +1612,18 @@ static struct Config {
 			},
 			[SH_SHADER2] = {
 				.key	= "minarch_shader2", 
-				.name	= "Shader 2",
-				.desc	= "Shader 2 program to run", // will call getScreenScalingDesc()
+				.name	= "着色器2",
+				.desc	= "要运行的着色器2程序", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 0,
 				.values = NULL,
 				.labels = NULL,
 
-			},
-			[SH_SHADER2_FILTER] = {
+			},			[SH_SHADER2_FILTER] = {
 				.key	= "minarch_shader2_filter", 
-				.name	= "Shader 2 Filter",
-				.desc	= "Method of upscaling, NEAREST or LINEAR", // will call getScreenScalingDesc()
+				.name	= "着色器2滤镜",
+				.desc	= "放大方法，临近或线性", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 2,
@@ -1642,8 +1632,8 @@ static struct Config {
 			},
 			[SH_SRCTYPE2] = {
 				.key	= "minarch_shader2_srctype", 
-				.name	= "Shader 2 Source type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器2源类型",
+				.desc	= "这将选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 3,
@@ -1652,18 +1642,17 @@ static struct Config {
 			},
 			[SH_SCALETYPE2] = {
 				.key	= "minarch_shader2_scaletype", 
-				.name	= "Shader 2 Texture Type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器2纹理类型",
+				.desc	= "这将选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 3,
 				.values = shscaletype_labels,
 				.labels = shscaletype_labels,
-			},
-			[SH_UPSCALE2] = {
+			},			[SH_UPSCALE2] = {
 				.key	= "minarch_shader2_upscale", 
-				.name	= "Shader 2 Scale",
-				.desc	= "This will scale images x times, screen scales to screens resolution (can hit performance)", // will call getScreenScalingDesc()
+				.name	= "着色器2缩放",
+				.desc	= "这将把图像放大x倍，屏幕选项会缩放到屏幕分辨率（可能影响性能）", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 9,
@@ -1672,8 +1661,8 @@ static struct Config {
 			},
 			[SH_SHADER3] = {
 				.key	= "minarch_shader3", 
-				.name	= "Shader 3",
-				.desc	= "Shader 3 program to run", // will call getScreenScalingDesc()
+				.name	= "着色器3",
+				.desc	= "要运行的着色器3程序", // will call getScreenScalingDesc()
 				.default_value = 2,
 				.value = 2,
 				.count = 0,
@@ -1683,18 +1672,17 @@ static struct Config {
 			},
 			[SH_SHADER3_FILTER] = {
 				.key	= "minarch_shader3_filter", 
-				.name	= "Shader 3 Filter",
-				.desc	= "Method of upscaling, NEAREST or LINEAR", // will call getScreenScalingDesc()
+				.name	= "着色器3滤镜",
+				.desc	= "放大方法，临近或线性", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 2,
 				.values = shfilter_labels,
 				.labels = shfilter_labels,
-			},
-			[SH_SRCTYPE3] = {
+			},			[SH_SRCTYPE3] = {
 				.key	= "minarch_shader3_srctype", 
-				.name	= "Shader 3 Source type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器3源类型",
+				.desc	= "选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 3,
@@ -1703,8 +1691,8 @@ static struct Config {
 			},
 			[SH_SCALETYPE3] = {
 				.key	= "minarch_shader3_scaletype", 
-				.name	= "Shader 3 Texture Type",
-				.desc	= "This will choose resolution source to scale from", // will call getScreenScalingDesc()
+				.name	= "着色器3纹理类型",
+				.desc	= "选择要从中缩放的分辨率源", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 3,
@@ -1713,8 +1701,8 @@ static struct Config {
 			},
 			[SH_UPSCALE3] = {
 				.key	= "minarch_shader3_upscale", 
-				.name	= "Shader 3 Scale",
-				.desc	= "This will scale images x times, screen scales to screens resolution (can hit performance)", // will call getScreenScalingDesc()
+				.name	= "着色器3缩放",
+				.desc	= "将图像放大x倍，屏幕选项会缩放到屏幕分辨率（可能影响性能）", // will call getScreenScalingDesc()
 				.default_value = 0,
 				.value = 0,
 				.count = 9,
@@ -1728,17 +1716,16 @@ static struct Config {
 		.count = 0,
 		.options = NULL,
 	}},
-	.controls = default_button_mapping,
-	.shortcuts = (ButtonMapping[]){
-		[SHORTCUT_SAVE_STATE]			= {"Save State",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_LOAD_STATE]			= {"Load State",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_RESET_GAME]			= {"Reset Game",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_SAVE_QUIT]			= {"Save & Quit",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_CYCLE_SCALE]			= {"Cycle Scaling",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_CYCLE_EFFECT]			= {"Cycle Effect",		-1, BTN_ID_NONE, 0},
-		[SHORTCUT_TOGGLE_FF]			= {"Toggle FF",			-1, BTN_ID_NONE, 0},
-		[SHORTCUT_HOLD_FF]				= {"Hold FF",			-1, BTN_ID_NONE, 0},
-		[SHORTCUT_GAMESWITCHER]			= {"Game Switcher",		-1, BTN_ID_NONE, 0},
+	.controls = default_button_mapping,	.shortcuts = (ButtonMapping[]){
+		[SHORTCUT_SAVE_STATE]			= {"保存存档",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_LOAD_STATE]			= {"读取存档",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_RESET_GAME]			= {"重置游戏",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_SAVE_QUIT]			= {"保存并退出",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_CYCLE_SCALE]			= {"切换缩放",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_CYCLE_EFFECT]			= {"切换特效",		-1, BTN_ID_NONE, 0},
+		[SHORTCUT_TOGGLE_FF]			= {"切换快进",			-1, BTN_ID_NONE, 0},
+		[SHORTCUT_HOLD_FF]				= {"按住快进",			-1, BTN_ID_NONE, 0},
+		[SHORTCUT_GAMESWITCHER]			= {"游戏切换器",		-1, BTN_ID_NONE, 0},
 		{NULL}
 	},
 };
@@ -2228,9 +2215,9 @@ static void Config_load(void) {
 	
 	config.user_cfg = allocFile(path);
 	if (!config.user_cfg) return;
-	
-	LOG_info("using user config: %s\n", path);
-	
+
+	LOG_info("使用用户配置: %s\n", path);
+
 	config.loaded = override ? CONFIG_GAME : CONFIG_CONSOLE;
 }
 static void Config_free(void) {
@@ -4743,11 +4730,11 @@ static struct {
 	.preview_exists = 0,
 	
 	.items = {
-		[ITEM_CONT] = "Continue",
-		[ITEM_SAVE] = "Save",
-		[ITEM_LOAD] = "Load",
-		[ITEM_OPTS] = "Options",
-		[ITEM_QUIT] = "Quit",
+		[ITEM_CONT] = "继续",
+		[ITEM_SAVE] = "保存",
+		[ITEM_LOAD] = "存档",
+		[ITEM_OPTS] = "选项",
+		[ITEM_QUIT] = "退出",
 	}
 };
 
@@ -4764,7 +4751,7 @@ void Menu_init(void) {
 
 	sprintf(menu.slot_path, "%s/%s.txt", menu.minui_dir, game.name);
 	
-	if (simple_mode) menu.items[ITEM_OPTS] = "Reset";
+	if (simple_mode) menu.items[ITEM_OPTS] = "重置";
 	
 	if (game.m3u_path[0]) {
 		char* tmp;
@@ -4980,7 +4967,7 @@ static int OptionEmulator_optionDetail(MenuList* list, int i) {
 	}
 	else {
 		Option* option = OptionList_getOption(&config.core, item->key);
-		if (option->full) return Menu_message(option->full, (char*[]){ "B","BACK", NULL });
+		if (option->full) return Menu_message(option->full, (char*[]){ "B","返回", NULL });
 		else return MENU_CALLBACK_NOP;
 	}
 }
@@ -5056,10 +5043,10 @@ static int OptionEmulator_openMenu(MenuList* list, int index) {
 	}
 	else {
 		if (list->category) {
-			Menu_message("This category has no options.", (char*[]){ "B","BACK", NULL });
+			Menu_message("这个类别没有选项。", (char*[]){ "B","返回", NULL });
 		}
 		else {
-			Menu_message("This core has no options.", (char*[]){ "B","BACK", NULL });
+			Menu_message("这个核心没有选项。", (char*[]){ "B","返回", NULL });
 		}
 	}
 	
@@ -5142,8 +5129,8 @@ static int OptionControls_openMenu(MenuList* list, int i) {
 		
 		if (has_custom_controllers) {
 			MenuItem* item = &OptionControls_menu.items[k++];
-			item->name = "Controller";
-			item->desc = "Select the type of controller.";
+			item->name = "控制器";
+			item->desc = "选择控制器类型";
 			item->value = gamepad_type;
 			item->values = gamepad_labels;
 			item->on_change = OptionControls_optionChanged;
@@ -5224,8 +5211,8 @@ static int OptionShortcuts_unbind(MenuList* list, int i) {
 }
 static MenuList OptionShortcuts_menu = {
 	.type = MENU_INPUT,
-	.desc = "Press A to set and X to clear." 
-		"\nSupports single button and MENU+button." // TODO: not supported on nano because POWER doubles as MENU
+	.desc = "按下 A 绑定，按下 X 清除。"
+		"\n支持单个按钮和 MENU+按钮。" // TODO: not supported on nano because POWER doubles as MENU
 	,
 	.on_confirm = OptionShortcuts_bind,
 	.on_change = OptionShortcuts_unbind,
@@ -5233,9 +5220,9 @@ static MenuList OptionShortcuts_menu = {
 };
 static char* getSaveDesc(void) {
 	switch (config.loaded) {
-		case CONFIG_NONE:		return "Using defaults."; break;
-		case CONFIG_CONSOLE:	return "Using console config."; break;
-		case CONFIG_GAME:		return "Using game config."; break;
+		case CONFIG_NONE:		return "使用默认设置。"; break;
+		case CONFIG_CONSOLE:	return "使用全局配置。"; break;
+		case CONFIG_GAME:		return "使用游戏配置。"; break;
 	}
 	return NULL;
 }
@@ -5273,22 +5260,22 @@ static int OptionSaveChanges_onConfirm(MenuList* list, int i) {
 	switch (i) {
 		case 0: {
 			Config_write(CONFIG_WRITE_ALL);
-			message = "Saved for console.";
+			message = "保存全局配置";
 			break;
 		}
 		case 1: {
 			Config_write(CONFIG_WRITE_GAME);
-			message = "Saved for game.";
+			message = "保存游戏配置";
 			break;
 		}
 		default: {
 			Config_restore();
-			if (config.loaded) message = "Restored console defaults.";
-			else message = "Restored defaults.";
+			if (config.loaded) message = "恢复全局配置";
+			else message = "恢复默认设置";
 			break;
 		}
 	}
-	Menu_message(message, (char*[]){ "A","OKAY", NULL });
+	Menu_message(message, (char*[]){ "A","确定", NULL });
 	OptionSaveChanges_updateDesc();
 	return MENU_CALLBACK_EXIT;
 }
@@ -5296,9 +5283,9 @@ static MenuList OptionSaveChanges_menu = {
 	.type = MENU_LIST,
 	.on_confirm = OptionSaveChanges_onConfirm,
 	.items = (MenuItem[]){
-		{"Save for console"},
-		{"Save for game"},
-		{"Restore defaults"},
+		{"保存全局配置"},
+		{"保存游戏配置"},
+		{"恢复默认设置"},
 		{NULL},
 	}
 };
@@ -5326,7 +5313,7 @@ static int OptionCheats_optionDetail(MenuList* list, int i) {
 	MenuItem* item = &list->items[i];
 	struct Cheat *cheat = &cheatcodes.cheats[i];
 	if (cheat->info) 
-		return Menu_message((char*)cheat->info, (char*[]){ "B","BACK", NULL });
+		return Menu_message((char*)cheat->info, (char*[]){ "B","返回", NULL });
 	else return MENU_CALLBACK_NOP;
 }
 
@@ -5380,7 +5367,7 @@ static int OptionCheats_openMenu(MenuList* list, int i) {
 		Menu_options(&OptionCheats_menu);
 	}
 	else {
-		Menu_message("No cheat file loaded.", (char*[]){ "B","BACK", NULL });
+		Menu_message("No cheat file loaded.", (char*[]){ "B","返回", NULL });
 	}
 	
 	return MENU_CALLBACK_NOP;
@@ -5513,14 +5500,14 @@ static int OptionShaders_openMenu(MenuList* list, int i) {
 static MenuList options_menu = {
 	.type = MENU_LIST,
 	.items = (MenuItem[]) {
-		{"Frontend", "NextUI (" BUILD_DATE " " BUILD_HASH ")",.on_confirm=OptionFrontend_openMenu},
-		{"Emulator",.on_confirm=OptionEmulator_openMenu},
-		{"Shaders",.on_confirm=OptionShaders_openMenu},
+		{"前端", "NextUI (" BUILD_DATE " " BUILD_HASH ")翻译：PandaQuQ",.on_confirm=OptionFrontend_openMenu},
+		{"模拟器",.on_confirm=OptionEmulator_openMenu},
+		{"着色器",.on_confirm=OptionShaders_openMenu},
 		// TODO: this should be hidden with no cheats available
-		{"Cheats",.on_confirm=OptionCheats_openMenu},
-		{"Controls",.on_confirm=OptionControls_openMenu},
-		{"Shortcuts",.on_confirm=OptionShortcuts_openMenu}, 
-		{"Save Changes",.on_confirm=OptionSaveChanges_openMenu},
+		{"金手指",.on_confirm=OptionCheats_openMenu},
+		{"控制",.on_confirm=OptionControls_openMenu},
+		{"快捷键",.on_confirm=OptionShortcuts_openMenu}, 
+		{"保存更改",.on_confirm=OptionSaveChanges_openMenu},
 		{NULL},
 		{NULL},
 	}
@@ -6460,9 +6447,9 @@ static void Menu_loop(void) {
 			SDL_FreeSurface(text);
 			
 			if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
-			else GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?"POWER":"MENU","SLEEP", NULL }, 0, screen, 0);
-			GFX_blitButtonGroup((char*[]){ "B","BACK", "A","OKAY", NULL }, 1, screen, 1);
-			
+			else GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?"电源":"菜单","休眠", NULL }, 0, screen, 0);
+			GFX_blitButtonGroup((char*[]){ "B","返回", "A","确定", NULL }, 1, screen, 1);
+
 			// list
 			oy = (((DEVICE_HEIGHT / FIXED_SCALE) - PADDING * 2) - (MENU_ITEM_COUNT * PILL_SIZE)) / 2;
 			for (int i=0; i<MENU_ITEM_COUNT; i++) {

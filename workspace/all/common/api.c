@@ -1610,8 +1610,8 @@ int GFX_blitHardwareGroup(SDL_Surface* dst, int show_setting) {
 }
 void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting) {
 
-		if (show_setting==1) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"BRIGHTNESS",  NULL }, 0, dst, 0);
-		else if (show_setting==3) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"COLOR TEMP",  NULL }, 0, dst, 0);
+		if (show_setting==1) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"亮度",  NULL }, 0, dst, 0);
+		else if (show_setting==3) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"色温",  NULL }, 0, dst, 0);
 		else GFX_blitButtonGroup((char*[]){ "MNU","BRGHT","SEL","CLTMP",  NULL }, 0, dst, 0);
 	
 }
@@ -2801,8 +2801,8 @@ void PWR_powerOff(void) {
 		gfx.screen = GFX_resize(w,h,p);
 		
 		char* msg;
-		if (HAS_POWER_BUTTON || HAS_POWEROFF_BUTTON) msg = exists(AUTO_RESUME_PATH) ? (char*)"Quicksave created,\npowering off" :  (char*)"Powering off";
-		else msg = exists(AUTO_RESUME_PATH) ?  (char*)"Quicksave created,\npower off now" :  (char*)"Power off now";
+		if (HAS_POWER_BUTTON || HAS_POWEROFF_BUTTON) msg = exists(AUTO_RESUME_PATH) ? (char*)"已创建快速存档\n现在关机" :  (char*)"正在关机";
+		else msg = exists(AUTO_RESUME_PATH) ?  (char*)"已创建快速存档\n现在关机" :  (char*)"正在关机";
 		
 		// LOG_info("PWR_powerOff %s (%ix%i)\n", gfx.screen, gfx.screen->w, gfx.screen->h);
 		
