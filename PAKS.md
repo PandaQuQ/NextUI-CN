@@ -1,32 +1,32 @@
-# About NextUI paks
+# 关于 NextUI pak
 
-A pak is just a folder with a ".pak" extension that contains a shell script named "launch.sh". 
+Pak 其实就是一个带有“.pak”扩展名的文件夹，里面包含一个名为“launch.sh”的 shell 脚本。
 
-There are two kinds of paks, emulators and tools. Emulator paks live in the Emus folder. Tool paks live in the Tools folder. These two folders live at the root of your SD card. Extra paks should never be added to the hidden ".system" folder at the root of the SD card. This folder is deleted and replaced every time a user updates NextUI.
+Pak 分为两类：模拟器和工具。模拟器 pak 存放在 Emus 文件夹，工具 pak 存放在 Tools 文件夹。这两个文件夹都位于 SD 卡根目录。额外的 pak 不应放在 SD 卡根目录下的隐藏“.system”文件夹中，因为每次用户更新 NextUI 时，这个文件夹都会被删除并替换。
 
-Paks are platform specific. Inside the Emus and Tools folders you will find (or need to create) platform folders. Some platform folders are named after the target device (eg. "rgb30" for the Powkiddy RGB30), others use the device's internal name (eg. "tg5040" for the Trimui Smart Pro), other use an arbitrary shortname (eg. "trimui" for the Trimui Model S), all are completely lowercase. See the extras bundle for up-to-date supported platform folder names.
+Pak 是针对不同平台的。在 Emus 和 Tools 文件夹中，你会看到（或需要创建）平台文件夹。有些平台文件夹以目标设备命名（如“rgb30”代表 Powkiddy RGB30），有些用设备内部名称（如“tg5040”代表 Trimui Smart Pro），还有些用简短的别名（如“trimui”代表 Trimui Model S），所有名称都为小写。具体支持的平台文件夹名称请参考 extras bundle 获取最新信息。
 
-Some platforms have multiple devices with unique qualities. NextUI differentiates these devices from the base platform with the `DEVICE` envar. eg. the "rg35xxplus" platform has two unique devices "cube" for the RG CubeXX, and "wide" for the RG34xx. It also supports "hdmi" for when outputting to HDMI. A pak can choose to use or ignore this envar.
+部分平台下有多个具有独特特性的设备。NextUI 通过 `DEVICE` 环境变量区分这些设备。例如“rg35xxplus”平台下有“cube”（RG CubeXX）和“wide”（RG34xx）两个独特设备，还支持“hdmi”用于 HDMI 输出。Pak 可以选择使用或忽略该环境变量。
 
-# The types of emulator pak
+# 模拟器 pak 的类型
 
-There are three basic types of emulator paks, which you chose depends on your goals and your desired level of NextUI integration.
+模拟器 pak 主要有三种类型，选择哪种取决于你的目标和对 NextUI 集成的需求。
 
-The first type reuses a libretro core included with a base NextUI install. This takes advantage of a known working core but allows customizing the default options and separating user configs. An example of this type is the extra GG.pak which uses the default picodrive core.
+第一种类型复用 NextUI 基础安装中自带的 libretro core。这种方式可以利用已知可用的核心，同时允许自定义默认选项并分离用户配置。例如，extra 里的 GG.pak 就使用了默认的 picodrive core。
 
-The second type includes its own libretro core. This allows you to support completely new systems while still taking advantage of NextUI's standard features like resume from menu, quicksave and auto-resume, and consistent in-game menus, behaviors, and options. An example of this type is the extra MGBA.pak which bundles its own mgba core.
+第二种类型自带自己的 libretro core。这让你可以支持全新的系统，同时享受 NextUI 的标准特性，如菜单内恢复、快速存档和自动恢复、一致的游戏内菜单和操作体验。例如，extra 里的 MGBA.pak 就自带了 mgba core。
 
-The third type launches a bundled standalone emulator. This may allow you to squeeze more performance out of a piece of hardware than a libretro core could. The downside of this type is no integration with NextUI. No resume from menu, no quicksave and auto-resume, no consistent in-game menus, behaviors, or options. In some cases the MENU (and if available, POWER) button may not function as expected, if at all. This type of pak should be a last resort. An example of this type is the community developed NDS.pak which is available for a handful of platforms NextUI supports.
+第三种类型则直接启动自带的独立模拟器。这种方式有时能让硬件性能发挥到极致，但缺点是无法与 NextUI 集成：没有菜单内恢复、没有快速存档和自动恢复、没有统一的游戏内菜单和操作体验。有些情况下，MENU（以及可能的 POWER）键可能无法正常工作。此类 pak 应作为最后手段。例如，社区开发的 NDS.pak 就属于这种类型，仅支持 NextUI 支持的部分平台。
 
-In all cases please make clear to your users that I (@shauninman) can't support third-party paks. If I've excluded a console or core from NextUI's base or extra bundles it's usually for good reason, either the core's integration wasn't up to snuff (eg. arcade cores expect roms to have specific, arcane file names with only certain rom sets working with certain cores), has too many bugs (eg. unable to reliably resume from a save state), has poor performance on a given device, or is just a console I have no familiarity with or interest in.
+无论哪种类型，请务必让用户知晓，@shauninman 无法为第三方 pak 提供支持。如果某个主机或核心未被纳入 NextUI 的基础或额外包，通常是有原因的：要么核心集成度不够（如街机核心对 rom 文件名和 rom 集有严格要求），要么 bug 太多（如无法可靠地从存档恢复），要么在某设备上性能不佳，或仅仅是我对该主机不熟悉或不感兴趣。
 
-# Naming your emulator pak
+# 命名你的模拟器 pak
 
-NextUI maps roms to paks based on the tag in parentheses at the end the name of the rom's parent folder (eg. "/Roms/Game Boy (GB)/Dr. Mario (World).gb" will launch the "GB.pak"). A tag should be all uppercase. When choosing a tag, start with common abbreviations used by other emulation frontends like Retroarch or EmulationStation (eg. FC for Famicom/Nintendo or MD for MegaDrive/Genesis). If that tag is already being used by another pak, use the core name if short (eg. MGBA) or an abbreviation (eg. PKM for pokemini) or truncation (eg. SUPA for mednafen_supafaust) of the core name.
+NextUI 会根据 rom 父文件夹名称末尾括号内的标签，将 rom 映射到 pak（如“/Roms/Game Boy (GB)/Dr. Mario (World).gb”会启动“GB.pak”）。标签应全部大写。选择标签时，优先参考 Retroarch 或 EmulationStation 等其他前端常用缩写（如 FC 代表 Famicom/NES，MD 代表 MegaDrive/Genesis）。如该标签已被其他 pak 占用，可用核心名（如 MGBA），或核心名缩写（如 PKM 代表 pokemini），或截断（如 SUPA 代表 mednafen_supafaust）。
 
-# Launching your core
+# 启动你的核心
 
-Here's an example "launch.sh":
+以下是“launch.sh”示例：
 
 	#!/bin/sh
 	
@@ -43,21 +43,21 @@ Here's an example "launch.sh":
 	cd "$HOME"
 	minarch.elf "$CORES_PATH/${EMU_EXE}_libretro.so" "$ROM" &> "$LOGS_PATH/$EMU_TAG.txt"
 
-This will open the requested rom using the "picodrive\_libretro.so" core included with the base NextUI install. To use a different core just change the value of `EMU_EXE` to another core name (minus the "_libretro.so"). If that core is bundled in your pak add the following after the `EMU_EXE` line:
+这样会用 NextUI 自带的“picodrive_libretro.so”核心打开指定 rom。若需更换核心，只需将 `EMU_EXE` 改为其他核心名（去掉“_libretro.so”）。如果核心随 pak 一起打包，则在 `EMU_EXE` 行后加上：
 
 	CORES_PATH=$(dirname "$0")
 
-There's no need to edit anything below the line of hash marks. The rest is boilerplate that will extract the pak's tag from its folder name, create corresponding bios and save folders, set the `HOME` envar to "/.userdata/[platform]/", launch the game, and log any output from minarch and the core to "/.userdata/[platform]/logs/[TAG].txt".
+井号分割线以下内容无需修改，都是通用模板：自动提取 pak 标签、创建 bios 和存档文件夹、设置 `HOME` 环境变量为“/.userdata/[platform]/”，启动游戏，并将 minarch 及核心输出日志写入“/.userdata/[platform]/logs/[TAG].txt”。
 
-That's it! Feel free to experiement with cores from the stock firmware, other compatible devices, or building your own.
+就是这样！你可以尝试用原厂固件、其他兼容设备的核心，甚至自己编译核心。
 
-Oh, if you're creating a pak for Anbernic's RG*XX line you'll need to change the last part of the last line from ` &> "$LOGS_PATH/$EMU_TAG.txt"` to ` > "$LOGS_PATH/$EMU_TAG.txt" 2>&1` because its default shell is whack.
+哦，如果你要为 Anbernic 的 RG*XX 系列做 pak，最后一行的 ` &> "$LOGS_PATH/$EMU_TAG.txt"` 需改为 ` > "$LOGS_PATH/$EMU_TAG.txt" 2>&1`，因为该系列默认 shell 比较特殊。
 
-# Option defaults and button bindings
+# 选项默认值与按键绑定
 
-Copy your new pak and some roms to your SD card and launch a game. Press the MENU button and select Options. Configure the Frontend, Emulator, and Controls. NextUI standard practice is to only bind controls present on the physical controller of the original system (eg. no turbo buttons or core-specific features like palette or disk switching). Let the player dig into that if they want to, the same goes for Shortcuts. Finally select Save Changes > Save for Console. Then quit and pop your SD card back into your computer. 
+将新 pak 和一些 rom 拷贝到 SD 卡，启动游戏。按 MENU 键进入选项，配置前端、模拟器和按键。NextUI 的标准做法是只绑定原主机物理手柄上有的按键（如不加速、不绑定核心特有功能如调色盘或磁盘切换），让玩家自行深入设置，快捷键同理。最后选择“保存更改 > 保存到主机”。退出后将 SD 卡插回电脑。
 
-Inside the hidden ".userdata" folder at the root of your SD card, you'll find platform folders, and inside your platform folder a "[TAG]-[core]" folder. Copy the "minarch.cfg" file found within to your pak folder and rename it "default.cfg". Open "default.cfg" and delete any options you didn't customize. Any option name prefixed with a "-" will be set and hidden. This is useful for disabling features that may not be available (eg. overclocking) or perform poorly (eg. upscaling) on a specific platform. Near the bottom of the file you will find the button bindings. Here's an example from the "MGBA.pak":
+在 SD 卡根目录的隐藏“.userdata”文件夹下，你会找到平台文件夹，里面有“[TAG]-[core]”文件夹。将其中的“minarch.cfg”复制到 pak 文件夹并重命名为“default.cfg”。打开“default.cfg”，删除未自定义的选项。以“-”开头的选项会被设定且隐藏，适合禁用某些不可用或性能不佳的功能（如超频、放大）。文件底部是按键绑定，例如 MGBA.pak 的配置：
 
 	bind Up = UP
 	bind Down = DOWN
@@ -76,22 +76,22 @@ Inside the hidden ".userdata" folder at the root of your SD card, you'll find pl
 	bind More Sun = NONE:L3
 	bind Less Sun = NONE:R3
 
-Everything after `bind ` up to the `=` is the button label that will appear in the Controls menu. I usually normalize these labels (eg.  "Up" instead of "D-pad up", "A Button" instead of just "A"). Everything after the `=` up to the optional `:` is the button mapping. Button mappings are all uppercase. Shoulder buttons and analog stick buttons always include the number, (eg. "L1" instead of just "L"). Use "NONE" if the button should not be bound by default. When customizing or removing a binding, the default core-defined button mapping should always be added after a ":". In the example above, I removed the default "More Sun" binding by changing:
+`bind ` 后到 `=` 之间是控制菜单中显示的按键标签，建议统一风格（如用“Up”而不是“D-pad up”，“A Button”而不是“A”）。`=` 后到冒号前是按键映射，全部大写。肩键和摇杆键都带数字（如“L1”而不是“L”）。如无需默认绑定，用“NONE”。自定义或移除绑定时，建议在冒号后保留核心默认映射。例如：
 
 	bind More Sun = L3
 
-to
+改为：
 
 	bind More Sun = NONE:L3
 
-# Brightness and Volume
+# 亮度与音量
 
-Some binaries insist on resetting brightness (eg. DinguxCommander on the 40xxH stock firmware) or volume (eg. ppssppSDL everywhere) on every launch. To keep this in sync with NextUI's global settings there's syncsettings.elf. It waits one second then restores NextUI's current brightness and volume settings. In most cases you can just launch it as a daemon before launching the binary:
+有些二进制程序会在每次启动时重置亮度（如 40xxH 原厂固件的 DinguxCommander）或音量（如 ppssppSDL）。为保持与 NextUI 全局设置同步，可用 syncsettings.elf。它会等待一秒后恢复 NextUI 当前亮度和音量。大多数情况下，直接后台启动即可：
 
 	syncsettings.elf &
 	./DinguxCommander
 
-But if a binary takes more than one second to initialize you might need to just let it run in a loop the entire time the binary is running:
+如果程序初始化超过一秒，可让它循环运行直到主程序退出：
 
 	while :; do
 	    syncsettings.elf
@@ -102,6 +102,6 @@ But if a binary takes more than one second to initialize you might need to just 
 	
 	kill $LOOP_PID
 
-# Caveats
+# 注意事项
 
-NextUI currently only supports the RGB565 pixel format and does not implement the OpenGL libretro APIs. It may be possible to use the stock firmware's retroarch instead of NextUI's minarch to run certain cores but that is left as an exercise for the reader.
+NextUI 目前仅支持 RGB565 像素格式，不支持 OpenGL libretro API。理论上可以用原厂固件的 retroarch 替代 NextUI 的 minarch 运行部分核心，但具体实现请自行探索。

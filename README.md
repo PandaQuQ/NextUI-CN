@@ -2,146 +2,152 @@
 
   <img width=128px src="github/logo_outline.png">
 
+  <h1>NextUI-CN</h1>
+  <h3>NextUI 中文版</h3>
+
 </div>
 
 <hr>
 
 <h4 align="center">
-  <a href="https://nextui.loveretro.games/getting-started/" target="_blank">Installation Guide</a>
+  <a href="https://nextui.loveretro.games/getting-started/" target="_blank">安装指南</a>
   ·
-  <a href="https://nextui.loveretro.games/docs/" target="_blank">Documentation</a>
+  <a href="https://nextui.loveretro.games/docs/" target="_blank">文档</a>
   ·
   <a href="https://discord.gg/HKd7wqZk3h" target="_blank">Discord</a>
 </h4>
 
 <div align="center"><p>
-    <a href="https://github.com/LoveRetro/NextUI/releases/latest">
-      <img alt="Latest release" src="https://img.shields.io/github/v/release/LoveRetro/NextUI?style=for-the-badge&logo=starship&include_prerelease=false&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41&sort=semver" />
+    <a href="https://github.com/PandaQuQ/NextUI-CN/releases/latest">
+      <img alt="最新版本" src="https://img.shields.io/github/v/release/PandaQuQ/NextUI-CN?style=for-the-badge&logo=starship&include_prerelease=false&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41&sort=semver" />
     </a>
-    <a href="https://github.com/LoveRetro/NextUI/pulse">
-      <img alt="Last commit" src="https://img.shields.io/github/last-commit/LoveRetro/NextUI?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41"/>
+    <a href="https://github.com/PandaQuQ/NextUI-CN/pulse">
+      <img alt="最近提交" src="https://img.shields.io/github/last-commit/PandaQuQ/NextUI-CN?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41"/>
     </a>
-    <a href="https://github.com/LoveRetro/NextUI/blob/main/LICENSE">
-      <img alt="License" src="https://img.shields.io/github/license/LoveRetro/NextUI?style=for-the-badge&logo=starship&color=ee999f&logoColor=D9E0EE&labelColor=302D41" />
+    <a href="https://github.com/PandaQuQ/NextUI-CN/blob/main/LICENSE">
+      <img alt="许可证" src="https://img.shields.io/github/license/PandaQuQ/NextUI-CN?style=for-the-badge&logo=starship&color=ee999f&logoColor=D9E0EE&labelColor=302D41" />
     </a>
-    <a href="https://github.com/LoveRetro/NextUI/stargazers">
-      <img alt="Stars" src="https://img.shields.io/github/stars/LoveRetro/NextUI?style=for-the-badge&logo=starship&color=c69ff5&logoColor=D9E0EE&labelColor=302D41" />
+    <a href="https://github.com/PandaQuQ/NextUI-CN/stargazers">
+      <img alt="星标" src="https://img.shields.io/github/stars/PandaQuQ/NextUI-CN?style=for-the-badge&logo=starship&color=c69ff5&logoColor=D9E0EE&labelColor=302D41" />
     </a>
-    <a href="https://github.com/LoveRetro/NextUI/issues">
-      <img alt="Issues" src="https://img.shields.io/github/issues/LoveRetro/NextUI?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41" />
+    <a href="https://github.com/PandaQuQ/NextUI-CN/issues">
+      <img alt="问题" src="https://img.shields.io/github/issues/PandaQuQ/NextUI-CN?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41" />
     </a>
 </div>
 
 ---
 
-A CFW based of MinUI with a rebuild emulation engine and tons of added features for the TrimUI Brick and Smart Pro. 
+> **这是一个专注于中文本地化的NextUI分支**  
+> 本项目使用寒蝉全园体(ChillRound)作为中文字体，保持与原版更新同步的同时，提供完整的中文界面体验。
 
-For other devices we recommend checking out [MinUI](https://github.com/shauninman/MinUI)
+基于MinUI的自定义固件，重建了模拟器引擎，为TrimUI Brick和Smart Pro增加了大量功能。
 
-- Fixed both screen tearing and sync stutter problems of MinUI by rebuilding the emulator engine core
-- Game switcher menu (Onion OS style) by [@frysee](https://github.com/frysee)
-- High audio quality, due to advanced resampling engine using [libsamplerate](https://github.com/libsndfile/libsamplerate) (with quality/performance setting per emulator)
-- Much lower latency (average 20ms, 1 frame of 60fps)
-- Shaders!
-- Fully OpenGL/GPU based for faster performance!
-- native WiFi support
-- Game art/media support
-- Game time tracker!
-- Cheats support
-- Integrated WiFi
-- Overlays support!
-- Dynamic cpu speed scaling (keeps your device cool and extends battery life, but gives the performance right when needed)
-- Fully GPU OpenGL based for faster performance
-- Custom bootlogos contributed by [@SolvalouArt](https://bsky.app/profile/solvalouart.bsky.social)
-- Color and font settings to customize the NextUI interface
-- Menu animations
-- LED control, change colors, effects, brightness
-- LED indicators, low battery, stand by, charging (brightness can be set seperately)
-- Haptic feedback in the menu by [@ExonakiDev](https://github.com/exonakidev)
-- Ambient LED mode, the LEDS act like Ambient light TV's for extra immersion, configurable per emulator
-- Display controls (color temperature, brightness, contrast, saturation, exposure)
-- Support for automatic NTP time synchronization with timezones and realtime clock (RTC)
-- Deep Sleep mode, gives instant ON and avoids the overheat bug on the Brick by [@zhaofengli](https://github.com/zhaofengli)
-- Battery Monitoring including history graph and time left prediction
-- Scrolling animated titles for longer game names
-- Updated and optimized build emulation cores
-- Rumble strength fixed and is now variable as used by the games
-- FBNeo Arcade screen rotation
-- PAL Mode
-- Next font supports CJK for JP/CN etc rom names
-- Lot of other smaller fixes and optimizations
+其他设备建议查看[MinUI](https://github.com/shauninman/MinUI)
+
+- 通过重建模拟器引擎核心，修复了MinUI的屏幕撕裂和同步卡顿问题
+- 游戏切换菜单（Onion OS风格）由[@frysee](https://github.com/frysee)开发
+- 高品质音频，使用[libsamplerate](https://github.com/libsndfile/libsamplerate)先进重采样引擎（每个模拟器可设置质量/性能）
+- 极低延迟（平均20毫秒，相当于60fps的1帧）
+- 支持着色器！
+- 完全基于OpenGL/GPU实现更快性能！
+- 原生WiFi支持
+- 游戏美术/媒体支持
+- 游戏时间追踪！
+- 金手指支持
+- 集成WiFi功能
+- 支持覆盖层！
+- 动态CPU速度调节（保持设备冷却并延长电池寿命，同时在需要时提供性能）
+- 完全基于GPU的OpenGL实现更快性能
+- 自定义启动画面由[@SolvalouArt](https://bsky.app/profile/solvalouart.bsky.social)贡献
+- 颜色和字体设置可自定义NextUI界面
+- 菜单动画效果
+- LED控制，更改颜色、效果、亮度
+- LED指示器，低电量、待机、充电（亮度可单独设置）
+- 菜单触觉反馈由[@ExonakiDev](https://github.com/exonakidev)开发
+- 环境LED模式，LED灯像环境光电视一样工作以增强沉浸感，可按模拟器配置
+- 显示控制（色温、亮度、对比度、饱和度、曝光度）
+- 支持通过NTP自动时间同步，包括时区和实时时钟(RTC)
+- 深度睡眠模式，提供即时开机并避免Brick上的过热错误，由[@zhaofengli](https://github.com/zhaofengli)开发
+- 电池监控，包括历史图表和剩余时间预测
+- 长游戏名称的滚动动画标题
+- 更新和优化的模拟器核心
+- 修复震动强度，现在可变并由游戏使用
+- FBNeo街机屏幕旋转
+- PAL模式
+- Next字体支持CJK，适用于日文/中文等ROM名称
+- 许多其他小修复和优化
 
 ---
 
-## Currently supported devices:
+## 当前支持的设备：
 - Trimui Brick
 - Trimui Smart Pro
 
 ---
 
-## Future plans roadmap
+## 未来计划路线图
 
-- Bluetooth and wifi integrated
-- Configurable FN and switch buttons
-- More compatibility testing with different emulators and fix/improve if nessecary
-- Retroachievements
-- Probably we think of a lot of other stuff a long the way to add :D
-- Once everything is to my liking I will look into porting this to more devices
-- Clean up all MinUI code and strip it from all stuff for legacy devices etc.
-
----
-
-## Installing
-
-Follow our [installation guide](https://nextui.loveretro.games/getting-started/).
+- 蓝牙和WiFi集成
+- 可配置的FN和切换按钮
+- 更多与不同模拟器的兼容性测试，并在必要时修复/改进
+- 复古成就系统
+- 我们可能会在途中想到更多要添加的功能 :D
+- 一旦一切符合我的期望，我将考虑将其移植到更多设备
+- 清理所有MinUI代码，并剔除所有针对旧设备的内容等
 
 ---
 
-## How to use
+## 安装方法
 
-While in menu:
-
-- Hold `start` and press `volume up` or `volume down` to adjust brighness
-- Hold `select` and press `volume up` or `volume down` to adjust color temperature
-- Short press `select` to open the game switcher
-
-While in game:
-
-- `Menu` opens in game options menu, adjusting controls, scaling and what not
-- Hold `menu` and `select` at same time to open up the game switcher
-
-Deep sleep:
-
-When the device is left idle it will enter light sleep. Light sleep turns the screen off and pulses the leds 5 times.
-
-After two minutes the device will go into deep sleep. The leds will turn completely off.
+请参考我们的[安装指南](https://nextui.loveretro.games/getting-started/)。
 
 ---
 
-## What about X feature?
+## 使用方法
 
-NextUI supports a variety of optional extras called Paks.
+在菜单中：
 
-These Paks introduce a variety of new features and emulators.
+- 按住`开始键`并按`音量上`或`音量下`调节亮度
+- 按住`选择键`并按`音量上`或`音量下`调节色温
+- 短按`选择键`打开游戏切换器
 
-Our community has currated a [list of favorite Paks](https://nextui.loveretro.games/paks/community-favorites/) and a [list of standalone emulators](https://nextui.loveretro.games/paks/standalone-emulators/).
+在游戏中：
+
+- `菜单键`打开游戏内选项菜单，调整控制、缩放等
+- 同时按住`菜单键`和`选择键`打开游戏切换器
+
+深度睡眠：
+
+当设备闲置时，将进入轻度睡眠。轻度睡眠会关闭屏幕并使LED灯闪烁5次。
+
+两分钟后，设备将进入深度睡眠。LED灯将完全关闭。
 
 ---
 
-## Credits
+## 关于其他功能？
 
-[@josegonzalez](https://github.com/josegonzalez) for [minui-keyboard](https://github.com/josegonzalez/minui-keyboard/t)
+NextUI支持各种称为Paks的可选扩展。
+
+这些Paks引入了各种新功能和模拟器。
+
+我们的社区精心整理了[最受欢迎的Paks列表](https://nextui.loveretro.games/paks/community-favorites/)和[独立模拟器列表](https://nextui.loveretro.games/paks/standalone-emulators/)。
 
 ---
 
-## Play Retro's review of NextUI
+## 鸣谢
+
+[@josegonzalez](https://github.com/josegonzalez)开发的[minui-keyboard](https://github.com/josegonzalez/minui-keyboard/t)
+
+---
+
+## Play Retro对NextUI的评测
 
 [![image](https://github.com/user-attachments/assets/43217a30-e052-4f67-88a9-c4361f82e72f)](https://www.youtube.com/watch?v=m_7ObMHAFK4)
 
-##  Retro Handhelds' coverage of NextUI
+## Retro Handhelds对NextUI的报道
 
 [![image](https://github.com/user-attachments/assets/5fd538ea-285b-46e9-add4-1ef99b2ee9e5)](https://www.youtube.com/watch?v=KlYVmtYDqRI)
 
 ---
 
-## For all other info visit our website: [nextui.loveretro.games](https://nextui.loveretro.games)
+## 更多信息请访问我们的网站：[nextui.loveretro.games](https://nextui.loveretro.games)
