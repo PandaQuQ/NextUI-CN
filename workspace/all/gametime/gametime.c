@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
                 char play_time_total_formatted[255];
                 serializeTime(play_time_total_formatted, play_time_total);
                 char display_name[256];
-                sprintf(display_name, "Time spent having fun: %s", play_time_total_formatted);
+                sprintf(display_name, "快乐游戏时长: %s", play_time_total_formatted);
 
                 char title[256];
                 int text_width = GFX_truncateText(font.large, display_name, title, max_width, SCALE1(BUTTON_PADDING * 2));
