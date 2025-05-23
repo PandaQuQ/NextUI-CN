@@ -1,0 +1,193 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # 每天 UTC 8:00 和 20:00
+    - cron: '0 8,20 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream and fetch
+        run: |
+          git remote add upstream https://github.com/LoveRetro/NextUI.git
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: check_commits
+        run: |
+          NEW_COMMITS=$(git rev-list HEAD..upstream/main --count)
+          echo "new_commits=$NEW_COMMITS" >> $GITHUB_OUTPUT
+          echo "发现 $NEW_COMMITS 个新提交"
+          
+          if [ "$NEW_COMMITS" -gt 0 ]; then
+            echo "has_new_commits=true" >> $GITHUB_OUTPUT
+            echo "upstream有新提交，准备同步"
+          else
+            echo "has_new_commits=false" >> $GITHUB_OUTPUT
+            echo "upstream无新提交"
+          fi
+
+      - name: Sync upstream commits
+        if: steps.check_commits.outputs.has_new_commits == 'true'
+        run: |
+          echo "正在同步upstream提交..."
+          if git merge upstream/main --no-edit --allow-unrelated-histories; then
+            echo "同步成功，推送到远程仓库"
+            git push origin main
+          else
+            echo "::error::同步失败：发现合并冲突"
+            echo "需要手动解决冲突"
+            git merge --abort
+            exit 1
+          fi
+
+      - name: Send email notification on conflict
+        if: failure() && steps.check_commits.outputs.has_new_commits == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 NextUI-CN Upstream同步冲突需要手动解决"
+          to: ${{ secrets.EMAIL_TO }}
+          from: "GitHub Actions <${{ secrets.EMAIL_USERNAME }}>"
+          body: |
+            upstream仓库 LoveRetro/NextUI 有新提交，但自动同步时发生冲突。
+
+            需要手动解决冲突：
+            1. git fetch upstream main
+            2. git merge upstream/main --allow-unrelated-histories
+            3. 解决冲突文件
+            4. git add .
+            5. git commit
+            6. git push origin main
+
+            自动同步失败时间：$(date)
+            
+            请尽快处理以确保代码同步。
+
+  check-release:
+    runs-on: ubuntu-latest
+    needs: sync-commits
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get upstream latest release
+        id: upstream_release
+        run: |
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/LoveRetro/NextUI/releases/latest)
+          UPSTREAM_TAG=$(echo "$RELEASE_DATA" | jq -r '.tag_name // empty')
+          
+          if [ -n "$UPSTREAM_TAG" ] && [ "$UPSTREAM_TAG" != "null" ]; then
+            echo "upstream_tag=$UPSTREAM_TAG" >> $GITHUB_OUTPUT
+            echo "发现upstream最新release: $UPSTREAM_TAG"
+          else
+            echo "upstream_tag=" >> $GITHUB_OUTPUT
+            echo "upstream暂无release"
+          fi
+
+      - name: Get local latest release
+        id: local_release
+        run: |
+          LOCAL_TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name // empty')
+          
+          if [ -n "$LOCAL_TAG" ] && [ "$LOCAL_TAG" != "null" ]; then
+            # 移除-CN后缀获得基础版本号
+            BASE_VERSION=$(echo "$LOCAL_TAG" | sed 's/-CN$//')
+            echo "local_tag=$LOCAL_TAG" >> $GITHUB_OUTPUT
+            echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+            echo "本地最新release: $LOCAL_TAG (基础版本: $BASE_VERSION)"
+          else
+            echo "local_tag=" >> $GITHUB_OUTPUT
+            echo "base_version=" >> $GITHUB_OUTPUT
+            echo "本地暂无release"
+          fi
+
+      - name: Compare versions and determine release type
+        id: compare_versions
+        if: steps.upstream_release.outputs.upstream_tag != '' && steps.local_release.outputs.base_version != ''
+        run: |
+          UPSTREAM_TAG="${{ steps.upstream_release.outputs.upstream_tag }}"
+          BASE_VERSION="${{ steps.local_release.outputs.base_version }}"
+          
+          echo "比较版本: upstream=$UPSTREAM_TAG vs local_base=$BASE_VERSION"
+          
+          if [ "$UPSTREAM_TAG" = "$BASE_VERSION" ]; then
+            echo "needs_release=false" >> $GITHUB_OUTPUT
+            echo "版本相同，无需发布新release"
+          else
+            echo "needs_release=true" >> $GITHUB_OUTPUT
+            
+            # 解析版本号确定release类型
+            if [[ "$UPSTREAM_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              UP_MAJOR=${BASH_REMATCH[1]}
+              UP_MINOR=${BASH_REMATCH[2]}
+              UP_PATCH=${BASH_REMATCH[3]}
+              
+              if [[ "$BASE_VERSION" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+                LOCAL_MAJOR=${BASH_REMATCH[1]}
+                LOCAL_MINOR=${BASH_REMATCH[2]}
+                LOCAL_PATCH=${BASH_REMATCH[3]}
+                
+                if [ "$UP_MAJOR" -gt "$LOCAL_MAJOR" ]; then
+                  RELEASE_TYPE="major"
+                elif [ "$UP_MINOR" -gt "$LOCAL_MINOR" ]; then
+                  RELEASE_TYPE="minor"
+                else
+                  RELEASE_TYPE="patch"
+                fi
+              else
+                RELEASE_TYPE="major"
+              fi
+            else
+              RELEASE_TYPE="patch"
+            fi
+            
+            echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+            echo "检测到新版本，类型: $RELEASE_TYPE"
+          fi
+
+      - name: Trigger release workflow
+        if: steps.compare_versions.outputs.needs_release == 'true'
+        run: |
+          RELEASE_TYPE="${{ steps.compare_versions.outputs.release_type }}"
+          UPSTREAM_TAG="${{ steps.upstream_release.outputs.upstream_tag }}"
+          
+          echo "触发release工作流: type=$RELEASE_TYPE, upstream_version=$UPSTREAM_TAG"
+          
+          gh workflow run release.yaml \
+            -f release_type="$RELEASE_TYPE" \
+            -f upstream_version="$UPSTREAM_TAG"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Handle first release
+        if: steps.upstream_release.outputs.upstream_tag != '' && steps.local_release.outputs.local_tag == ''
+        run: |
+          UPSTREAM_TAG="${{ steps.upstream_release.outputs.upstream_tag }}"
+          echo "首次发现upstream release，触发major release"
+          
+          gh workflow run release.yaml \
+            -f release_type="major" \
+            -f upstream_version="$UPSTREAM_TAG"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
