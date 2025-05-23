@@ -146,9 +146,8 @@ int main(int argc , char* argv[]) {
 				
 				x -= SCALE1(PILL_SIZE);
 				y -= SCALE1(PILL_SIZE);
-				
 				SDL_FillRect(screen, &(SDL_Rect){x+SCALE1(PILL_SIZE/2),y,SCALE1(PILL_SIZE*2),SCALE1(PILL_SIZE)}, THEME_COLOR3);
-				
+
 				GFX_blitPillColor(ASSET_WHITE_PILL, screen, &(SDL_Rect){x,y,0}, THEME_COLOR3, RGB_WHITE);
 				blitButton("L", screen, PAD_isPressed(BTN_DPAD_LEFT), x+o, y+o,0);
 				
