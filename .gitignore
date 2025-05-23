@@ -39,3 +39,4 @@ workspace/readmes
 
 FAKESD
 .vscode
+.vscode/launch.json
