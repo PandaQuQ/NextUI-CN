@@ -59,7 +59,7 @@ jobs:
         if: failure() && steps.check_commits.outputs.has_new_commits == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com
+          server_address: mail.pandayuyu.zone
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
