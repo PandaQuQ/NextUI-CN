@@ -247,15 +247,15 @@ int main(int argc, char *argv[])
             { return std::string(TIME_getCurrentTimezone()); }, [](const std::any &value)
             { TIME_setCurrentTimezone(std::any_cast<std::string>(value).c_str()); },
             []() { TIME_setCurrentTimezone("Asia/Shanghai");}}, // default from Stock
-            new MenuItem{ListItemType::Generic, "保存格式", "要使用的保存格式。\"Retroarch\"使用压缩。\nMinUI: Game.gba.sav, Retroarch: Game.srm, Generic: Game.sav",
-            {(int)SAVE_FORMAT_SAV, (int)SAVE_FORMAT_SRM, (int)SAVE_FORMAT_GEN},
-            {"MinUI (默认)", "全能模拟器", "通用"}, []() -> std::any
+            new MenuItem{ListItemType::Generic, "保存格式", "要使用的保存格式。\nMinUI: Game.gba.sav, Retroarch: Game.srm, Generic: Game.sav",
+            {(int)SAVE_FORMAT_SAV, (int)SAVE_FORMAT_SRM, (int)SAVE_FORMAT_SRM_UNCOMPRESSED, (int)SAVE_FORMAT_GEN},
+            {"MinUI (默认)", "全能模拟器（压缩）", "全能模拟器（不压缩）", "通用"}, []() -> std::any
             { return CFG_getSaveFormat(); }, [](const std::any &value)
             { CFG_setSaveFormat(std::any_cast<int>(value)); },
             []() { CFG_setSaveFormat(CFG_DEFAULT_SAVEFORMAT);}},
-            new MenuItem{ListItemType::Generic, "保存状态格式", "要使用的保存状态格式。\"Retroarch\"使用压缩。\nMinUI: Game.st0, Retroarch: Game.state.0",
-            {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM},
-            {"MinUI (默认)", "全能模拟器"}, []() -> std::any
+            new MenuItem{ListItemType::Generic, "保存状态格式", "要使用的保存状态格式。\nMinUI: Game.st0, Retroarch: Game.state.0",
+            {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM, (int)STATE_FORMAT_SRM_UNCOMPRESSED},
+            {"MinUI (默认)", "全能模拟器（压缩）", "全能模拟器（不压缩）"}, []() -> std::any
             { return CFG_getStateFormat(); }, [](const std::any &value)
             { CFG_setStateFormat(std::any_cast<int>(value)); },
             []() { CFG_setStateFormat(CFG_DEFAULT_STATEFORMAT);}},

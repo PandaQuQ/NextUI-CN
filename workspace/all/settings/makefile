@@ -30,11 +30,15 @@ CFLAGS += $(ARCH) -fomit-frame-pointer
 CFLAGS += $(INCDIR) -DPLATFORM=\"$(PLATFORM)\"
 CXXFLAGS += $(CFLAGS) -std=c++17
 CFLAGS += -fpermissive
-LDFLAGS +=  -lmsettings -lwifimg
+LDFLAGS +=  -lmsettings
+ifeq ($(PLATFORM), tg5040)
+CFLAGS += -DHAS_WIFIMG
+LDFLAGS +=  -lwifimg
+endif
 
 PRODUCT= build/$(PLATFORM)/$(TARGET).elf
 
-all: $(PREFIX)/include/msettings.h
+all: $(PREFIX_LOCAL)/include/msettings.h
 	mkdir -p build/$(PLATFORM)
 	$(CC) $(SOURCE) $(CFLAGS) $(LDFLAGS)
 	mv utils.o api.o config.o scaler.o platform.o build/$(PLATFORM)
@@ -42,5 +46,5 @@ all: $(PREFIX)/include/msettings.h
 clean:
 	rm -f $(PRODUCT)
 
-$(PREFIX)/include/msettings.h:
-	cd /root/workspace/$(PLATFORM)/libmsettings && make
+$(PREFIX_LOCAL)/include/msettings.h:
+	cd ../../$(PLATFORM)/libmsettings && make

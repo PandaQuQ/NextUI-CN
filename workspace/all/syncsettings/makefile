@@ -18,16 +18,16 @@ TARGET = syncsettings
 SOURCE = $(TARGET).c
 
 CC = $(CROSS_COMPILE)gcc
-CFLAGS   = $(ARCH) -DPLATFORM=\"$(PLATFORM)\"
+CFLAGS   = $(ARCH) -I$(PREFIX_LOCAL)/include -DPLATFORM=\"$(PLATFORM)\"
 LDFLAGS	 = -Os -lmsettings -lrt -ldl -Wl,--gc-sections -s
 
 PRODUCT= build/$(PLATFORM)/$(TARGET).elf
 
-all: $(PREFIX)/include/msettings.h
+all: $(PREFIX_LOCAL)/include/msettings.h
 	mkdir -p build/$(PLATFORM)
 	$(CC) $(SOURCE) -o $(PRODUCT) $(CFLAGS) $(LDFLAGS)
 clean:
 	rm -f $(PRODUCT)
 
-$(PREFIX)/include/msettings.h:
-	cd /root/workspace/$(PLATFORM)/libmsettings && make
+$(PREFIX_LOCAL)/include/msettings.h:
+	cd ../../$(PLATFORM)/libmsettings && make
