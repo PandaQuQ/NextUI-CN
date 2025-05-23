@@ -757,7 +757,7 @@ int main(int argc, char *argv[])
             if (show_setting)
                 GFX_blitHardwareHints(screen, show_setting);
             else
-                GFX_blitButtonGroup((char *[]){"L/R", "滚动", "L1/R1", "缩放", NULL}, 0, screen, 0);
+                GFX_blitButtonGroup((char *[]){"左/右", "滚动", "L1/R1", "缩放", NULL}, 0, screen, 0);
 
             GFX_blitButtonGroup((char *[]){"B", "返回", NULL}, 1, screen, 1);
 
