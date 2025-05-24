@@ -59,7 +59,7 @@ jobs:
         if: failure() && steps.check_commits.outputs.has_new_commits == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: mail.pandayuyu.zone
+          server_address: ${{ secrets.EMAIL_SERVER }}
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
@@ -157,8 +157,7 @@ jobs:
                 fi
               else
                 RELEASE_TYPE="major"
-              fi
-            else
+              fi            else
               RELEASE_TYPE="patch"
             fi
             
@@ -175,8 +174,7 @@ jobs:
           echo "触发release工作流: type=$RELEASE_TYPE, upstream_version=$UPSTREAM_TAG"
           
           gh workflow run release.yaml \
-            -f release_type="$RELEASE_TYPE" \
-            -f upstream_version="$UPSTREAM_TAG"
+            -f release_type="$RELEASE_TYPE"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -187,7 +185,6 @@ jobs:
           echo "首次发现upstream release，触发major release"
           
           gh workflow run release.yaml \
-            -f release_type="major" \
-            -f upstream_version="$UPSTREAM_TAG"
+            -f release_type="major"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
