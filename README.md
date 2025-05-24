@@ -38,7 +38,7 @@
 ---
 
 > **这是一个专注于中文本地化的NextUI分支**  
-> 本项目使用寒蝉全园体(ChillRound)作为中文字体，保持与原版更新同步的同时，提供完整的中文界面体验。
+> 本项目使用`寒蝉全圆体`和`寒蝉半圆体`([ChillRound](https://github.com/Warren2060/ChillRound))作为中文字体，保持与原版更新同步的同时，提供完整的中文界面体验。
 
 基于MinUI的自定义固件，重建了模拟器引擎，为TrimUI Brick和Smart Pro增加了大量功能。
 
@@ -74,7 +74,8 @@
 - 修复震动强度，现在可变并由游戏使用
 - FBNeo街机屏幕旋转
 - PAL模式
-- Next字体支持CJK，适用于日文/中文等ROM名称
+- ~~Next字体支持CJK，适用于日文/中文等ROM名称~~ 使用了[`寒蝉全圆体`和`寒蝉半圆体`](https://github.com/Warren2060/ChillRound)
+- 修复了官方的一个[bug](https://github.com/LoveRetro/NextUI/commit/49cfea59a2ce8df8ed739e5c21675281b4ac25ca),
 - 许多其他小修复和优化
 
 ---
