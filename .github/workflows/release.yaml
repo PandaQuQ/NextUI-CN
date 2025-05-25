@@ -177,29 +177,34 @@ jobs:
           pattern: release-*
           merge-multiple: true
 
-      - name: Create and Push Tag
+      - name: Generate Release Notes (ZH+EN)
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git tag "$GIT_NEXT_TAG"
-          git push origin "$GIT_NEXT_TAG"
-        env:
-          GIT_NEXT_TAG: ${{ needs.prepare.outputs.next-tag }}
+          git fetch --tags --force
+          PREV_TAG=$(git tag --list 'v*.*.*-CN' --sort=-v:refname | head -n 1)
+          CURR_TAG=${{ needs.prepare.outputs.next-tag }}
+          if [ -n "$PREV_TAG" ] && git rev-parse "$PREV_TAG" >/dev/null 2>&1 && [ "$PREV_TAG" != "$CURR_TAG" ]; then
+            git log --pretty=format:"- %s by @%an in %h" "$PREV_TAG..HEAD" > changes.txt
+            CHANGELOG_URL="https://github.com/PandaQuQ/NextUI-CN/compare/$PREV_TAG...$CURR_TAG"
+          else
+            git log --pretty=format:"- %s by @%an in %h" HEAD > changes.txt
+            CHANGELOG_URL=""
+          fi
+          echo "NextUI 的完整功能列表和使用帮助：" > notes_zh.txt
+          echo "https://nextui.loveretro.games/docs/" >> notes_zh.txt
+          echo "\n## 如何安装/更新" >> notes_zh.txt
+          echo "全新安装请参考：https://nextui.loveretro.games/getting-started/installation/" >> notes_zh.txt
+          echo "从旧版本升级请参考：https://nextui.loveretro.games/getting-started/updating/" >> notes_zh.txt
+          echo "\n## 主要变更 (What's Changed)" >> notes_zh.txt
+          cat changes.txt >> notes_zh.txt
+          if [ -n "$CHANGELOG_URL" ]; then
+            echo -e "\n**完整变更日志 (Full Changelog)**: $CHANGELOG_URL" >> notes_zh.txt
+          fi
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: releases/*
-          generate_release_notes: true
-          append_body: true
+          body_path: notes_zh.txt
           tag_name: ${{ needs.prepare.outputs.next-tag }}
           make_latest: "true"
-          body: |
-            
-            For full features list and help on how to use etc of NextUI:
-            https://nextui.loveretro.games/docs/
-
-            ## How to install/update
-            For a fresh installation, follow the instructions here: https://nextui.loveretro.games/getting-started/installation/
-            When updating from a previous release: https://nextui.loveretro.games/getting-started/updating/
 
