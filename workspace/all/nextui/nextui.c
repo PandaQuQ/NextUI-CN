@@ -771,7 +771,7 @@ static Array* getRoot(void) {
 
     // Add tools if applicable
     char tools_path[256];
-    snprintf(tools_path, sizeof(tools_path), "%s/Tools/%s", SDCARD_PATH, PLATFORM);
+    snprintf(tools_path, sizeof(tools_path), "%s/工具/%s", SDCARD_PATH, PLATFORM);
     if (exists(tools_path) && !simple_mode) {
         Array_push(root, Entry_new(tools_path, ENTRY_DIR));
     }
