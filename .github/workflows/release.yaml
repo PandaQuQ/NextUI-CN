@@ -191,10 +191,10 @@ jobs:
           fi
           echo "NextUI 的完整功能列表和使用帮助：" > notes_zh.txt
           echo "https://nextui.loveretro.games/docs/" >> notes_zh.txt
-          echo "\n## 如何安装/更新" >> notes_zh.txt
+          echo "## 如何安装/更新" >> notes_zh.txt
           echo "全新安装请参考：https://nextui.loveretro.games/getting-started/installation/" >> notes_zh.txt
           echo "从旧版本升级请参考：https://nextui.loveretro.games/getting-started/updating/" >> notes_zh.txt
-          echo "\n## 主要变更 (What's Changed)" >> notes_zh.txt
+          echo "## 主要变更 (What's Changed)" >> notes_zh.txt
           cat changes.txt >> notes_zh.txt
           if [ -n "$CHANGELOG_URL" ]; then
             echo -e "\n**完整变更日志 (Full Changelog)**: $CHANGELOG_URL" >> notes_zh.txt
