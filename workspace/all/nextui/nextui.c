@@ -1408,13 +1408,17 @@ typedef struct AnimTaskNode {
     struct AnimTaskNode* next;
 } AnimTaskNode;
 
-static TaskNode* taskQueueHead = NULL;
-static TaskNode* taskQueueTail = NULL;
+static TaskNode* taskBGQueueHead = NULL;
+static TaskNode* taskBGQueueTail = NULL;
+static TaskNode* taskThumbQueueHead = NULL;
+static TaskNode* taskThumbQueueTail = NULL;
 static AnimTaskNode* animTaskQueueHead = NULL;
 static AnimTaskNode* animTtaskQueueTail = NULL;
-static SDL_mutex* queueMutex = NULL;
+static SDL_mutex* bgqueueMutex = NULL;
+static SDL_mutex* thumbqueueMutex = NULL;
 static SDL_mutex* animqueueMutex = NULL;
-static SDL_cond* queueCond = NULL;
+static SDL_cond* bgqueueCond = NULL;
+static SDL_cond* thumbqueueCond = NULL;
 static SDL_cond* animqueueCond = NULL;
 
 static SDL_mutex* bgMutex = NULL;
@@ -1436,58 +1440,92 @@ int folderbgchanged=0;
 int thumbchanged=0;
 
 // queue a new image load task :D
-#define MAX_QUEUE_SIZE 4
-#define THREAD_POOL_SIZE 3
+#define MAX_QUEUE_SIZE 1
 
-int currentQueueSize = 0;
+int currentBGQueueSize = 0;
+int currentThumbQueueSize = 0;
 int currentAnimQueueSize = 0;
 
-void enqueueTask(LoadBackgroundTask* task) {
-	SDL_LockMutex(queueMutex);
+void enqueueBGTask(LoadBackgroundTask* task) {
+	SDL_LockMutex(bgqueueMutex);
     TaskNode* node = (TaskNode*)malloc(sizeof(TaskNode));
     node->task = task;
     node->next = NULL;
 
     // If queue is full, drop the oldest task (head)
-    if (currentQueueSize >= MAX_QUEUE_SIZE) {
-        TaskNode* oldNode = taskQueueHead;
+    if (currentBGQueueSize >= MAX_QUEUE_SIZE) {
+        TaskNode* oldNode = taskBGQueueHead;
         if (oldNode) {
-            taskQueueHead = oldNode->next;
-            if (!taskQueueHead) {
-                taskQueueTail = NULL;
+            taskBGQueueHead = oldNode->next;
+            if (!taskBGQueueHead) {
+                taskBGQueueTail = NULL;
             }
             if (oldNode->task) {
                 free(oldNode->task);  // Only if task was malloc'd
             }
             free(oldNode);
-            currentQueueSize--;
+            currentBGQueueSize--;
         }
     }
 
     // Enqueue the new task
-    if (taskQueueTail) {
-        taskQueueTail->next = node;
-        taskQueueTail = node;
+    if (taskBGQueueTail) {
+        taskBGQueueTail->next = node;
+        taskBGQueueTail = node;
     } else {
-        taskQueueHead = taskQueueTail = node;
+        taskBGQueueHead = taskBGQueueTail = node;
     }
  
-    currentQueueSize++;
-    SDL_CondSignal(queueCond);
-    SDL_UnlockMutex(queueMutex);
+    currentBGQueueSize++;
+    SDL_CondSignal(bgqueueCond);
+    SDL_UnlockMutex(bgqueueMutex);
+}
+void enqueueThumbTask(LoadBackgroundTask* task) {
+	SDL_LockMutex(thumbqueueMutex);
+    TaskNode* node = (TaskNode*)malloc(sizeof(TaskNode));
+    node->task = task;
+    node->next = NULL;
+
+    // If queue is full, drop the oldest task (head)
+    if (currentThumbQueueSize >= MAX_QUEUE_SIZE) {
+        TaskNode* oldNode = taskThumbQueueHead;
+        if (oldNode) {
+            taskThumbQueueHead = oldNode->next;
+            if (!taskThumbQueueHead) {
+                taskThumbQueueTail = NULL;
+            }
+            if (oldNode->task) {
+                free(oldNode->task);  // Only if task was malloc'd
+            }
+            free(oldNode);
+            currentThumbQueueSize--;
+        }
+    }
+
+    // Enqueue the new task
+    if (taskThumbQueueTail) {
+        taskThumbQueueTail->next = node;
+        taskThumbQueueTail = node;
+    } else {
+        taskThumbQueueHead = taskThumbQueueTail = node;
+    }
+ 
+    currentThumbQueueSize++;
+    SDL_CondSignal(thumbqueueCond);
+    SDL_UnlockMutex(thumbqueueMutex);
 }
 
 // Worker threadd
-int imageLoadWorker(void* unused) {
+int BGLoadWorker(void* unused) {
     while (true) {
-        SDL_LockMutex(queueMutex);
-        while (!taskQueueHead) {
-        	SDL_CondWait(queueCond, queueMutex);
+        SDL_LockMutex(bgqueueMutex);
+        while (!taskBGQueueHead) {
+        	SDL_CondWait(bgqueueCond, bgqueueMutex);
         }
-        TaskNode* node = taskQueueHead;
-        taskQueueHead = node->next;
-        if (!taskQueueHead) taskQueueTail = NULL;
-        SDL_UnlockMutex(queueMutex);
+        TaskNode* node = taskBGQueueHead;
+        taskBGQueueHead = node->next;
+        if (!taskBGQueueHead) taskBGQueueTail = NULL;
+        SDL_UnlockMutex(bgqueueMutex);
 		// give processor lil space in between queue items for other shit
 		SDL_Delay(100);
         LoadBackgroundTask* task = node->task;
@@ -1507,10 +1545,46 @@ int imageLoadWorker(void* unused) {
 			task->callback(result);
 		}
         free(task);
-		SDL_LockMutex(queueMutex);
-		if (!taskQueueHead) taskQueueTail = NULL;
-		currentQueueSize--;  // <-- add this
-		SDL_UnlockMutex(queueMutex);
+		SDL_LockMutex(bgqueueMutex);
+		if (!taskBGQueueHead) taskBGQueueTail = NULL;
+		currentBGQueueSize--;  // <-- add this
+		SDL_UnlockMutex(bgqueueMutex);
+    }
+    return 0;
+}
+int ThumbLoadWorker(void* unused) {
+    while (true) {
+        SDL_LockMutex(thumbqueueMutex);
+        while (!taskThumbQueueHead) {
+        	SDL_CondWait(thumbqueueCond, thumbqueueMutex);
+        }
+        TaskNode* node = taskThumbQueueHead;
+        taskThumbQueueHead = node->next;
+        if (!taskThumbQueueHead) taskThumbQueueTail = NULL;
+        SDL_UnlockMutex(thumbqueueMutex);
+		// give processor lil space in between queue items for other shit
+		SDL_Delay(100);
+        LoadBackgroundTask* task = node->task;
+        free(node);
+
+        SDL_Surface* result = NULL;
+        if (access(task->imagePath, F_OK) == 0) {
+            SDL_Surface* image = IMG_Load(task->imagePath);
+            if (image) {
+                SDL_Surface* imageRGBA = SDL_ConvertSurfaceFormat(image, SDL_PIXELFORMAT_RGBA8888, 0);
+                SDL_FreeSurface(image);
+                result = imageRGBA;
+            }
+        }
+
+        if (task->callback) {
+			task->callback(result);
+		}
+        free(task);
+		SDL_LockMutex(thumbqueueMutex);
+		if (!taskThumbQueueHead) taskThumbQueueTail = NULL;
+		currentThumbQueueSize--;  // <-- add this
+		SDL_UnlockMutex(thumbqueueMutex);
     }
     return 0;
 }
@@ -1522,7 +1596,7 @@ void startLoadFolderBackground(const char* imagePath, int type, BackgroundLoaded
  	snprintf(task->imagePath, sizeof(task->imagePath), "%s", imagePath);
     task->callback = callback;
     task->userData = userData;
-    enqueueTask(task);
+    enqueueBGTask(task);
 }
 
 void onBackgroundLoaded(SDL_Surface* surface) {
@@ -1545,7 +1619,7 @@ void startLoadThumb(const char* thumbpath, BackgroundLoadedCallback callback, vo
     snprintf(task->imagePath, sizeof(task->imagePath), "%s", thumbpath);
     task->callback = callback;
     task->userData = userData;
-    enqueueTask(task);
+    enqueueThumbTask(task);
 }
 void onThumbLoaded(SDL_Surface* surface) {
 	SDL_LockMutex(thumbMutex);
@@ -1717,10 +1791,11 @@ int animPill(AnimTask *task) {
 	enqueueanmimtask(task);
     return 0;
 }
-
 void initImageLoaderPool() {
-    queueMutex = SDL_CreateMutex();
-    queueCond = SDL_CreateCond();
+    thumbqueueMutex = SDL_CreateMutex();
+    bgqueueMutex = SDL_CreateMutex();
+    bgqueueCond = SDL_CreateCond();
+    thumbqueueCond = SDL_CreateCond();
 	bgMutex = SDL_CreateMutex();
 	thumbMutex = SDL_CreateMutex();
 	animMutex = SDL_CreateMutex();
@@ -1728,12 +1803,9 @@ void initImageLoaderPool() {
 	animqueueCond = SDL_CreateCond();
 	frameMutex = SDL_CreateMutex();
 	flipCond = SDL_CreateCond();
-    for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
-      	char thread_name[32];
-		snprintf(thread_name, sizeof(thread_name), "ImageLoadWorker_%d", i);
-		SDL_CreateThread(imageLoadWorker, thread_name, NULL);
-    }
 
+    SDL_CreateThread(BGLoadWorker, "BGLoadWorker", NULL);
+    SDL_CreateThread(ThumbLoadWorker, "ThumbLoadWorker", NULL);
 	SDL_CreateThread(animWorker, "animWorker", NULL);
 }
 ///////////////////////////////////////
@@ -2416,7 +2488,7 @@ int main (int argc, char *argv[]) {
 					
 						SDL_Color text_color = uintToColour(THEME_COLOR4_255);
 						int notext = 0;
-						if(selected_row == remember_selection && j == selected_row && (selected_row+1 >= (top->end-top->start) || selected_row == 0)) {
+						if(selected_row == remember_selection && j == selected_row && (selected_row+1 >= (top->end-top->start) || selected_row == 0 || selected_row == remember_selection)) {
 							text_color = uintToColour(THEME_COLOR5_255);
 							notext=1;
 						}
@@ -2445,7 +2517,7 @@ int main (int argc, char *argv[]) {
 							task->move_w = max_width;
 							task->move_h = SCALE1(PILL_SIZE);
 							task->frames = CFG_getMenuAnimations() ? 3:0;
-							task->entry_name = notext ? "  ":entry_name;
+							task->entry_name = notext ? " ":entry_name;
 							animPill(task);
 							
 			
@@ -2633,7 +2705,6 @@ int main (int argc, char *argv[]) {
 					entry_text,
 					SCALE1(BUTTON_MARGIN + BUTTON_PADDING), SCALE1(PADDING + (remember_selection * PILL_SIZE) + 4),
 					max_width - SCALE1(BUTTON_PADDING * 2),
-					0,
 					0,
 					text_color,
 					1
