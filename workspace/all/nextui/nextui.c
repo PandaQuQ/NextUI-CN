@@ -128,15 +128,23 @@ typedef struct Entry {
 } Entry;
 
 static Entry* Entry_new(char* path, int type) {
-	char display_name[256];
-	getDisplayName(path, display_name);
-	Entry* self = malloc(sizeof(Entry));
-	self->path = strdup(path);
-	self->name = strdup(display_name);
-	self->unique = NULL;
-	self->type = type;
-	self->alpha = 0;
-	return self;
+    char display_name[256];
+    getDisplayName(path, display_name);
+
+    // 特殊处理
+    if (strcmp(path, FAUX_RECENT_PATH) == 0) {
+        strcpy(display_name, "最近游玩");
+    } else if (strcmp(path, COLLECTIONS_PATH) == 0) {
+        strcpy(display_name, "合集");
+    }
+
+    Entry* self = malloc(sizeof(Entry));
+    self->path = strdup(path);
+    self->name = strdup(display_name);
+    self->unique = NULL;
+    self->type = type;
+    self->alpha = 0;
+    return self;
 }
 static void Entry_free(Entry* self) {
 	free(self->path);
