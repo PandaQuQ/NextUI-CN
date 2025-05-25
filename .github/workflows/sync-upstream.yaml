@@ -2,8 +2,8 @@ name: Sync Upstream
 
 on:
   schedule:
-    # UTC 0点起每隔四小时同步一次
-    - cron: '0 0,4,8,12,16,20 * * *'
+    # UTC 0点起每隔30分钟同步一次
+    - cron: '0,30 * * * *'
   workflow_dispatch:
 
 jobs:
