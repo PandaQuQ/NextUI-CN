@@ -1486,8 +1486,8 @@ static struct Config {
 			},
 			[FE_OPT_OVERLAY] = {
 				.key	= "minarch_overlay",
-				.name	= "叠加层",
-				.desc	= "从叠加层文件夹中选择自定义PNG叠加层",
+				.name	= "遮罩",
+				.desc	= "从Overlays文件夹中选择自定义PNG遮罩",
 				.default_value = 0,
 				.value = 0,
 				.count = 1,
