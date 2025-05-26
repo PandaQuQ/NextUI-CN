@@ -1517,7 +1517,7 @@ static struct Config {
 				// 	.key	= "minarch_screen_sharpness",
 				.key	= "minarch_scale_filter",
 				.name	= "屏幕锐度",
-				.desc	= "线性平滑边缘，但在高分辨率下效果更好，需要输出分辨率更高的核心或使用着色器进行放大",
+				.desc	= "线性平滑边缘，但在高分辨率下效果更好\n需要输出分辨率更高的核心或使用着色器进行放大",
 				.default_value = 1,
 				.value = 1,
 				.count = 3,
@@ -1606,7 +1606,7 @@ static struct Config {
 			[SH_SHADERS_PRESET] = {
 				.key	= "minarch_shaders_preset", 
 				.name	= "着色器/模拟器设置预设",
-				.desc	= "加载预制的着色器/模拟器配置，如果只想尝试预设而不永久覆盖当前设置，请不保存设置直接退出游戏！", // will call getScreenScalingDesc()
+				.desc	= "加载预制的着色器/模拟器配置\n如果只想尝试预设而不永久覆盖当前设置\n请不保存设置直接退出游戏！", // will call getScreenScalingDesc()
 				.default_value = 1,
 				.value = 1,
 				.count = 0,
@@ -5181,8 +5181,8 @@ static int OptionControls_optionChanged(MenuList* list, int i) {
 }
 static MenuList OptionControls_menu = {
 	.type = MENU_INPUT,
-	.desc = "Press A to set and X to clear."
-		"\nSupports single button and MENU+button." // TODO: not supported on nano because POWER doubles as MENU
+	.desc = "按下 A 绑定，按下 X 清除。"
+		"\n支持单个按钮和 MENU+按钮。" // TODO: not supported on nano because POWER doubles as MENU
 	,
 	.on_confirm = OptionControls_bind,
 	.on_change = OptionControls_unbind,
