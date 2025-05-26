@@ -2185,7 +2185,8 @@ int main (int argc, char *argv[]) {
 					SDL_Surface* version_txt = TTF_RenderUTF8_Blended(font.large, release, COLOR_WHITE);
 
 					// 新增：中文化信息
-					SDL_Surface* zh_txt = TTF_RenderUTF8_Blended(font.large, "中文化: PandaQuQ", COLOR_DARK_TEXT);
+					SDL_Surface* zh_txt = TTF_RenderUTF8_Blended(font.large, "中文化", COLOR_DARK_TEXT);
+					SDL_Surface* zh_author_txt = TTF_RenderUTF8_Blended(font.large, "PandaQuQ", COLOR_WHITE);
 
 					SDL_Surface* commit_txt = TTF_RenderUTF8_Blended(font.large, "提交", COLOR_DARK_TEXT);
 					SDL_Surface* hash_txt = TTF_RenderUTF8_Blended(font.large, commit, COLOR_WHITE);
@@ -2222,6 +2223,7 @@ int main (int argc, char *argv[]) {
 					SDL_BlitSurface(version_txt, NULL, version, &(SDL_Rect){x,0});
 					// 新增：中文化
 					SDL_BlitSurface(zh_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT)});
+					SDL_BlitSurface(zh_author_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT)});
 					// 提交信息下移一行
 					SDL_BlitSurface(commit_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*2)});
 					SDL_BlitSurface(hash_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*2)});
