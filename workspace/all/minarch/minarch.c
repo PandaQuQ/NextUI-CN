@@ -5572,7 +5572,7 @@ static int OptionShaders_openMenu(MenuList* list, int i) {
 static MenuList options_menu = {
 	.type = MENU_LIST,
 	.items = (MenuItem[]) {
-		{"前端", "NextUI (" BUILD_DATE " " BUILD_HASH ")翻译：PandaQuQ",.on_confirm=OptionFrontend_openMenu},
+		{"前端", "NextUI (" BUILD_DATE " " BUILD_HASH ")",.on_confirm=OptionFrontend_openMenu},
 		{"模拟器",.on_confirm=OptionEmulator_openMenu},
 		{"着色器",.on_confirm=OptionShaders_openMenu},
 		// TODO: this should be hidden with no cheats available
