@@ -4802,8 +4802,8 @@ static struct {
 	
 	.items = {
 		[ITEM_CONT] = "继续",
-		[ITEM_SAVE] = "保存",
-		[ITEM_LOAD] = "存档",
+		[ITEM_SAVE] = "存档",
+		[ITEM_LOAD] = "读档",
 		[ITEM_OPTS] = "选项",
 		[ITEM_QUIT] = "退出",
 	}
