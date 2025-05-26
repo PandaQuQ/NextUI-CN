@@ -251,10 +251,30 @@ char* load_shader_source(const char* filename) {
 }
 
 GLuint load_shader_from_file(GLenum type, const char* filename, const char* path) {
-	char filepath[256];
-	snprintf(filepath, sizeof(filepath), "%s/%s", path,filename);
+    char filepath[256];
+    snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
     char* source = load_shader_source(filepath);
     if (!source) return 0;
+
+    LOG_info("load shader from file %s\n", filepath);
+
+    // Filter out lines starting with "#pragma parameter"
+    char* cleaned = malloc(strlen(source) + 1);
+    if (!cleaned) {
+        fprintf(stderr, "Out of memory\n");
+        free(source);
+        return 0;
+    }
+    cleaned[0] = '\0';
+
+    char* line = strtok(source, "\n");
+    while (line) {
+        if (strncmp(line, "#pragma parameter", 17) != 0) {
+            strcat(cleaned, line);
+            strcat(cleaned, "\n");
+        }
+        line = strtok(NULL, "\n");
+    }
 
     const char* define = NULL;
     const char* default_precision = NULL;
@@ -270,14 +290,15 @@ GLuint load_shader_from_file(GLenum type, const char* filename, const char* path
             "precision mediump float;\n"
             "#endif\n"
             "#endif\n"
-			"#define PARAMETER_UNIFORM\n";
+            "#define PARAMETER_UNIFORM\n";
     } else {
         fprintf(stderr, "Unsupported shader type\n");
         free(source);
+        free(cleaned);
         return 0;
     }
 
-    const char* version_start = strstr(source, "#version");
+    const char* version_start = strstr(cleaned, "#version");
     const char* version_end = version_start ? strchr(version_start, '\n') : NULL;
 
     const char* replacement_version = "#version 300 es\n";
@@ -286,10 +307,9 @@ GLuint load_shader_from_file(GLenum type, const char* filename, const char* path
     char* combined = NULL;
     size_t define_len = strlen(define);
     size_t precision_len = default_precision ? strlen(default_precision) : 0;
-    size_t source_len = strlen(source);
+    size_t source_len = strlen(cleaned);
     size_t combined_len = 0;
 
-    // Helper: check if the version is one of the desktop ones to upgrade
     int should_replace_with_300es = 0;
     if (version_start && version_end) {
         char version_str[32] = {0};
@@ -298,7 +318,6 @@ GLuint load_shader_from_file(GLenum type, const char* filename, const char* path
             strncpy(version_str, version_start, len);
             version_str[len] = '\0';
 
-            // Check for desktop GLSL versions that should be replaced
             if (
                 strstr(version_str, "#version 110") ||
                 strstr(version_str, "#version 120") ||
@@ -319,52 +338,52 @@ GLuint load_shader_from_file(GLenum type, const char* filename, const char* path
     }
 
     if (version_start && version_end && should_replace_with_300es) {
-        // Replace old desktop version with 300 es
-        size_t header_len = version_end - source + 1;
+        size_t header_len = version_end - cleaned + 1;
         size_t version_len = strlen(replacement_version);
         combined_len = version_len + define_len + precision_len + (source_len - header_len) + 1;
         combined = (char*)malloc(combined_len);
         if (!combined) {
             fprintf(stderr, "Out of memory\n");
             free(source);
+            free(cleaned);
             return 0;
         }
 
         strcpy(combined, replacement_version);
         strcat(combined, define);
         if (default_precision) strcat(combined, default_precision);
-        strcat(combined, source + header_len);
+        strcat(combined, cleaned + header_len);
     } else if (version_start && version_end) {
-        // Keep existing version, insert define after it
-        size_t header_len = version_end - source + 1;
+        size_t header_len = version_end - cleaned + 1;
         combined_len = header_len + define_len + precision_len + (source_len - header_len) + 1;
         combined = (char*)malloc(combined_len);
         if (!combined) {
             fprintf(stderr, "Out of memory\n");
             free(source);
+            free(cleaned);
             return 0;
         }
 
-        memcpy(combined, source, header_len);
+        memcpy(combined, cleaned, header_len);
         memcpy(combined + header_len, define, define_len);
         if (default_precision)
             memcpy(combined + header_len + define_len, default_precision, precision_len);
-        strcpy(combined + header_len + define_len + precision_len, source + header_len);
+        strcpy(combined + header_len + define_len + precision_len, cleaned + header_len);
     } else {
-        // No version — use fallback
         size_t version_len = strlen(fallback_version);
         combined_len = version_len + define_len + precision_len + source_len + 1;
         combined = (char*)malloc(combined_len);
         if (!combined) {
             fprintf(stderr, "Out of memory\n");
             free(source);
+            free(cleaned);
             return 0;
         }
 
         strcpy(combined, fallback_version);
         strcat(combined, define);
         if (default_precision) strcat(combined, default_precision);
-        strcat(combined, source);
+        strcat(combined, cleaned);
     }
 
     GLuint shader = glCreateShader(type);
@@ -373,6 +392,7 @@ GLuint load_shader_from_file(GLenum type, const char* filename, const char* path
     glCompileShader(shader);
 
     free(source);
+    free(cleaned);
     free(combined);
 
     GLint compiled;
@@ -1745,6 +1765,7 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 	static GLfloat last_texelSize[2] = {-1.0f, -1.0f};
 	static GLfloat texelSize[2] = {-1.0f, -1.0f};
 	static GLuint fbo = 0;
+
 	texelSize[0] = 1.0f / shader->texw;
 	texelSize[1] = 1.0f / shader->texh;
 
@@ -1759,11 +1780,11 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 		glBindBuffer(GL_ARRAY_BUFFER, static_VBO);
 
 		float vertices[] = {
-			//   x,     y,    u,    v,    z,    w
-			-1.0f,  1.0f,  0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-			-1.0f, -1.0f,  0.0f, 0.0f, 0.0f, 1.0f,  // bottom-left
-			 1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 1.0f,  // top-right
-			 1.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f   // bottom-right
+			// x,    y,    z,    w,     u,    v,    s,    t
+			-1.0f,  1.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f, 0.0f,  // top-left
+			-1.0f, -1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
+			1.0f,  1.0f, 0.0f, 1.0f,  1.0f, 1.0f, 0.0f, 0.0f,  // top-right
+			1.0f, -1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f, 0.0f   // bottom-right
 		};
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -1773,18 +1794,14 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 	if (shader_program != last_program) {
 		GLint posAttrib = glGetAttribLocation(shader_program, "VertexCoord");
 		if (posAttrib >= 0) {
-			
-			glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+			glVertexAttribPointer(posAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(posAttrib);
 		}
 		GLint texAttrib = glGetAttribLocation(shader_program, "TexCoord");
 		if (texAttrib >= 0) {
-			
-			glVertexAttribPointer(texAttrib, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+			glVertexAttribPointer(texAttrib,  4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
 			glEnableVertexAttribArray(texAttrib);
 		}
-
-
 
 		if (shader->u_FrameDirection >= 0) glUniform1i(shader->u_FrameDirection, 1);
 		if (shader->u_FrameCount >= 0) glUniform1i(shader->u_FrameCount, frame_count);
@@ -1817,6 +1834,7 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 			// }
 			if(*target_texture==0)
 				glGenTextures(1, target_texture);
+			glActiveTexture(GL_TEXTURE0);	
 			glBindTexture(GL_TEXTURE_2D, *target_texture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
@@ -1853,6 +1871,7 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 
 	static GLuint last_bound_texture = 0;
 	if (src_texture != last_bound_texture) {
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, src_texture);
 		last_bound_texture = src_texture;
 	}
@@ -1861,8 +1880,7 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 	
 	if (shader->texLocation >= 0) glUniform1i(shader->texLocation, 0);  
 	
-
-	if (shader->texelSizeLocation >= 0 && (shader->updated || texelSize[0] != last_texelSize[0] || texelSize[1] != last_texelSize[1])) {
+	if (shader->texelSizeLocation >= 0) {
 		glUniform2fv(shader->texelSizeLocation, 1, texelSize);
 		last_texelSize[0] = texelSize[0];
 		last_texelSize[1] = texelSize[1];
