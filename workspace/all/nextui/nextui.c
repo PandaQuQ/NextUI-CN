@@ -1991,7 +1991,7 @@ int main (int argc, char *argv[]) {
 			}
 			else if (PAD_justReleased(BTN_SELECT)) {
 				show_switcher = 1;
-				switcher_selected = 0; 
+				switcher_selected = 0;
 				show_version = 0; // just to be sure
 				dirty = 1;
 			}
@@ -2027,7 +2027,7 @@ int main (int argc, char *argv[]) {
 						}
 						else if (selected>=top->end) {
 							top->start += 1;
-							top->end += 1;
+						 top->end += 1;
 						}
 					}
 				}
@@ -2183,19 +2183,25 @@ int main (int argc, char *argv[]) {
 
 					SDL_Surface* release_txt = TTF_RenderUTF8_Blended(font.large, "版本", COLOR_DARK_TEXT);
 					SDL_Surface* version_txt = TTF_RenderUTF8_Blended(font.large, release, COLOR_WHITE);
+
+					// 新增：中文化信息
+					SDL_Surface* zh_txt = TTF_RenderUTF8_Blended(font.large, "中文化: PandaQuQ", COLOR_DARK_TEXT);
+
 					SDL_Surface* commit_txt = TTF_RenderUTF8_Blended(font.large, "提交", COLOR_DARK_TEXT);
 					SDL_Surface* hash_txt = TTF_RenderUTF8_Blended(font.large, commit, COLOR_WHITE);
 					
 					SDL_Surface* key_txt = TTF_RenderUTF8_Blended(font.large, extra_key, COLOR_DARK_TEXT);
 					SDL_Surface* val_txt = TTF_RenderUTF8_Blended(font.large, extra_val, COLOR_WHITE);
 
-					SDL_Surface* os_txt = TTF_RenderUTF8_Blended(font.large, "基础操作系统", COLOR_DARK_TEXT);
+					SDL_Surface* os_txt = TTF_RenderUTF8_Blended(font.large, "官方系统版本", COLOR_DARK_TEXT);
 					SDL_Surface* osver_txt = TTF_RenderUTF8_Blended(font.large, osver, COLOR_WHITE);
 					
 					int l_width = 0;
 					int r_width = 0;
 					
 					if (release_txt->w>l_width) l_width = release_txt->w;
+					// 新增：考虑中文化宽度
+					if (zh_txt->w>l_width) l_width = zh_txt->w;
 					if (commit_txt->w>l_width) l_width = commit_txt->w;
 					if (key_txt->w>l_width) l_width = key_txt->w;
 					if (os_txt->w>l_width) l_width = os_txt->w;
@@ -2208,28 +2214,29 @@ int main (int argc, char *argv[]) {
 					#define VERSION_LINE_HEIGHT 24
 					int x = l_width + SCALE1(8);
 					int w = x + r_width;
-					int h = SCALE1(VERSION_LINE_HEIGHT*4);
+					// 新增：高度+1行
+					int h = SCALE1(VERSION_LINE_HEIGHT*5);
 					version = SDL_CreateRGBSurface(0,w,h,16,0,0,0,0);
 					
 					SDL_BlitSurface(release_txt, NULL, version, &(SDL_Rect){0, 0});
 					SDL_BlitSurface(version_txt, NULL, version, &(SDL_Rect){x,0});
-					SDL_BlitSurface(commit_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT)});
-					SDL_BlitSurface(hash_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT)});
+					// 新增：中文化
+					SDL_BlitSurface(zh_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT)});
+					// 提交信息下移一行
+					SDL_BlitSurface(commit_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*2)});
+					SDL_BlitSurface(hash_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*2)});
 					
-					SDL_BlitSurface(key_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*2)});
-					SDL_BlitSurface(val_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*2)});
+					SDL_BlitSurface(key_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*3)});
+					SDL_BlitSurface(val_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*3)});
 
-					SDL_BlitSurface(os_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*3)});
-					SDL_BlitSurface(osver_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*3)});
+					SDL_BlitSurface(os_txt, NULL, version, &(SDL_Rect){0,SCALE1(VERSION_LINE_HEIGHT*4)});
+					SDL_BlitSurface(osver_txt, NULL, version, &(SDL_Rect){x,SCALE1(VERSION_LINE_HEIGHT*4)});
 					
 					SDL_FreeSurface(release_txt);
 					SDL_FreeSurface(version_txt);
+					SDL_FreeSurface(zh_txt); // 新增
 					SDL_FreeSurface(commit_txt);
 					SDL_FreeSurface(hash_txt);
-					SDL_FreeSurface(key_txt);
-					SDL_FreeSurface(val_txt);
-					SDL_FreeSurface(os_txt);
-					SDL_FreeSurface(osver_txt);
 				}
 				SDL_BlitSurface(version, NULL, screen, &(SDL_Rect){(screen->w-version->w)/2,(screen->h-version->h)/2});
 				

@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
             if (show_setting) GFX_blitHardwareHints(screen, show_setting);
 
             GFX_blitButtonGroup((char*[]){ "B","返回", NULL }, 1, screen, 1);
-            GFX_blitButtonGroup((char*[]){ "L/R","选择灯光", NULL }, 0, screen, 0);
+            GFX_blitButtonGroup((char*[]){ "左/右","选择灯光", NULL }, 0, screen, 0);
 
 
             int max_width = screen->w - SCALE1(PADDING * 2) - ow;
