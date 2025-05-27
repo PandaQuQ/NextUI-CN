@@ -2040,75 +2040,109 @@ int currentframecount = 0;
 static double ratio = 1.0;
 
 size_t SND_batchSamples(const SND_Frame *frames, size_t frame_count) {
-	
-	int framecount = (int)frame_count;
+    int framecount = (int)frame_count;
+    int consumed = 0;
+    int total_consumed_frames = 0;
 
-	int consumed = 0;
-	int total_consumed_frames = 0;
+	if (snd.frame_count <= 0) {
+		snd.frame_count = 4096; // idk some random samples nr this should never hit tho, just to be safe
+	}
 
-	float remaining_space=snd.frame_count;
+	if (snd.frame_in < 0 || snd.frame_in >= snd.frame_count) {
+		snd.frame_in = 0;
+	}
+
+	if (snd.frame_out < 0 || snd.frame_out >= snd.frame_count) {
+		snd.frame_out = 0;
+	}
+
+	float remaining_space = 0.0f;
 	if (snd.frame_in >= snd.frame_out) {
 		remaining_space = snd.frame_count - (snd.frame_in - snd.frame_out);
-	}
-	else {
+	} else {
 		remaining_space = snd.frame_out - snd.frame_in;
 	}
 	currentbufferfree = remaining_space;
 
-	float tempdelay = ((snd.frame_count - remaining_space) / snd.sample_rate_out) * 1000;
+    float tempdelay = ((snd.frame_count - remaining_space) / snd.sample_rate_out) * 1000.0f;
+    currentbufferms = tempdelay;
 
-	currentbufferms = tempdelay;
+    float tempratio = 1.0f;
 
-	float tempratio = 1;
-	// i use 0.4* as minimum free space because i want my algorithm to fight more for free buffer then full, cause you know free buffer is lower latency :D
-	// My algorithm is fighting here with audio hardware. 
-	// It's like a person is trying to balance on a rope (my algorithm) and another person (the audio hardware and screen) is wiggling the rope and the balancing person got to keep countering and try to stay stable
-	float bufferadjustment = calculateBufferAdjustment(remaining_space, snd.frame_count*0.4, snd.frame_count,frame_count);
-	ratio = (tempratio * (snd.frame_rate / current_fps)) + bufferadjustment;
-	// printf("%s: ratio=%g, tempratio=%g, snd.frame_rate=%g, current_fps=%g, bufferadjustment=%g\n", __FUNCTION__, ratio, tempratio, snd.frame_rate, current_fps, bufferadjustment);
+    // do some checks
+    if (current_fps <= 0.0f || !isfinite(current_fps)) {
+        current_fps = 0.01f;
+    }
+    if (!isfinite(snd.frame_rate) || snd.frame_rate <= 0.0f) {
+        snd.frame_rate = 60.0f;
+    }
 
-	currentratio = ratio;
+    float bufferadjustment = calculateBufferAdjustment(remaining_space, snd.frame_count * 0.5f, snd.frame_count, frame_count);
 
-	if(ratio > 1.5) 
-		ratio = 1.5;
-	if(ratio < 0.5)
-		ratio = 0.5;
+    if (!isfinite(bufferadjustment)) {
+        bufferadjustment = 0.0f;
+    }
+    float safe_ratio = snd.frame_rate / current_fps;
+    if (!isfinite(safe_ratio)) {
+        safe_ratio = 1.0f;
+    }
+    float target_ratio = tempratio * safe_ratio + bufferadjustment;
+    if (!isfinite(target_ratio)) {
+        target_ratio = 1.0f;
+    }
+    if (!isfinite(ratio)) {
+        ratio = 1.0;
+    }
 
-	while (framecount > 0) {
-		
-		int amount = MIN(BATCH_SIZE, framecount);
+	// add some interpolation so the audio hardware has some time to recover itself no need to immediately react with big drops!
+    ratio = 0.999 * ratio + 0.001 * target_ratio;
 
-		for (int i = 0; i < amount; i++) {
-			tmpbuffer[i] = frames[consumed + i];
-		}
-		consumed += amount;
-		framecount -= amount;
+    if (!isfinite(ratio)) {
+        ratio = 1.0;
+    }
 
-		ResampledFrames resampled = resample_audio(
-			tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+	// limit ratio so it wont go crazy for some reason
+    if (ratio > 1.5)
+        ratio = 1.5;
+    else if (ratio < 0.5)
+        ratio = 0.5;
 
-		// Write resampled frames to the buffer
-		int written_frames = 0;
-		
-		for (int i = 0; i < resampled.frame_count; i++) {
-			if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out) {
-				// Buffer is full, break. This should never happen tho, but just to be save
-				break;
-			}
-			pthread_mutex_lock(&audio_mutex);
-			snd.buffer[snd.frame_in] = resampled.frames[i];
-			snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
-			pthread_mutex_unlock(&audio_mutex);
-			written_frames++;
-			
-		}
-		
-		total_consumed_frames += written_frames;
-		free(resampled.frames);
-	}
+    currentratio = (ratio > 0.0) ? ratio : current_fps;
 
-	return total_consumed_frames;
+    while (framecount > 0) {
+        int amount = MIN(BATCH_SIZE, framecount);
+
+        // Copy frames to tmpbuffer for resampling
+        for (int i = 0; i < amount; i++) {
+            tmpbuffer[i] = frames[consumed + i];
+        }
+        consumed += amount;
+        framecount -= amount;
+
+        ResampledFrames resampled = resample_audio(
+            tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+
+        int written_frames = 0;
+        for (int i = 0; i < resampled.frame_count; i++) {
+            // Check if buffer full (leave one slot free)
+            if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out) {
+                // Buffer full, break early
+                break;
+            }
+            pthread_mutex_lock(&audio_mutex);
+            snd.buffer[snd.frame_in] = resampled.frames[i];
+            snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
+            pthread_mutex_unlock(&audio_mutex);
+            written_frames++;
+        }
+
+        total_consumed_frames += written_frames;
+        free(resampled.frames);
+    }
+
+    return total_consumed_frames;
 }
+
 
 enum {
 	SND_FF_ON_TIME,
@@ -3134,7 +3168,11 @@ void LED_setColor(uint32_t color,int ledindex) {
 
 void LEDS_updateLeds() {
 	if(pwr.charge > PWR_LOW_CHARGE) {
-		int lightsize = sizeof(*lights) / sizeof(LightSettings);
+		int lightsize = 3;
+		char* device = getenv("DEVICE");
+		int is_brick = exactMatch("brick", device);
+		if(is_brick)
+			lightsize=4;
 		for (int i = 0; i < lightsize; i++)
 		{
 			PLAT_setLedBrightness(  &(*lights)[i]); // set brightness of each led
