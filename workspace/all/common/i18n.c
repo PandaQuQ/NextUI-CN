@@ -223,12 +223,11 @@ static TranslationEntry translation_table[] = {
     {"wifi_disconnect_desc", {"Disconnect from this network.", "从此网络断开连接。", "このネットワークから切断します。", "이 네트워크에서 연결을 끊습니다."}},
     {"wifi_options", {"Options", "选项", "オプション", "옵션"}}
 
-    // api.c
-    {"brightness_api", {"BRIGHTNESS", "亮度", "明るさ", "밝기"}},
-    {"color_temperature_api", {"COLOR TEMP"， "色温", "色温度", "색온도"}},
-    {"MNU", {"MUN", "菜单", "メニュー", "메뉴"}},
+    // api.c    {"brightness_api", {"BRIGHTNESS", "亮度", "明るさ", "밝기"}},
+    {"color_temperature_api", {"COLOR TEMP", "色温", "色温度", "색온도"}},
+    {"menu_api", {"MNU", "菜单", "メニュー", "메뉴"}},
+    {"select_api", {"SEL", "选择", "選択", "선택"}},
     {"BRIGHT", {"BRIGHT", "亮度", "明るさ", "밝기"}},
-    {"SEL", {"SEL", "选择", "選択", "선택"}},
     {"CLTEMP", {"CLTEMP", "色温", "色温度", "색온도"}},
     {"quicksave_created_powering_off",{"Quicksave created,\npowering off", "已创建快速存档\n现在关机", "クイックセーブが作成されました\n電源を切ります", "퀵세이브가 생성되었습니다\n전원을 끕니다"}},
     {"powering_off", {"Powering off", "正在关机", "電源を切っています", "전원을 끕니다"}}

@@ -1692,22 +1692,21 @@ int GFX_blitHardwareGroup(SDL_Surface* dst, int show_setting) {
 }
 void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting) {
 
-		if (show_setting==1) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("brightness_api"),  NULL }, 0, dst, 0);
-		else if (show_setting==3) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
-		else GFX_blitButtonGroup((char*[]){ I18N_get("menu_api"),I18N_get("brightness_api"),I18N_get("select_api"),I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
+		if (show_setting==1) GFX_blitButtonGroup((const char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("brightness_api"),  NULL }, 0, dst, 0);
+		else if (show_setting==3) GFX_blitButtonGroup((const char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
+		else GFX_blitButtonGroup((const char*[]){ I18N_get("menu_api"),I18N_get("brightness_api"),I18N_get("select_api"),I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
 
 }
 
-int GFX_blitButtonGroup(char** pairs, int primary, SDL_Surface* dst, int align_right) {
+int GFX_blitButtonGroup(const char** pairs, int primary, SDL_Surface* dst, int align_right) {
 	int ox;
 	int oy;
 	int ow;
-	char* hint;
-	char* button;
-
+	const char* hint;
+	const char* button;
 	struct Hint {
-		char* hint;
-		char* button;
+		const char* hint;
+		const char* button;
 		int ow;
 	} hints[2]; 
 	int w = 0; // individual button dimension
