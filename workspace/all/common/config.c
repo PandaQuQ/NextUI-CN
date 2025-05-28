@@ -1,7 +1,7 @@
 #include "config.h"
 #include "defines.h"
 #include "utils.h"
-#include "../ledcontrol/i18n.h"
+#include "i18n.h"
 
 NextUISettings settings = {0};
 
