@@ -1465,10 +1465,9 @@ int GFX_blitBattery(SDL_Surface* dst, SDL_Rect* dst_rect) {
 			
 			GFX_blitAssetColor(percent<=20?ASSET_BATTERY_FILL_LOW:ASSET_BATTERY_FILL, &clip, dst, &(SDL_Rect){x+SCALE1(3)+clip.x,y+SCALE1(2)}, THEME_COLOR6);
 			return rect.w + FIXED_SCALE;
-		}
-	}
+		}	}
 }
-int GFX_getButtonWidth(char* hint, char* button) {
+int GFX_getButtonWidth(const char* hint, const char* button) {
 	int button_width = 0;
 	int width;
 	
@@ -1488,7 +1487,7 @@ int GFX_getButtonWidth(char* hint, char* button) {
 	button_width += width + SCALE1(BUTTON_MARGIN);
 	return button_width;
 }
-void GFX_blitButton(char* hint, char*button, SDL_Surface* dst, SDL_Rect* dst_rect) {
+void GFX_blitButton(const char* hint, const char* button, SDL_Surface* dst, SDL_Rect* dst_rect) {
 	SDL_Surface* text;
 	int ox = 0;
 	
