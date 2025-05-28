@@ -27,6 +27,9 @@ int main(int argc , char* argv[]) {
 	PWR_init();
 	InitSettings();
 	
+	// Initialize internationalization
+	I18N_init();
+	
 	// TODO: make use of SCALE1()
 	SDL_Surface* digits = SDL_CreateRGBSurface(SDL_SWSURFACE, SCALE2(120,16), FIXED_DEPTH,RGBA_MASK_AUTO);
 	SDL_FillRect(digits, NULL, RGB_BLACK);
@@ -244,13 +247,12 @@ int main(int argc , char* argv[]) {
 			validate();
 
 			GFX_clear(screen);
-			
-			GFX_blitHardwareGroup(screen, show_setting);
+					GFX_blitHardwareGroup(screen, show_setting);
 			
 			if (show_setting) GFX_blitHardwareHints(screen, show_setting);
-			else GFX_blitButtonGroup((char*[]){ "选择",show_24hour?"12 小时":"24 小时", NULL }, 0, screen, 0);
+			else GFX_blitButtonGroup((const char*[]){ I18N_get("select"), show_24hour ? I18N_get("12_hour") : I18N_get("24_hour"), NULL }, 0, screen, 0);
 
-			GFX_blitButtonGroup((char*[]){ "B","取消", "A","设置", NULL }, 1, screen, 1);
+			GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"), I18N_get("cancel"), I18N_get("button_a"), I18N_get("set"), NULL }, 1, screen, 1);
 		
 			// 376 or 446 (@2x)
 			// 188 or 223 (@1x)

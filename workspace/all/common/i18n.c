@@ -236,9 +236,14 @@ static TranslationEntry translation_table[] = {
     {"menu_api", {"MNU", "菜单", "メニュー", "메뉴"}},
     {"select_api", {"SEL", "选择", "選択", "선택"}},
     {"BRIGHT", {"BRIGHT", "亮度", "明るさ", "밝기"}},
-    {"CLTEMP", {"CLTEMP", "色温", "色温度", "색온도"}},
-    {"quicksave_created_powering_off",{"Quicksave created,\npowering off", "已创建快速存档\n现在关机", "クイックセーブが作成されました\n電源を切ります", "퀵세이브가 생성되었습니다\n전원을 끕니다"}},
-    {"powering_off", {"Powering off", "正在关机", "電源を切っています", "전원을 끕니다"}}
+    {"CLTEMP", {"CLTEMP", "色温", "色温度", "색온도"}},    {"quicksave_created_powering_off",{"Quicksave created,\npowering off", "已创建快速存档\n现在关机", "クイックセーブが作成されました\n電源を切ります", "퀵세이브가 생성되었습니다\n전원을 끕니다"}},
+    {"powering_off", {"Powering off", "正在关机", "電源を切っています", "전원을 끕니다"}},
+    
+    // Clock app strings
+    {"select", {"Select", "选择", "選択", "선택"}},
+    {"12_hour", {"12 hour", "12 小时", "12時間", "12시간"}},
+    {"24_hour", {"24 hour", "24 小时", "24時間", "24시간"}},
+    {"button_a", {"A", "A", "A", "A"}}
 
 };
 
