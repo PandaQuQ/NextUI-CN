@@ -18,6 +18,7 @@
 
 #include "utils.h"
 #include "config.h"
+#include "i18n.h"
 
 #include <pthread.h>
 
@@ -1691,9 +1692,9 @@ int GFX_blitHardwareGroup(SDL_Surface* dst, int show_setting) {
 }
 void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting) {
 
-		if (show_setting==1) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"亮度",  NULL }, 0, dst, 0);
-		else if (show_setting==3) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,"色温",  NULL }, 0, dst, 0);
-		else GFX_blitButtonGroup((char*[]){ "菜单","亮度","选择","色温",  NULL }, 0, dst, 0);
+		if (show_setting==1) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("brightness_api"),  NULL }, 0, dst, 0);
+		else if (show_setting==3) GFX_blitButtonGroup((char*[]){ BRIGHTNESS_BUTTON_LABEL,I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
+		else GFX_blitButtonGroup((char*[]){ I18N_get("menu_api"),I18N_get("brightness_api"),I18N_get("select_api"),I18N_get("color_temperature_api"),  NULL }, 0, dst, 0);
 
 }
 
@@ -2916,13 +2917,12 @@ void PWR_powerOff(void) {
 		gfx.screen = GFX_resize(w,h,p);
 		
 		char* msg;
-		if (HAS_POWER_BUTTON || HAS_POWEROFF_BUTTON) msg = exists(AUTO_RESUME_PATH) ? (char*)"已创建快速存档\n现在关机" :  (char*)"正在关机";
-		else msg = exists(AUTO_RESUME_PATH) ?  (char*)"已创建快速存档\n现在关机" :  (char*)"正在关机";
-		
+		if (HAS_POWER_BUTTON || HAS_POWEROFF_BUTTON) msg = exists(AUTO_RESUME_PATH) ? (char*)I18N_get("quicksave_created_powering_off") :  (char*)I18N_get("powering_off");
+		else msg = exists(AUTO_RESUME_PATH) ?  (char*)I18N_get("quicksave_created_powering_off") :  (char*)I18N_get("powering_off");
 		// LOG_info("PWR_powerOff %s (%ix%i)\n", gfx.screen, gfx.screen->w, gfx.screen->h);
-		
+
 		// TODO: for some reason screen's dimensions end up being 0x0 in GFX_blitMessage...
-		
+
 		PLAT_clearLayers(0);
 		PLAT_clearAll();
 		GFX_blitMessage(font.large, msg, gfx.screen,&(SDL_Rect){0,0,gfx.screen->w,gfx.screen->h}); //, NULL);

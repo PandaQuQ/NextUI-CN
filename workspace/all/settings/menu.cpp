@@ -5,6 +5,7 @@ extern "C"
 #include "defines.h"
 #include "api.h"
 #include "utils.h"
+#include "i18n.h"
 }
 
 #include <mutex>
@@ -764,11 +765,10 @@ void MenuList::drawMain(SDL_Surface *surface, const SDL_Rect &dst)
             // pos.h = std::min(pos.h, hintRect.h);
 
             drawMainItem(surface, pos, *items[i], j == selected_row);
-        }
-    }
+        }    }
     else
     {
-        GFX_blitMessageCPP(font.large, "空文件夹", surface, dst);
+        GFX_blitMessageCPP(font.large, I18N_get("empty_folder"), surface, dst);
     }
 }
 

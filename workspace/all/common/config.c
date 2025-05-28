@@ -1,6 +1,7 @@
 #include "config.h"
 #include "defines.h"
 #include "utils.h"
+#include "../ledcontrol/i18n.h"
 
 NextUISettings settings = {0};
 
@@ -47,14 +48,12 @@ void CFG_defaults(NextUISettings *cfg)
         .muteLeds = CFG_DEFAULT_MUTELEDS,
 
         .screenTimeoutSecs = CFG_DEFAULT_SCREENTIMEOUTSECS,
-        .suspendTimeoutSecs = CFG_DEFAULT_SUSPENDTIMEOUTSECS,
-
-        .haptics = CFG_DEFAULT_HAPTICS,
+        .suspendTimeoutSecs = CFG_DEFAULT_SUSPENDTIMEOUTSECS,        .haptics = CFG_DEFAULT_HAPTICS,
         .romsUseFolderBackground = CFG_DEFAULT_ROMSUSEFOLDERBACKGROUND,
         .saveFormat = CFG_DEFAULT_SAVEFORMAT,
         .stateFormat = CFG_DEFAULT_STATEFORMAT,
-
         .wifi = CFG_DEFAULT_WIFI,
+        .language = CFG_DEFAULT_LANGUAGE,
 };
 
     *cfg = defaults;
@@ -203,17 +202,19 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
             {
                 CFG_setGameArtWidth((double)temp_value / 100.0);
                 continue;
-            }
-            if (sscanf(line, "wifi=%i", &temp_value) == 1)
+            }            if (sscanf(line, "wifi=%i", &temp_value) == 1)
             {
                 CFG_setWifi((bool)temp_value);
                 continue;
             }
+            if (sscanf(line, "language=%i", &temp_value) == 1)
+            {
+                CFG_setLanguage(temp_value);
+                continue;
+            }
         }
         fclose(file);
-    }
-
-    // load gfx related stuff until we drop the indirection
+    }    // load gfx related stuff until we drop the indirection
     CFG_setColor(1, CFG_getColor(1));
     CFG_setColor(2, CFG_getColor(2));
     CFG_setColor(3, CFG_getColor(3));
@@ -223,6 +224,10 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
     // avoid reloading the font if not neccessary
     if (!fontLoaded)
         CFG_setFontId(CFG_getFontId());
+        
+    // Initialize i18n with the current language setting
+    I18N_init();
+    I18N_setLanguage((Language)CFG_getLanguage());
 }
 
 int CFG_getFontId(void)
@@ -235,10 +240,33 @@ void CFG_setFontId(int id)
     settings.font = clamp(id, 0, 2);
 
     char *fontPath;
-    if (settings.font == 1)
-        fontPath = RES_PATH "/font1.ttf";
+    // Now we don't have japanese and korean fonts, so we use english font for them
+    //if language is set to English and font is set to 1
+    if (settings.font == 1 && settings.language == LANG_EN_US)
+        fontPath = RES_PATH "/en_font1.ttf";
+    //if language is set to English and font is set to 1
+    else if (settings.font == 2 && settings.language == LANG_EN_US)
+        fontPath = RES_PATH "/en_font2.ttf";
+    //if language is set to Chinese and font is set to 1
+    else if (settings.font == 1 && settings.language == LANG_ZH_CN)
+        fontPath = RES_PATH "/zh_font1.ttf";
+    //if language is set to Chinese and font is set to 2
+    else if (settings.font == 2 && settings.language == LANG_ZH_CN)
+        fontPath = RES_PATH "/zh_font2.ttf";
+    //if language is set to Japanese and font is set to 1
+    else if (settings.font == 1 && settings.language == LANG_JA_JP)
+        fontPath = RES_PATH "/en_font1.ttf";
+    //if language is set to Japanese and font is set to 2
+    else if (settings.font == 2 && settings.language == LANG_JA_JP)
+        fontPath = RES_PATH "/en_font2.ttf";
+    //if language is set to Korean and font is set to 1
+    else if (settings.font == 1 && settings.language == LANG_KO_KR)
+        fontPath = RES_PATH "/en_font1.ttf";
+    //if language is set to Korean and font is set to 2
+    else if (settings.font == 2 && settings.language == LANG_KO_KR)
+        fontPath = RES_PATH "/en_font2.ttf";
     else
-        fontPath = RES_PATH "/font2.ttf";
+        fontPath = RES_PATH "/en_font1.ttf";
 
     if(settings.onFontChange)
         settings.onFontChange(fontPath);
@@ -486,6 +514,18 @@ void CFG_setWifi(bool on)
     settings.wifi = on;
 }
 
+int CFG_getLanguage(void)
+{
+    return settings.language;
+}
+
+void CFG_setLanguage(int lang)
+{
+    settings.language = clamp(lang, 0, 3); // 0=English, 1=Chinese, 2=Japanese, 3=Korean
+    // Set the i18n language when config language changes
+    I18N_setLanguage((Language)settings.language);
+}
+
 void CFG_get(const char *key, char *value)
 {
     if (strcmp(key, "font") == 0)
@@ -583,10 +623,13 @@ void CFG_get(const char *key, char *value)
     else if (strcmp(key, "artWidth") == 0)
     {
         sprintf(value, "%i", (int)(CFG_getGameArtWidth()) * 100);
-    }
-    else if (strcmp(key, "wifi") == 0)
+    }    else if (strcmp(key, "wifi") == 0)
     {
         sprintf(value, "%i", (int)(CFG_getWifi()));
+    }
+    else if (strcmp(key, "language") == 0)
+    {
+        sprintf(value, "%i", CFG_getLanguage());
     }
 
     // meta, not a real setting
@@ -638,9 +681,9 @@ void CFG_sync(void)
     fprintf(file, "romfolderbg=%i\n", settings.romsUseFolderBackground);
     fprintf(file, "saveFormat=%i\n", settings.saveFormat);
     fprintf(file, "stateFormat=%i\n", settings.stateFormat);
-    fprintf(file, "muteLeds=%i\n", settings.muteLeds);
-    fprintf(file, "artWidth=%i\n", (int)(settings.gameArtWidth * 100));
+    fprintf(file, "muteLeds=%i\n", settings.muteLeds);    fprintf(file, "artWidth=%i\n", (int)(settings.gameArtWidth * 100));
     fprintf(file, "wifi=%i\n", settings.wifi);
+    fprintf(file, "language=%i\n", settings.language);
 
     fclose(file);
 }
@@ -671,15 +714,29 @@ void CFG_print(void)
     printf("\t\"romfolderbg\": %i,\n", settings.romsUseFolderBackground);
     printf("\t\"saveFormat\": %i,\n", settings.saveFormat);
     printf("\t\"stateFormat\": %i,\n", settings.stateFormat);
-    printf("\t\"muteLeds\": %i,\n", settings.muteLeds);
-    printf("\t\"artWidth\": %i,\n", (int)(settings.gameArtWidth * 100));
+    printf("\t\"muteLeds\": %i,\n", settings.muteLeds);    printf("\t\"artWidth\": %i,\n", (int)(settings.gameArtWidth * 100));
     printf("\t\"wifi\": %i,\n", settings.wifi);
+    printf("\t\"language\": %i,\n", settings.language);
 
     // meta, not a real setting
-    if (settings.font == 1)
-        printf("\t\"fontpath\": \"%s\"\n", RES_PATH "/font1.ttf");
+    // idk what is this but it is better to sync my changes about the multi-language support(en, zh, ja, ko)
+    if (settings.font == 1 && settings.language == LANG_EN_US)
+        printf("\t\"fontpath\": \"%s/en_font1.ttf\"\n", RES_PATH);
+    else if (settings.font == 2 && settings.language == LANG_EN_US)
+        printf("\t\"fontpath\": \"%s/en_font2.ttf\"\n", RES_PATH);
+    else if (settings.font == 1 && settings.language == LANG_ZH_CN)
+        printf("\t\"fontpath\": \"%s/zh_font1.ttf\"\n", RES_PATH);
+    else if (settings.font == 2 && settings.language == LANG_ZH_CN)
+        printf("\t\"fontpath\": \"%s/zh_font2.ttf\"\n", RES_PATH);
+    else if (settings.font == 1 && settings.language == LANG_JA_JP)
+        printf("\t\"fontpath\": \"%s/en_font1.ttf\"\n", RES_PATH);
+    else if (settings.font == 2 && settings.language == LANG_JA_JP)
+        printf("\t\"fontpath\": \"%s/en_font2.ttf\"\n", RES_PATH);
+    else if (settings.font == 1 && settings.language == LANG_KO_KR)
+        printf("\t\"fontpath\": \"%s/en_font1.ttf\"\n", RES_PATH);
+    else if (settings.font == 2 && settings.language == LANG_KO_KR)
+        printf("\t\"fontpath\": \"%s/en_font2.ttf\"\n", RES_PATH);
     else
-        printf("\t\"fontpath\": \"%s\"\n", RES_PATH "/font2.ttf");
 
     printf("}\n");
 }

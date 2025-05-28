@@ -84,9 +84,11 @@ typedef struct
 
 	// Haptic
 	bool haptics;
-
 	// Network
 	bool wifi;
+
+	// Internationalization
+	int language;
 
 } NextUISettings;
 
@@ -116,6 +118,7 @@ typedef struct
 #define CFG_DEFAULT_MUTELEDS false
 #define CFG_DEFAULT_GAMEARTWIDTH 0.45
 #define CFG_DEFAULT_WIFI false
+#define CFG_DEFAULT_LANGUAGE 0  // LANG_EN_US
 
 void CFG_init(FontLoad_callback_t fontCallback, ColorSet_callback_t ccb);
 void CFG_print(void);
@@ -191,6 +194,9 @@ void CFG_setGameArtWidth(double zeroToOne);
 // WiFi on/off (if available)
 bool CFG_getWifi(void);
 void CFG_setWifi(bool on);
+// Language selection for i18n
+int CFG_getLanguage(void);
+void CFG_setLanguage(int lang);
 
 
 void CFG_sync(void);

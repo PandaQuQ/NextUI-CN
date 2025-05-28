@@ -1,5 +1,6 @@
 #include "wifimenu.hpp"
 #include "keyboardprompt.hpp"
+#include "i18n.h" 
 
 #include <unordered_set>
 #include <map>
@@ -13,9 +14,9 @@ typedef std::shared_lock<Lock> ReadLock;
 using namespace Wifi;
 using namespace std::placeholders;
 
-Menu::Menu(const int &globalQuit) : MenuList(MenuItemType::Fixed, "网络", {}), globalQuit(globalQuit)
+Menu::Menu(const int &globalQuit) : MenuList(MenuItemType::Fixed, I18N_get("network"), {}), globalQuit(globalQuit)
 {
-    toggleItem = new MenuItem(ListItemType::Generic, "WiFi", "启用/禁用 WiFi", {false, true}, {"关闭", "开启"},
+    toggleItem = new MenuItem(ListItemType::Generic, I18N_get("wifi"), I18N_get("wifi_toggle_desc"), {false, true}, {I18N_get("off"), I18N_get("on")},
                               std::bind(&Menu::getWifToggleState, this),
                               std::bind(&Menu::setWifiToggleState, this, std::placeholders::_1),
                               std::bind(&Menu::resetWifiToggleState, this));
@@ -128,17 +129,17 @@ void Menu::updater()
 
                     MenuList *options;
                     if (connected)
-                        options = new MenuList(MenuItemType::List, "选项",
+                        options = new MenuList(MenuItemType::List, I18N_get("options"),
                                                {
-                                                   new MenuItem{ListItemType::Button, "断开连接", "从此网络断开连接。",
+                                                   new MenuItem{ListItemType::Button, I18N_get("disconnect"), I18N_get("disconnect_desc"),
                                                                 [&](MenuItem &item) -> InputReactionHint
                                                                 { WIFI_disconnect(); workerDirty = true; return Exit; }},
                                                    new ForgetItem(r, workerDirty)
                                                });
                     else if (hasCredentials)
-                        options = new MenuList(MenuItemType::List, "选项", { new ConnectKnownItem(r, workerDirty), new ForgetItem(r, workerDirty) });
+                        options = new MenuList(MenuItemType::List, I18N_get("options"), { new ConnectKnownItem(r, workerDirty), new ForgetItem(r, workerDirty) });
                     else
-                        options = new MenuList(MenuItemType::List, "选项", { new ConnectNewItem(r, workerDirty) });
+                        options = new MenuList(MenuItemType::List, I18N_get("options"), { new ConnectNewItem(r, workerDirty) });
 
                     auto itm = new NetworkItem{r, connected, options};
                     if(connected && !std::string(connection.ip).empty())
@@ -170,7 +171,7 @@ void Menu::updater()
 }
 
 ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "连接", "连接到此网络。", [&](MenuItem &item) -> InputReactionHint{
+    : MenuItem(ListItemType::Button, I18N_get("connect"), I18N_get("connect_desc"), [&](MenuItem &item) -> InputReactionHint{
         WIFI_connect(net.ssid, net.security);
         dirty = true;
         return Exit;
@@ -178,7 +179,7 @@ ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
 {}
 
 ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "输入 WiFi 密码", "连接到此网络。", DeferToSubmenu, new KeyboardPrompt("输入 WiFi 密码",
+    : MenuItem(ListItemType::Button, I18N_get("wifi_enter_password"), I18N_get("connect_desc"), DeferToSubmenu, new KeyboardPrompt(I18N_get("wifi_enter_password"),
         [&](MenuItem &item) -> InputReactionHint {
             WIFI_connectPass(net.ssid, net.security, item.getName().c_str()); 
             dirty = true;
@@ -187,7 +188,7 @@ ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
 {}
 
 ForgetItem::ForgetItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "忘记", "删除此网络的凭据。",
+    : MenuItem(ListItemType::Button, I18N_get("forget"), I18N_get("forget_desc"),
         [&](MenuItem &item) -> InputReactionHint {
             WIFI_forget(net.ssid, net.security); 
             dirty = true; 

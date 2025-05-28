@@ -5,6 +5,7 @@ extern "C"
 #include "defines.h"
 #include "api.h"
 #include "utils.h"
+#include "i18n.h"
 }
 
 #include "wifimenu.hpp"
@@ -42,6 +43,122 @@ struct Context
 
 // This is all the MinUiSettings stuff, for now just copied over from the old settings app
 
+// Helper functions to get localized labels
+std::vector<std::string> getLocalizedTimeoutLabels() {
+    return {
+        I18N_get("never"),
+        I18N_get("5_seconds"),
+        I18N_get("10_seconds"),
+        I18N_get("15_seconds"),
+        I18N_get("30_seconds"),
+        I18N_get("45_seconds"),
+        I18N_get("60_seconds"),
+        I18N_get("90_seconds"),
+        I18N_get("2_minutes"),
+        I18N_get("4_minutes"),
+        I18N_get("6_minutes"),
+        I18N_get("10_minutes")
+    };
+}
+
+std::vector<std::string> getLocalizedOnOffLabels() {
+    return {I18N_get("off"), I18N_get("on")};
+}
+
+std::vector<std::string> getLocalizedScalingLabels() {
+    return {I18N_get("fullscreen"), I18N_get("fit"), I18N_get("fill")};
+}
+
+std::vector<std::string> getLocalizedLanguageLabels() {
+    std::vector<std::string> labels;
+    for (int i = 0; i < LANG_COUNT; i++) {
+        labels.push_back(I18N_getLanguageName((Language)i));
+    }
+    return labels;
+}
+
+std::vector<std::string> getLocalizedFontLabels() {
+    return {I18N_get("font_1"), I18N_get("font_2")};
+}
+
+std::vector<std::string> getLocalizedVolumeLabels() {
+    return {
+        I18N_get("mute"), I18N_get("5_percent"), I18N_get("10_percent"), I18N_get("15_percent"), 
+        I18N_get("20_percent"), I18N_get("25_percent"), I18N_get("30_percent"), I18N_get("35_percent"),
+        I18N_get("40_percent"), I18N_get("45_percent"), I18N_get("50_percent"), I18N_get("55_percent"),
+        I18N_get("60_percent"), I18N_get("65_percent"), I18N_get("70_percent"), I18N_get("75_percent"),
+        I18N_get("80_percent"), I18N_get("85_percent"), I18N_get("90_percent"), I18N_get("95_percent"), 
+        I18N_get("100_percent")
+    };
+}
+
+std::vector<std::string> getLocalizedSaveFormatLabels() {
+    return {
+        I18N_get("minui_default"), I18N_get("retroarch_compressed"), 
+        I18N_get("retroarch_uncompressed"), I18N_get("generic")
+    };
+}
+
+std::vector<std::string> getLocalizedStateFormatLabels() {
+    return {
+        I18N_get("minui_default"), I18N_get("retroarch_compressed"), 
+        I18N_get("retroarch_uncompressed")
+    };
+}
+
+std::vector<std::string> getLocalizedMuteVolumeLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    auto volume_labels = getLocalizedVolumeLabels();
+    labels.insert(labels.end(), volume_labels.begin(), volume_labels.end());
+    return labels;
+}
+
+std::vector<std::string> getLocalizedMuteBrightnessLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    for (int i = 0; i <= 10; i++) {
+        labels.push_back(std::to_string(i));
+    }
+    return labels;
+}
+
+std::vector<std::string> getLocalizedMuteColorTempLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    for (int i = 0; i <= 40; i++) {
+        labels.push_back(std::to_string(i));
+    }
+    return labels;
+}
+
+std::vector<std::string> getLocalizedMuteContrastLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    for (int i = -4; i <= 5; i++) {
+        labels.push_back(std::to_string(i));
+    }
+    return labels;
+}
+
+std::vector<std::string> getLocalizedMuteSaturationLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    for (int i = -5; i <= 5; i++) {
+        labels.push_back(std::to_string(i));
+    }
+    return labels;
+}
+
+std::vector<std::string> getLocalizedMuteExposureLabels() {
+    std::vector<std::string> labels;
+    labels.push_back(I18N_get("no_change"));
+    for (int i = -4; i <= 5; i++) {
+        labels.push_back(std::to_string(i));
+    }
+    return labels;
+}
+
 static const std::vector<std::any> colors = {
     0x000022U, 0x000044U, 0x000066U, 0x000088U, 0x0000AAU, 0x0000CCU, 0x1e2329U, 0x3366FFU, 0x4D7AFFU, 0x6699FFU, 0x80B3FFU, 0x99CCFFU, 0xB3D9FFU,
     0x002222U, 0x004444U, 0x006666U, 0x008888U, 0x00AAAAU, 0x00CCCCU, 0x33FFFFU, 0x4DFFFFU, 0x66FFFFU, 0x80FFFFU, 0x99FFFFU, 0xB3FFFFU,
@@ -64,15 +181,11 @@ static const std::vector<std::string> color_strings = {
     "0x221100", "0x442200", "0x663300", "0x884400", "0xAA5500", "0xCC6600", "0xFF8833", "0xFF994D", "0xFFAA66", "0xFFBB80", "0xFFCC99", "0xFFDDB3",
     "0x000000", "0x141414", "0x282828", "0x3C3C3C", "0x505050", "0x646464", "0x8C8C8C", "0xA0A0A0", "0xB4B4B4", "0xC8C8C8", "0xDCDCDC", "0xFFFFFF"};
 
-static const std::vector<std::string> font_names = {"寒蝉半圆体", "寒蝉全圆体"};
-
 static const std::vector<std::any> timeout_secs = {0U, 5U, 10U, 15U, 30U, 45U, 60U, 90U, 120U, 240U, 360U, 600U};
-static const std::vector<std::string> timeout_labels = {"从不", "5秒", "10秒", "15秒", "30秒", "45秒", "60秒", "90秒", "2分钟", "4分钟", "6分钟", "10分钟"};
 
-static const std::vector<std::string> on_off = {"关闭", "开启"};
-
-static const std::vector<std::string> scaling_strings = {"全屏", "适应", "填充"};
 static const std::vector<std::any> scaling = {(int)GFX_SCALE_FULLSCREEN, (int)GFX_SCALE_FIT, (int)GFX_SCALE_FILL};
+
+static const std::vector<std::any> language_values = {(int)LANG_EN_US, (int)LANG_ZH_CN, (int)LANG_JA_JP, (int)LANG_KO_KR};
 
 int main(int argc, char *argv[])
 {
@@ -108,67 +221,84 @@ int main(int argc, char *argv[])
             tz_values.push_back(std::string(timezones[i]));
             // Todo: beautify, remove underscores and so on
             tz_labels.push_back(std::string(timezones[i]));
-        }
-
-        auto appearanceMenu = new MenuList(MenuItemType::Fixed, "外观",
-            {new MenuItem{ListItemType::Generic, "字体", "该字体用于渲染所有UI文本", {0, 1}, font_names, 
+        }        // Get localized labels for the dynamic arrays
+        auto font_labels = getLocalizedFontLabels();
+        auto language_labels = getLocalizedLanguageLabels();
+        auto on_off_labels = getLocalizedOnOffLabels();
+        auto scaling_labels = getLocalizedScalingLabels();
+        auto timeout_labels = getLocalizedTimeoutLabels();
+        auto volume_labels = getLocalizedVolumeLabels();
+        auto save_format_labels = getLocalizedSaveFormatLabels();
+        auto state_format_labels = getLocalizedStateFormatLabels();
+        auto mute_volume_labels = getLocalizedMuteVolumeLabels();
+        auto mute_brightness_labels = getLocalizedMuteBrightnessLabels();
+        auto mute_colortemp_labels = getLocalizedMuteColorTempLabels();
+        auto mute_contrast_labels = getLocalizedMuteContrastLabels();
+        auto mute_saturation_labels = getLocalizedMuteSaturationLabels();
+        auto mute_exposure_labels = getLocalizedMuteExposureLabels();
+        
+        auto appearanceMenu = new MenuList(MenuItemType::Fixed, I18N_get("appearance"),
+            {new MenuItem{ListItemType::Generic, I18N_get("font"), I18N_get("the_font_to_render_all_ui_text"), {0, 1}, font_labels, 
                 []() -> std::any{ return CFG_getFontId(); },
                 [](const std::any &value){ CFG_setFontId(std::any_cast<int>(value)); },
                 []() { CFG_setFontId(CFG_DEFAULT_FONT_ID);}},
-                new MenuItem{ListItemType::Color, "主色", "用于渲染主要UI元素的颜色", colors, color_strings, 
+                new MenuItem{ListItemType::Generic, I18N_get("language_setting"), I18N_get("interface_language_setting"), language_values, language_labels, 
+                []() -> std::any{ return CFG_getLanguage(); },
+                [](const std::any &value){ CFG_setLanguage(std::any_cast<int>(value)); I18N_setLanguage((Language)std::any_cast<int>(value)); },
+                []() { CFG_setLanguage(CFG_DEFAULT_LANGUAGE); I18N_setLanguage((Language)CFG_DEFAULT_LANGUAGE);}},
+                new MenuItem{ListItemType::Color, I18N_get("main_color"), I18N_get("the_color_used_to_render_main_ui_elements"), colors, color_strings, 
                 []() -> std::any{ return CFG_getColor(1); }, 
                 [](const std::any &value){ CFG_setColor(1, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(1, CFG_DEFAULT_COLOR1);}},
-                new MenuItem{ListItemType::Color, "主要强调色", "用于突出显示用户界面中重要内容的颜色", colors, color_strings, 
+                new MenuItem{ListItemType::Color, I18N_get("primary_accent_color"), I18N_get("the_color_used_to_highlight_important_things_in_the_user_interface"), colors, color_strings, 
                 []() -> std::any{ return CFG_getColor(2); }, 
                 [](const std::any &value){ CFG_setColor(2, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(2, CFG_DEFAULT_COLOR2);}},
-                new MenuItem{ListItemType::Color, "次要强调色", "次要强调色", colors, color_strings, 
+                new MenuItem{ListItemType::Color, I18N_get("secondary_accent_color"), I18N_get("a_secondary_highlight_color"), colors, color_strings, 
                 []() -> std::any{ return CFG_getColor(3); }, 
                 [](const std::any &value){ CFG_setColor(3, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(3, CFG_DEFAULT_COLOR3);}},
-                new MenuItem{ListItemType::Color, "提示信息色", "按钮提示和信息的颜色", colors, color_strings, 
+                new MenuItem{ListItemType::Color, I18N_get("hint_info_color"), I18N_get("color_for_button_hints_and_info"), colors, color_strings, 
                 []() -> std::any{ return CFG_getColor(6); }, 
                 [](const std::any &value){ CFG_setColor(6, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(6, CFG_DEFAULT_COLOR6);}},
-                new MenuItem{ListItemType::Color, "列表文本", "列表文本颜色", colors, color_strings, 
+                new MenuItem{ListItemType::Color, I18N_get("list_text"), I18N_get("list_text_color"), colors, color_strings, 
                 []() -> std::any{ return CFG_getColor(4); }, 
                 [](const std::any &value){ CFG_setColor(4, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(4, CFG_DEFAULT_COLOR4);}},
-                new MenuItem{ListItemType::Color, "列表文本选中", "列表选中文本颜色", colors, color_strings, 
+                new MenuItem{ListItemType::Color, I18N_get("list_text_selected"), I18N_get("list_selected_text_color"), colors, color_strings, 
                 []() -> std::any { return CFG_getColor(5); }, 
                 [](const std::any &value) { CFG_setColor(5, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(5, CFG_DEFAULT_COLOR5);}},
-                new MenuItem{ListItemType::Generic, "显示电池百分比", "显示电池电量百分比", {false, true}, on_off, 
+                new MenuItem{ListItemType::Generic, I18N_get("show_battery_percentage"), I18N_get("show_battery_level_as_percent_in_the_status_pill"), {false, true}, on_off_labels, 
                 []() -> std::any { return CFG_getShowBatteryPercent(); },
                 [](const std::any &value) { CFG_setShowBatteryPercent(std::any_cast<bool>(value)); },
                 []() { CFG_setShowBatteryPercent(CFG_DEFAULT_SHOWBATTERYPERCENT);}},
-                new MenuItem{ListItemType::Generic, "显示菜单动画", "启用或禁用菜单动画", {false, true}, on_off, 
+                new MenuItem{ListItemType::Generic, I18N_get("show_menu_animations"), I18N_get("enable_or_disable_menu_animations"), {false, true}, on_off_labels, 
                 []() -> std::any{ return CFG_getMenuAnimations(); },
                 [](const std::any &value) { CFG_setMenuAnimations(std::any_cast<bool>(value)); },
                 []() { CFG_setMenuAnimations(CFG_DEFAULT_SHOWMENUANIMATIONS);}},
-                new MenuItem{ListItemType::Generic, "显示菜单过渡", "启用或禁用动画过渡", {false, true}, on_off, 
+                new MenuItem{ListItemType::Generic, I18N_get("show_menu_transitions"), I18N_get("enable_or_disable_animated_transitions"), {false, true}, on_off_labels, 
                 []() -> std::any{ return CFG_getMenuTransitions(); },
                 [](const std::any &value) { CFG_setMenuTransitions(std::any_cast<bool>(value)); },
                 []() { CFG_setMenuTransitions(CFG_DEFAULT_SHOWMENUTRANSITIONS);}},
-                new MenuItem{ListItemType::Generic, "游戏封面角落半径", "设置游戏封面的圆角半径", 0, 24, "px",
+                new MenuItem{ListItemType::Generic, I18N_get("game_art_corner_radius"), I18N_get("set_the_radius_for_the_rounded_corners_of_game_art"), 0, 24, "px",
                 []() -> std::any{ return CFG_getThumbnailRadius(); }, 
                 [](const std::any &value) { CFG_setThumbnailRadius(std::any_cast<int>(value)); },
                 []() { CFG_setThumbnailRadius(CFG_DEFAULT_THUMBRADIUS);}},
-                new MenuItem{ListItemType::Generic, "游戏封面宽度", "设置游戏封面的宽度百分比。\nUI元素可能会覆盖此设置以避免裁剪", 5, 100, "%",
+                new MenuItem{ListItemType::Generic, I18N_get("game_art_width"), I18N_get("set_the_percentage_of_screen_width_used_for_game_art"), 5, 100, "%",
                 []() -> std::any{ return (int)(CFG_getGameArtWidth() * 100); }, 
                 [](const std::any &value) { CFG_setGameArtWidth((double)std::any_cast<int>(value) / 100.0); },
                 []() { CFG_setGameArtWidth(CFG_DEFAULT_GAMEARTWIDTH);}},
-                new MenuItem{ListItemType::Generic, "显示最近", "显示 \"最近播放\" 菜单项。\n这也会禁用游戏切换器", {false, true}, on_off, 
+                new MenuItem{ListItemType::Generic, I18N_get("show_recents"), I18N_get("show_recently_played_menu_entry"), {false, true}, on_off_labels,
                 []() -> std::any { return CFG_getShowRecents(); },
                 [](const std::any &value) { CFG_setShowRecents(std::any_cast<bool>(value)); },
-                []() { CFG_setShowRecents(CFG_DEFAULT_SHOWRECENTS);}},
-                new MenuItem{ListItemType::Generic, "显示游戏封面", "显示游戏封面", {false, true}, on_off, []() -> std::any
+                []() { CFG_setShowRecents(CFG_DEFAULT_SHOWRECENTS);}},                new MenuItem{ListItemType::Generic, I18N_get("show_game_art"), I18N_get("show_game_artwork_in_the_main_menu"), {false, true}, on_off_labels, []() -> std::any
                 { return CFG_getShowGameArt(); },
                 [](const std::any &value)
                 { CFG_setShowGameArt(std::any_cast<bool>(value)); },
                 []() { CFG_setShowGameArt(CFG_DEFAULT_SHOWGAMEART);}},
-                new MenuItem{ListItemType::Generic, "使用文件夹背景作为ROM封面", "如果启用，使用模拟器背景图像。否则使用默认值", {false, true}, on_off, []() -> std::any
+                new MenuItem{ListItemType::Generic, I18N_get("use_folder_background_for_roms"), I18N_get("if_enabled_used_the_emulator_background_image"), {false, true}, on_off_labels, []() -> std::any
                 { return CFG_getRomsUseFolderBackground(); },
                 [](const std::any &value)
                 { CFG_setRomsUseFolderBackground(std::any_cast<bool>(value)); },
@@ -180,145 +310,135 @@ int main(int argc, char *argv[])
                 // { CFG_setGameSwitcherScaling(std::any_cast<int>(value)); },
                 // []() { CFG_setGameSwitcherScaling(CFG_DEFAULT_GAMESWITCHERSCALING);}},
 
-                new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
-        });
-
-        auto displayMenu = new MenuList(MenuItemType::Fixed, "显示",
+                new MenuItem{ListItemType::Button, I18N_get("reset_to_defaults"), I18N_get("resets_all_options_in_this_menu_to_their_default_values"), ResetCurrentMenu},
+        });        auto displayMenu = new MenuList(MenuItemType::Fixed, I18N_get("display"),
         {
-            new MenuItem{ListItemType::Generic, "亮度", "显示亮度 (0 到 10)", 0, 10, "",[]() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("brightness"), I18N_get("display_brightness_0_to_10"), 0, 10, "",[]() -> std::any
             { return GetBrightness(); }, [](const std::any &value)
             { SetBrightness(std::any_cast<int>(value)); },
             []() { SetBrightness(SETTINGS_DEFAULT_BRIGHTNESS);}},
-            new MenuItem{ListItemType::Generic, "色温", "色温 (0 到 40)", 0, 40, "",[]() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("color_temperature"), I18N_get("color_temperature_0_to_40"), 0, 40, "",[]() -> std::any
             { return GetColortemp(); }, [](const std::any &value)
             { SetColortemp(std::any_cast<int>(value)); },
             []() { SetColortemp(SETTINGS_DEFAULT_COLORTEMP);}},
-            new MenuItem{ListItemType::Generic, "对比度", "对比度增强 (-4 到 5)", -4, 5, "",[]() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("contrast"), I18N_get("contrast_enhancement_minus4_to_5"), -4, 5, "",[]() -> std::any
             { return GetContrast(); }, [](const std::any &value)
             { SetContrast(std::any_cast<int>(value)); },
-            []() { SetContrast(SETTINGS_DEFAULT_CONTRAST);}},
-            new MenuItem{ListItemType::Generic, "饱和度", "饱和度增强 (-5 到 5)", -5, 5, "",[]() -> std::any
+            []() { SetContrast(SETTINGS_DEFAULT_CONTRAST);}},            new MenuItem{ListItemType::Generic, I18N_get("saturation"), I18N_get("saturation_enhancement_minus5_to_5"), -5, 5, "",[]() -> std::any
             { return GetSaturation(); }, [](const std::any &value)
             { SetSaturation(std::any_cast<int>(value)); },
             []() { SetSaturation(SETTINGS_DEFAULT_SATURATION);}},
-            new MenuItem{ListItemType::Generic, "曝光", "曝光增强 (-4 到 5)", -4, 5, "",[]() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("exposure"), I18N_get("exposure_enhancement_minus4_to_5"), -4, 5, "",[]() -> std::any
             { return GetExposure(); }, [](const std::any &value)
-            { SetExposure(std::any_cast<int>(value)); },
-            []() { SetExposure(SETTINGS_DEFAULT_EXPOSURE);}},
+            { SetExposure(std::any_cast<int>(value)); },            []() { SetExposure(SETTINGS_DEFAULT_EXPOSURE);}},
 
-            new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
-        });
-
-        auto systemMenu = new MenuList(MenuItemType::Fixed, "系统",
+            new MenuItem{ListItemType::Button, I18N_get("reset_to_defaults"), I18N_get("resets_all_options_in_this_menu_to_their_default_values"), ResetCurrentMenu},
+        });        auto systemMenu = new MenuList(MenuItemType::Fixed, I18N_get("system"),
         {
-            new MenuItem{ListItemType::Generic, "音量", "扬声器音量",
+            new MenuItem{ListItemType::Generic, I18N_get("volume"), I18N_get("speaker_volume"),
             {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20},
-            {"静音", "5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"},
+            volume_labels,
             []() -> std::any{ return GetVolume(); }, [](const std::any &value)
             { SetVolume(std::any_cast<int>(value)); },
             []() { SetVolume(SETTINGS_DEFAULT_VOLUME);}},
-            new MenuItem{ListItemType::Generic, "屏幕超时", "屏幕关闭前的时间 (0-600s)", timeout_secs, timeout_labels, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("screen_timeout"), I18N_get("time_before_screen_turns_off_0_600s"), timeout_secs, timeout_labels, []() -> std::any
             { return CFG_getScreenTimeoutSecs(); }, [](const std::any &value)
             { CFG_setScreenTimeoutSecs(std::any_cast<uint32_t>(value)); },
             []() { CFG_setScreenTimeoutSecs(CFG_DEFAULT_SCREENTIMEOUTSECS);}},
-            new MenuItem{ListItemType::Generic, "挂起超时", "设备进入睡眠前的时间 (0-600s)", timeout_secs, timeout_labels, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("suspend_timeout"), I18N_get("time_before_device_goes_to_sleep_0_600s"), timeout_secs, timeout_labels, []() -> std::any
             { return CFG_getSuspendTimeoutSecs(); }, [](const std::any &value)
             { CFG_setSuspendTimeoutSecs(std::any_cast<uint32_t>(value)); },
             []() { CFG_setSuspendTimeoutSecs(CFG_DEFAULT_SUSPENDTIMEOUTSECS);}},
-            new MenuItem{ListItemType::Generic, "触觉反馈", "启用或禁用操作系统中某些操作的触觉反馈", {false, true}, on_off, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("haptic_feedback"), I18N_get("enable_or_disable_haptic_feedback_on_certain_actions_in_the_os"), {false, true}, on_off_labels, []() -> std::any
             { return CFG_getHaptics(); }, [](const std::any &value)
             { CFG_setHaptics(std::any_cast<bool>(value)); },
             []() { CFG_setHaptics(CFG_DEFAULT_HAPTICS);}},
-            new MenuItem{ListItemType::Generic, "显示24小时制", "以24小时制显示时钟", {false, true}, on_off, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("show_24h_time_format"), I18N_get("show_clock_in_the_24hrs_time_format"), {false, true}, on_off_labels, []() -> std::any
             { return CFG_getClock24H(); },
             [](const std::any &value)
             { CFG_setClock24H(std::any_cast<bool>(value)); },
             []() { CFG_setClock24H(CFG_DEFAULT_CLOCK24H);}},
-            new MenuItem{ListItemType::Generic, "显示时钟", "在状态栏中显示时钟", {false, true}, on_off, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("show_clock"), I18N_get("show_clock_in_the_status_pill"), {false, true}, on_off_labels, []() -> std::any
             { return CFG_getShowClock(); },
             [](const std::any &value)
             { CFG_setShowClock(std::any_cast<bool>(value)); },
             []() { CFG_setShowClock(CFG_DEFAULT_SHOWCLOCK);}},
-            new MenuItem{ListItemType::Generic, "自动设置时间和日期", "通过NTP自动调整系统时间\n(需要互联网访问)", {false, true}, on_off, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("set_time_and_date_automatically"), I18N_get("automatically_adjust_system_time_with_ntp"), {false, true}, on_off_labels, []() -> std::any
             { return TIME_getNetworkTimeSync(); }, [](const std::any &value)
             { TIME_setNetworkTimeSync(std::any_cast<bool>(value)); },
             []() { TIME_setNetworkTimeSync(false);}}, // default from stock
-            new MenuItem{ListItemType::Generic, "时区", "您的时区", tz_values, tz_labels, []() -> std::any
+            new MenuItem{ListItemType::Generic, I18N_get("timezone"), I18N_get("your_timezone"), tz_values, tz_labels, []() -> std::any
             { return std::string(TIME_getCurrentTimezone()); }, [](const std::any &value)
             { TIME_setCurrentTimezone(std::any_cast<std::string>(value).c_str()); },
             []() { TIME_setCurrentTimezone("Asia/Shanghai");}}, // default from Stock
-            new MenuItem{ListItemType::Generic, "保存格式", "要使用的保存格式。\nMinUI: Game.gba.sav, Retroarch: Game.srm, Generic: Game.sav",
+            new MenuItem{ListItemType::Generic, I18N_get("save_format"), I18N_get("save_format_description"),
             {(int)SAVE_FORMAT_SAV, (int)SAVE_FORMAT_SRM, (int)SAVE_FORMAT_SRM_UNCOMPRESSED, (int)SAVE_FORMAT_GEN},
-            {"MinUI (默认)", "全能模拟器（压缩）", "全能模拟器（不压缩）", "通用"}, []() -> std::any
+            save_format_labels, []() -> std::any
             { return CFG_getSaveFormat(); }, [](const std::any &value)
             { CFG_setSaveFormat(std::any_cast<int>(value)); },
             []() { CFG_setSaveFormat(CFG_DEFAULT_SAVEFORMAT);}},
-            new MenuItem{ListItemType::Generic, "保存状态格式", "要使用的保存状态格式。\nMinUI: Game.st0, Retroarch: Game.state.0",
+            new MenuItem{ListItemType::Generic, I18N_get("save_state_format"), I18N_get("save_state_format_description"),
             {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM, (int)STATE_FORMAT_SRM_UNCOMPRESSED},
-            {"MinUI (默认)", "全能模拟器（压缩）", "全能模拟器（不压缩）"}, []() -> std::any
+            state_format_labels, []() -> std::any
             { return CFG_getStateFormat(); }, [](const std::any &value)
             { CFG_setStateFormat(std::any_cast<int>(value)); },
             []() { CFG_setStateFormat(CFG_DEFAULT_STATEFORMAT);}},
 
-            new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
-        });
-
-        auto muteMenu = new MenuList(MenuItemType::Fixed, "FN键设置",
+            new MenuItem{ListItemType::Button, I18N_get("reset_to_defaults"), I18N_get("resets_all_options_in_this_menu_to_their_default_values"), ResetCurrentMenu},
+        });        auto muteMenu = new MenuList(MenuItemType::Fixed, I18N_get("fn_switch_settings"),
         {
-            new MenuItem{ListItemType::Generic, "启用时调整音量", "扬声器音量 (0-20)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_volume_when_enabled"), I18N_get("speaker_volume_0_20"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}, 
-            {"不变", "静音", "5%","10%","15%","20%","25%","30%","35%","40%","45%","50%","55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"}, 
+            mute_volume_labels, 
             []() -> std::any { return GetMutedVolume(); },
             [](const std::any &value) { SetMutedVolume(std::any_cast<int>(value)); },
             []() { SetMutedVolume(0); }},
-            new MenuItem{ListItemType::Generic, "FN键禁用LED", "FN键也将禁用LED", {false, true}, on_off,
+            new MenuItem{ListItemType::Generic, I18N_get("fn_key_disable_leds"), I18N_get("fn_key_will_also_disable_leds"), {false, true}, on_off_labels,
             []() -> std::any { return CFG_getMuteLEDs(); },
             [](const std::any &value) { CFG_setMuteLEDs(std::any_cast<bool>(value)); },
             []() { CFG_setMuteLEDs(CFG_DEFAULT_MUTELEDS); }},
-            new MenuItem{ListItemType::Generic, "启用时调整亮度", "显示亮度 (0 到 10)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_brightness_when_enabled"), I18N_get("display_brightness_0_to_10"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10}, 
-            {"不变","0","1","2","3","4","5","6","7","8","9","10"},
+            mute_brightness_labels,
             []() -> std::any { return GetMutedBrightness(); }, [](const std::any &value)
             { SetMutedBrightness(std::any_cast<int>(value)); },
             []() { SetMutedBrightness(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
-            new MenuItem{ListItemType::Generic, "启用时调整色温", "色温 (0 到 40)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_color_temperature_when_enabled"), I18N_get("color_temperature_0_to_40"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40}, 
-            {"不变","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40"},
+            mute_colortemp_labels,
             []() -> std::any{ return GetMutedColortemp(); }, [](const std::any &value)
             { SetMutedColortemp(std::any_cast<int>(value)); },
             []() { SetMutedColortemp(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
-            new MenuItem{ListItemType::Generic, "启用时调整对比度", "对比度增强 (-4 到 5)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_contrast_when_enabled"), I18N_get("contrast_enhancement_minus4_to_5"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"不变","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            mute_contrast_labels, 
             []() -> std::any  { return GetMutedContrast(); }, [](const std::any &value)
             { SetMutedContrast(std::any_cast<int>(value)); },
             []() { SetMutedContrast(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
-            new MenuItem{ListItemType::Generic, "启用时调整饱和度", "饱和度增强 (-5 到 5)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_saturation_when_enabled"), I18N_get("saturation_enhancement_minus5_to_5"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -5,-4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"不变","-5","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            mute_saturation_labels, 
             []() -> std::any{ return GetMutedSaturation(); }, [](const std::any &value)
             { SetMutedSaturation(std::any_cast<int>(value)); },
             []() { SetMutedSaturation(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
-            new MenuItem{ListItemType::Generic, "启用时调整曝光", "曝光增强 (-4 到 5)", 
+            new MenuItem{ListItemType::Generic, I18N_get("adjust_exposure_when_enabled"), I18N_get("exposure_enhancement_minus4_to_5"), 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, -4,-3,-2,-1,0,1,2,3,4,5}, 
-            {"不变","-4","-3","-2","-1","0","1","2","3","4","5"}, 
+            mute_exposure_labels, 
             []() -> std::any  { return GetMutedExposure(); }, [](const std::any &value)
             { SetMutedExposure(std::any_cast<int>(value)); },
             []() { SetMutedExposure(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
 
-            new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
+            new MenuItem{ListItemType::Button, I18N_get("reset_to_defaults"), I18N_get("resets_all_options_in_this_menu_to_their_default_values"), ResetCurrentMenu},
         });
 
         // TODO: check WIFI_supported(), hide menu otherwise
-        auto networkMenu = new Wifi::Menu(appQuit);
-
-        ctx.menu = new MenuList(MenuItemType::List, "主菜单",
+        auto networkMenu = new Wifi::Menu(appQuit);        ctx.menu = new MenuList(MenuItemType::List, I18N_get("main"),
         {
-            new MenuItem{ListItemType::Generic, "外观", "UI自定义", {}, {}, nullptr, nullptr, DeferToSubmenu, appearanceMenu},
-            new MenuItem{ListItemType::Generic, "显示", "", {}, {}, nullptr, nullptr, DeferToSubmenu, displayMenu},
-            new MenuItem{ListItemType::Generic, "系统", "", {}, {}, nullptr, nullptr, DeferToSubmenu, systemMenu},
-            new MenuItem{ListItemType::Generic, "FN键", "FN键设置", {}, {}, nullptr, nullptr, DeferToSubmenu, muteMenu},
-            new MenuItem{ListItemType::Generic, "网络", "", {}, {}, nullptr, nullptr, DeferToSubmenu, networkMenu},
+            new MenuItem{ListItemType::Generic, I18N_get("appearance"), I18N_get("ui_customization"), {}, {}, nullptr, nullptr, DeferToSubmenu, appearanceMenu},
+            new MenuItem{ListItemType::Generic, I18N_get("display"), "", {}, {}, nullptr, nullptr, DeferToSubmenu, displayMenu},
+            new MenuItem{ListItemType::Generic, I18N_get("system"), "", {}, {}, nullptr, nullptr, DeferToSubmenu, systemMenu},
+            new MenuItem{ListItemType::Generic, I18N_get("fn_switch"), I18N_get("fn_switch_settings"), {}, {}, nullptr, nullptr, DeferToSubmenu, muteMenu},
+            new MenuItem{ListItemType::Generic, I18N_get("network"), "", {}, {}, nullptr, nullptr, DeferToSubmenu, networkMenu},
         });
 
         //ctx.menu = new KeyboardPrompt("test", [](MenuItem &itm) -> InputReactionHint
@@ -399,10 +519,10 @@ int main(int argc, char *argv[])
                         GFX_blitHardwareHints(ctx.screen, ctx.show_setting);
                     else
                     {
-                        char *hints[] = {(char *)("菜单"), (char *)("睡眠"), NULL};
+                        char *hints[] = {(char *)(I18N_get("MENU")), (char *)(I18N_get("sleep")), NULL};
                         GFX_blitButtonGroup(hints, 0, ctx.screen, 0);
                     }
-                    char *hints[] = {(char *)("B"), (char *)("返回"), (char *)("A"), (char *)("确定"), NULL};
+                    char *hints[] = {(char *)(I18N_get("B")), (char *)(I18N_get("back")), (char *)(I18N_get("A")), (char *)(I18N_get("ok")), NULL};
                     GFX_blitButtonGroup(hints, 1, ctx.screen, 1);
                 }
 
