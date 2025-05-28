@@ -5,6 +5,7 @@
 #include "defines.h"
 #include "api.h"
 #include "utils.h"
+#include "i18n.h"
 
 
 #define NUM_OPTIONS 4
@@ -226,14 +227,13 @@ int main(int argc, char *argv[])
 {
     char* device = getenv("DEVICE");
     is_brick = exactMatch("brick", device);
-    
-    if (is_brick) {
+      if (is_brick) {
         const char *brick_names[] = {"F1 键", "F2 键", "顶部", "L&R 扳机"};
         memcpy(lightnames, brick_names, sizeof(brick_names)); // Copy values
     } else {
         const char *default_names[] = {"左摇杆","右摇杆", "Logo"};
-        memcpy(lightnames, default_names, sizeof(default_names)); // Copy values    }
-    PLAT_initLeds(lightsDefault);
+        memcpy(lightnames, default_names, sizeof(default_names)); // Copy values
+    }    PLAT_initLeds(lightsDefault);
     
     // Initialize internationalization
     I18N_init();
