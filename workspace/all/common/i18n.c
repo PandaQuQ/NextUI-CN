@@ -241,8 +241,8 @@ static TranslationEntry translation_table[] = {
     
     // Clock app strings
     {"select", {"Select", "选择", "選択", "선택"}},
-    {"12_hour", {"12 hour", "12 小时", "12時間", "12시간"}},
-    {"24_hour", {"24 hour", "24 小时", "24時間", "24시간"}},
+    {"12_hour", {"12H", "12小时", "12時間", "12시간"}},
+    {"24_hour", {"24H", "24小时", "24時間", "24시간"}},
     {"button_a", {"A", "A", "A", "A"}}
 
 };

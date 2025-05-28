@@ -7,6 +7,7 @@
 #include "defines.h"
 #include "api.h"
 #include "utils.h"
+#include "i18n.h"
 
 static int getButtonWidth(char* label) {
 	SDL_Surface* text;
@@ -44,10 +45,12 @@ static void blitButton(char* label, SDL_Surface* dst, int pressed, int x, int y,
 int main(int argc , char* argv[]) {
 	PWR_setCPUSpeed(CPU_SPEED_MENU);
 	
-	SDL_Surface* screen = GFX_init(MODE_MAIN);
-	PAD_init();
+	SDL_Surface* screen = GFX_init(MODE_MAIN);	PAD_init();
 	PWR_init();
 	InitSettings();
+	
+	// Initialize internationalization
+	I18N_init();
 	
 	// one-time
 	int has_L2 = (BUTTON_L2!=BUTTON_NA || CODE_L2!=CODE_NA || JOY_L2!=JOY_NA || AXIS_L2!=AXIS_NA);
