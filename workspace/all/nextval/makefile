@@ -20,7 +20,7 @@ include ../../$(PLATFORM)/platform/makefile.env
 
 TARGET = nextval
 INCDIR = -I. -I../common/ -I../../$(PLATFORM)/platform/
-SOURCE = $(TARGET).c ../common/utils.c ../common/config.c
+SOURCE = $(TARGET).c ../common/utils.c ../common/config.c ../common/i18n.c
 
 CC = $(CROSS_COMPILE)gcc
 CFLAGS  += $(ARCH) -fomit-frame-pointer

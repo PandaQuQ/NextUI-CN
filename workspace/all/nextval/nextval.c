@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "api.h"
 #include "utils.h"
+#include "i18n.h"
 
 void printUsage()
 {
@@ -12,6 +13,7 @@ void printUsage()
 int main(int argc, char *argv[])
 {
     CFG_init(NULL, NULL);
+    I18N_init();
 
     if (argc <= 1) {
         CFG_print();
