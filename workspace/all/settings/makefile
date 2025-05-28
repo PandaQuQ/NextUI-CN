@@ -41,7 +41,7 @@ PRODUCT= build/$(PLATFORM)/$(TARGET).elf
 all: $(PREFIX_LOCAL)/include/msettings.h
 	mkdir -p build/$(PLATFORM)
 	$(CC) $(SOURCE) $(CFLAGS) $(LDFLAGS)
-	mv utils.o api.o config.o scaler.o platform.o build/$(PLATFORM)
+	mv utils.o api.o config.o scaler.o i18n.o platform.o build/$(PLATFORM)
 	$(CXX) $(CXXSOURCE) -o $(PRODUCT) $(CXXFLAGS) $(LDFLAGS) -lstdc++
 clean:
 	rm -f $(PRODUCT)
