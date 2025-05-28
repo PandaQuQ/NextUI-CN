@@ -175,23 +175,31 @@ int peekVersion(const char *filename) {
 static int is_brick = 0;
 
 void InitSettings(void) {	
+	printf("DEBUG: InitSettings() - Starting initialization\n"); fflush(stdout);
+	
 	char* device = getenv("DEVICE");
+	printf("DEBUG: InitSettings() - Device: %s\n", device ? device : "NULL"); fflush(stdout);
 	is_brick = exactMatch("brick", device);
+	printf("DEBUG: InitSettings() - is_brick: %d\n", is_brick); fflush(stdout);
 	
 	sprintf(SettingsPath, "%s/msettings.bin", getenv("USERDATA_PATH"));
+	printf("DEBUG: InitSettings() - Settings path: %s\n", SettingsPath); fflush(stdout);
 	
+	printf("DEBUG: InitSettings() - About to call shm_open\n"); fflush(stdout);
 	shm_fd = shm_open(SHM_KEY, O_RDWR | O_CREAT | O_EXCL, 0644); // see if it exists
 	if (shm_fd==-1 && errno==EEXIST) { // already exists
-		// puts("Settings client");
+		printf("DEBUG: InitSettings() - Settings client mode\n"); fflush(stdout);
 		shm_fd = shm_open(SHM_KEY, O_RDWR, 0644);
 		settings = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+		printf("DEBUG: InitSettings() - Client setup complete\n"); fflush(stdout);
 	}
 	else { // host
-		// puts("Settings host"); // keymon
+		printf("DEBUG: InitSettings() - Settings host mode\n"); fflush(stdout);
 		is_host = 1;
 		// we created it so set initial size and populate
 		ftruncate(shm_fd, shm_size);
 		settings = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+		printf("DEBUG: InitSettings() - Host memory mapped\n"); fflush(stdout);
 
 		// peek the first int from fd, it's the version
 		int version = peekVersion(SettingsPath);
@@ -283,26 +291,34 @@ void InitSettings(void) {
 				// load defaults
 				memcpy(settings, &DefaultSettings, shm_size);
 			}
-		}
-		else {
+		}		else {
 			// load defaults
+			printf("DEBUG: InitSettings() - Loading default settings\n"); fflush(stdout);
 			memcpy(settings, &DefaultSettings, shm_size);
 		}
 		
 		// these shouldn't be persisted
 		// settings->jack = 0;
 		// settings->hdmi = 0;
+		printf("DEBUG: InitSettings() - Resetting mute to 0\n"); fflush(stdout);
 		settings->mute = 0;
 	}
 	// printf("brightness: %i\nspeaker: %i \n", settings->brightness, settings->speaker);
+	printf("DEBUG: InitSettings() - About to run amixer commands\n"); fflush(stdout);
 	 
+	printf("DEBUG: InitSettings() - Running amixer sset 'Headphone' 0\n"); fflush(stdout);
 	system("amixer sset 'Headphone' 0"); // 100%
+	printf("DEBUG: InitSettings() - Running amixer sset 'digital volume' 0\n"); fflush(stdout);
 	system("amixer sset 'digital volume' 0"); // 100%
+	printf("DEBUG: InitSettings() - Running amixer sset 'DAC Swap' Off\n"); fflush(stdout);
 	system("amixer sset 'DAC Swap' Off"); // Fix L/R channels
 	// volume is set with 'digital volume'
 
+	printf("DEBUG: InitSettings() - About to call SetMute()\n"); fflush(stdout);
 	// This will implicitly update all other settings based on FN switch state
 	SetMute(settings->mute);
+	printf("DEBUG: InitSettings() - SetMute() completed\n"); fflush(stdout);
+	printf("DEBUG: InitSettings() - INITIALIZATION COMPLETED SUCCESSFULLY\n"); fflush(stdout);
 }
 int InitializedSettings(void) {
 	return (settings != NULL);
@@ -422,30 +438,53 @@ void SetHDMI(int value) {
 	// else SetVolume(GetVolume()); // restore
 }
 void SetMute(int value) {
+	printf("DEBUG: SetMute(%d) - Starting\n", value); fflush(stdout);
 	settings->mute = value;
 	if (settings->mute) {
-		if (GetMutedVolume() != SETTINGS_DEFAULT_MUTE_NO_CHANGE)
+		printf("DEBUG: SetMute() - Mute mode enabled, checking muted settings\n"); fflush(stdout);
+		if (GetMutedVolume() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted volume\n"); fflush(stdout);
 			SetRawVolume(scaleVolume(GetMutedVolume()));
+		}
 		// custom mute mode display settings
-		if (GetMutedBrightness() != SETTINGS_DEFAULT_MUTE_NO_CHANGE)
+		if (GetMutedBrightness() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted brightness\n"); fflush(stdout);
 			SetRawBrightness(scaleBrightness(GetMutedBrightness()));
-		if(GetMutedColortemp() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) 
+		}
+		if(GetMutedColortemp() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted color temperature\n"); fflush(stdout);
 			SetRawColortemp(scaleColortemp(GetMutedColortemp()));
-		if(GetMutedContrast() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) 
+		}
+		if(GetMutedContrast() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted contrast\n"); fflush(stdout);
 			SetRawContrast(scaleContrast(GetMutedContrast()));
-		if(GetMutedSaturation() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) 
+		}
+		if(GetMutedSaturation() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted saturation\n"); fflush(stdout);
 			SetRawSaturation(scaleSaturation(GetMutedSaturation()));
-		if(GetMutedExposure() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) 
+		}
+		if(GetMutedExposure() != SETTINGS_DEFAULT_MUTE_NO_CHANGE) {
+			printf("DEBUG: SetMute() - Setting muted exposure\n"); fflush(stdout);
 			SetRawExposure(scaleExposure(GetMutedExposure()));
+		}
 	} 
 	else {
+		printf("DEBUG: SetMute() - Mute mode disabled, setting normal values\n"); fflush(stdout);
+		printf("DEBUG: SetMute() - About to call SetVolume()\n"); fflush(stdout);
 		SetVolume(GetVolume());
+		printf("DEBUG: SetMute() - About to call SetBrightness()\n"); fflush(stdout);
 		SetBrightness(GetBrightness());
+		printf("DEBUG: SetMute() - About to call SetColortemp()\n"); fflush(stdout);
 		SetColortemp(GetColortemp());
+		printf("DEBUG: SetMute() - About to call SetContrast()\n"); fflush(stdout);
 		SetContrast(GetContrast());
+		printf("DEBUG: SetMute() - About to call SetSaturation()\n"); fflush(stdout);
 		SetSaturation(GetSaturation());
+		printf("DEBUG: SetMute() - About to call SetExposure()\n"); fflush(stdout);
 		SetExposure(GetExposure());
+		printf("DEBUG: SetMute() - All setters completed\n"); fflush(stdout);
 	}
+	printf("DEBUG: SetMute() - Completed\n"); fflush(stdout);
 }
 void SetContrast(int value)
 {
