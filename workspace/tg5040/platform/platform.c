@@ -428,49 +428,63 @@ void PLAT_initShaders() {
 	g_noshader = link_program(vertex, fragment,"noshader.glsl");
 	
 	LOG_info("default shaders loaded, %i\n\n",g_shader_default);
+	
+	if (g_shader_default == 0) {
+		LOG_info("ERROR: Failed to load default shaders!\n");
+	}
+	if (g_shader_overlay == 0) {
+		LOG_info("ERROR: Failed to load overlay shaders!\n");
+	}
+	if (g_noshader == 0) {
+		LOG_info("ERROR: Failed to load noshader shaders!\n");
+	}
 }
 
 
 SDL_Surface* PLAT_initVideo(void) {
 	char* device = getenv("DEVICE");
 	is_brick = exactMatch("brick", device);
-	// LOG_info("DEVICE: %s is_brick: %i\n", device, is_brick);
+	LOG_info("DEVICE: %s is_brick: %i\n", device, is_brick);
 	
-	SDL_InitSubSystem(SDL_INIT_VIDEO);
+	LOG_info("Starting SDL video initialization...\n");
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+		LOG_info("SDL_InitSubSystem(SDL_INIT_VIDEO) failed: %s\n", SDL_GetError());
+		return NULL;
+	}
 	SDL_ShowCursor(0);
-	
-	// SDL_version compiled;
-	// SDL_version linked;
-	// SDL_VERSION(&compiled);
-	// SDL_GetVersion(&linked);
-	// LOG_info("Compiled SDL version %d.%d.%d ...\n", compiled.major, compiled.minor, compiled.patch);
-	// LOG_info("Linked SDL version %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
-	//
-	// LOG_info("Available video drivers:\n");
-	// for (int i=0; i<SDL_GetNumVideoDrivers(); i++) {
-	// 	LOG_info("- %s\n", SDL_GetVideoDriver(i));
-	// }
-	// LOG_info("Current video driver: %s\n", SDL_GetCurrentVideoDriver());
-	//
-	// LOG_info("Available render drivers:\n");
-	// for (int i=0; i<SDL_GetNumRenderDrivers(); i++) {
-	// 	SDL_RendererInfo info;
-	// 	SDL_GetRenderDriverInfo(i,&info);
-	// 	LOG_info("- %s\n", info.name);
-	// }
-	//
-	// LOG_info("Available display modes:\n");
-	// SDL_DisplayMode mode;
-	// for (int i=0; i<SDL_GetNumDisplayModes(0); i++) {
-	// 	SDL_GetDisplayMode(0, i, &mode);
-	// 	LOG_info("- %ix%i (%s)\n", mode.w,mode.h, SDL_GetPixelFormatName(mode.format));
-	// }
-	// SDL_GetCurrentDisplayMode(0, &mode);
-	// LOG_info("Current display mode: %ix%i (%s)\n", mode.w,mode.h, SDL_GetPixelFormatName(mode.format));
-	
-	int w = FIXED_WIDTH;
+		SDL_version compiled;
+	SDL_version linked;
+	SDL_VERSION(&compiled);
+	SDL_GetVersion(&linked);
+	LOG_info("Compiled SDL version %d.%d.%d ...\n", compiled.major, compiled.minor, compiled.patch);
+	LOG_info("Linked SDL version %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
+
+	LOG_info("Available video drivers:\n");
+	for (int i=0; i<SDL_GetNumVideoDrivers(); i++) {
+		LOG_info("- %s\n", SDL_GetVideoDriver(i));
+	}
+	LOG_info("Current video driver: %s\n", SDL_GetCurrentVideoDriver());
+
+	LOG_info("Available render drivers:\n");
+	for (int i=0; i<SDL_GetNumRenderDrivers(); i++) {
+		SDL_RendererInfo info;
+		SDL_GetRenderDriverInfo(i,&info);
+		LOG_info("- %s\n", info.name);
+	}
+
+	LOG_info("Available display modes:\n");
+	SDL_DisplayMode mode;
+	for (int i=0; i<SDL_GetNumDisplayModes(0); i++) {
+		SDL_GetDisplayMode(0, i, &mode);
+		LOG_info("- %ix%i (%s)\n", mode.w,mode.h, SDL_GetPixelFormatName(mode.format));
+	}
+	SDL_GetCurrentDisplayMode(0, &mode);
+	LOG_info("Current display mode: %ix%i (%s)\n", mode.w,mode.h, SDL_GetPixelFormatName(mode.format));
+		int w = FIXED_WIDTH;
 	int h = FIXED_HEIGHT;
 	int p = FIXED_PITCH;
+
+	LOG_info("Setting up OpenGL ES 3.0 context for %dx%d display...\n", w, h);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -480,30 +494,89 @@ SDL_Surface* PLAT_initVideo(void) {
 
 	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-	vid.window   = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w,h, SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN);
-	vid.renderer = SDL_CreateRenderer(vid.window,-1,SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
-	SDL_SetRenderDrawBlendMode(vid.renderer, SDL_BLENDMODE_BLEND);
-	// SDL_RendererInfo info;
-	// SDL_GetRendererInfo(vid.renderer, &info);
-	// LOG_info("Current render driver: %s\n", info.name);
 	
+	LOG_info("Creating SDL window...\n");
+	vid.window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w,h, SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN);
+	if (!vid.window) {
+		LOG_info("SDL_CreateWindow failed: %s\n", SDL_GetError());
+		return NULL;
+	}
+	
+	LOG_info("Creating SDL renderer...\n");
+	vid.renderer = SDL_CreateRenderer(vid.window,-1,SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
+	if (!vid.renderer) {
+		LOG_info("SDL_CreateRenderer failed: %s\n", SDL_GetError());
+		SDL_DestroyWindow(vid.window);
+		return NULL;
+	}
+	SDL_SetRenderDrawBlendMode(vid.renderer, SDL_BLENDMODE_BLEND);
+	
+	SDL_RendererInfo info;
+	SDL_GetRendererInfo(vid.renderer, &info);
+	LOG_info("Current render driver: %s\n", info.name);
 
-
+	LOG_info("Creating OpenGL context...\n");
 	vid.gl_context = SDL_GL_CreateContext(vid.window);
+	if (!vid.gl_context) {
+		LOG_info("SDL_GL_CreateContext failed: %s\n", SDL_GetError());
+		SDL_DestroyRenderer(vid.renderer);
+		SDL_DestroyWindow(vid.window);
+		return NULL;
+	}
 	SDL_GL_MakeCurrent(vid.window, vid.gl_context);
 	glViewport(0, 0, w, h);
 
+	LOG_info("OpenGL version: %s\n", (char *)glGetString(GL_VERSION));
+	LOG_info("OpenGL vendor: %s\n", (char *)glGetString(GL_VENDOR));
+	LOG_info("OpenGL renderer: %s\n", (char *)glGetString(GL_RENDERER));
+
+	LOG_info("Creating SDL textures...\n");
+	LOG_info("Creating SDL textures...\n");
 	vid.stream_layer1 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w,h);
-	vid.target_layer1 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
-	vid.target_layer2 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
-	vid.target_layer3 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
-	vid.target_layer4 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
-	vid.target_layer5 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.stream_layer1) {
+		LOG_info("Failed to create stream_layer1 texture: %s\n", SDL_GetError());
+		return NULL;
+	}
 	
+	vid.target_layer1 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.target_layer1) {
+		LOG_info("Failed to create target_layer1 texture: %s\n", SDL_GetError());
+		return NULL;
+	}
+	
+	vid.target_layer2 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.target_layer2) {
+		LOG_info("Failed to create target_layer2 texture: %s\n", SDL_GetError());
+		return NULL;
+	}
+	
+	vid.target_layer3 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.target_layer3) {
+		LOG_info("Failed to create target_layer3 texture: %s\n", SDL_GetError());
+		return NULL;
+	}
+	
+	vid.target_layer4 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.target_layer4) {
+		LOG_info("Failed to create target_layer4 texture: %s\n", SDL_GetError());
+		return NULL;
+	}
+	
+	vid.target_layer5 = SDL_CreateTexture(vid.renderer,SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET , w,h);
+	if (!vid.target_layer5) {
+		LOG_info("Failed to create target_layer5 texture: %s\n", SDL_GetError());
+		return NULL;
+	}	
 	vid.target	= NULL; // only needed for non-native sizes
 	
+	LOG_info("Creating screen surface...\n");
 	vid.screen = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGBA8888);
+	if (!vid.screen) {
+		LOG_info("Failed to create screen surface: %s\n", SDL_GetError());
+		return NULL;
+	}
 
+	LOG_info("Setting up texture blend modes...\n");
 	SDL_SetSurfaceBlendMode(vid.screen, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(vid.stream_layer1, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(vid.target_layer2, SDL_BLENDMODE_BLEND);
@@ -523,6 +596,7 @@ SDL_Surface* PLAT_initVideo(void) {
 	
 	vid.sharpness = SHARPNESS_SOFT;
 	
+	LOG_info("Video initialization completed successfully! Resolution: %dx%d\n", w, h);
 	return vid.screen;
 }
 
