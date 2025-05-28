@@ -1523,7 +1523,7 @@ void GFX_blitButton(const char* hint, const char* button, SDL_Surface* dst, SDL_
 	SDL_BlitSurface(text, NULL, dst, &(SDL_Rect){ox+dst_rect->x,dst_rect->y+(SCALE1(BUTTON_SIZE)-text->h)/2,text->w,text->h});
 	SDL_FreeSurface(text);
 }
-void GFX_blitMessage(TTF_Font* font, char* msg, SDL_Surface* dst, SDL_Rect* dst_rect) {
+void GFX_blitMessage(TTF_Font* font, const char* msg, SDL_Surface* dst, SDL_Rect* dst_rect) {
 	if (!dst_rect) dst_rect = &(SDL_Rect){0,0,dst->w,dst->h};
 	
 	// LOG_info("GFX_blitMessage: %p (%ix%i)", dst, dst_rect->w,dst_rect->h);
@@ -1531,7 +1531,7 @@ void GFX_blitMessage(TTF_Font* font, char* msg, SDL_Surface* dst, SDL_Rect* dst_
 	SDL_Surface* text;
 #define TEXT_BOX_MAX_ROWS 16
 #define LINE_HEIGHT 24
-	char* rows[TEXT_BOX_MAX_ROWS];
+	const char* rows[TEXT_BOX_MAX_ROWS];
 	int row_count = 0;
 
 	char* tmp;
@@ -1700,8 +1700,7 @@ void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting) {
 int GFX_blitButtonGroup(const char** pairs, int primary, SDL_Surface* dst, int align_right) {
 	int ox;
 	int oy;
-	int ow;
-	const char* hint;
+	int ow;	const char* hint;
 	const char* button;
 	struct Hint {
 		const char* hint;

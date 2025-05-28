@@ -223,7 +223,7 @@ static TranslationEntry translation_table[] = {
     {"wifi_disconnect_desc", {"Disconnect from this network.", "从此网络断开连接。", "このネットワークから切断します。", "이 네트워크에서 연결을 끊습니다."}},
     {"wifi_options", {"Options", "选项", "オプション", "옵션"}}
 
-    // api.c    {"brightness_api", {"BRIGHTNESS", "亮度", "明るさ", "밝기"}},
+    {"brightness_api", {"BRIGHTNESS", "亮度", "明るさ", "밝기"}},
     {"color_temperature_api", {"COLOR TEMP", "色温", "色温度", "색온도"}},
     {"menu_api", {"MNU", "菜单", "メニュー", "메뉴"}},
     {"select_api", {"SEL", "选择", "選択", "선택"}},

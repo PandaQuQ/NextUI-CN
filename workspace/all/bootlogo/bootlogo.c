@@ -172,10 +172,8 @@ int main(int argc, char *argv[])
                     image->w,
                     image->h};
                 SDL_BlitSurface(image, NULL, screen, &image_rect);
-            }
-
-            GFX_blitButtonGroup((char *[]){"左/右", "滚动", NULL}, 0, screen, 0);
-            GFX_blitButtonGroup((char *[]){"A", "设置", "B", "返回", NULL}, 1, screen, 1);
+            }            GFX_blitButtonGroup((const char *[]){"左/右", "滚动", NULL}, 0, screen, 0);
+            GFX_blitButtonGroup((const char *[]){"A", "设置", "B", "返回", NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;

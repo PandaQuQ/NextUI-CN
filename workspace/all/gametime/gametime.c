@@ -432,14 +432,12 @@ int main(int argc, char *argv[])
                 SDL_FreeSurface(text);
             }
 
-            renderList(count, start, end, selected);
-
-            if (show_setting)
+            renderList(count, start, end, selected);            if (show_setting)
                 GFX_blitHardwareHints(screen, show_setting);
             else
-                GFX_blitButtonGroup((char *[]){"上/下", "滚动", NULL}, 0, screen, 0);
+                GFX_blitButtonGroup((const char *[]){"上/下", "滚动", NULL}, 0, screen, 0);
 
-            GFX_blitButtonGroup((char *[]){"B", "返回", NULL}, 1, screen, 1);
+            GFX_blitButtonGroup((const char *[]){"B", "返回", NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;

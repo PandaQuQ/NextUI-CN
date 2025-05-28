@@ -312,9 +312,9 @@ void GFX_blitPillLight(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitPillDark(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitRect(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 int GFX_blitBattery(SDL_Surface* dst, SDL_Rect* dst_rect);
-int GFX_getButtonWidth(char* hint, char* button);
+int GFX_getButtonWidth(const char* hint, const char* button);
 void GFX_blitButton(const char* hint, const char* button, SDL_Surface* dst, SDL_Rect* dst_rect);
-void GFX_blitMessage(TTF_Font* font, char* msg, SDL_Surface* dst, SDL_Rect* dst_rect);
+void GFX_blitMessage(TTF_Font* font, const char* msg, SDL_Surface* dst, SDL_Rect* dst_rect);
 
 int GFX_blitHardwareGroup(SDL_Surface* dst, int show_setting);
 void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting);
