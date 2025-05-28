@@ -256,14 +256,26 @@ int GFX_updateColors()
 
 SDL_Surface* GFX_init(int mode)
 {
+	LOG_info("DEBUG: GFX_init() started with mode %d\n", mode);
+	
 	// TODO: this doesn't really belong here...
 	// tried adding to PWR_init() but that was no good (not sure why)
 
+	LOG_info("DEBUG: About to call PLAT_initLid()...\n");
 	PLAT_initLid();
+	LOG_info("DEBUG: PLAT_initLid() completed\n");
+	
+	LOG_info("DEBUG: About to call LEDS_initLeds()...\n");
 	LEDS_initLeds();
+	LOG_info("DEBUG: LEDS_initLeds() completed\n");
+	
+	LOG_info("DEBUG: About to call LEDS_updateLeds()...\n");
 	LEDS_updateLeds();
+	LOG_info("DEBUG: LEDS_updateLeds() completed\n");
 
+	LOG_info("DEBUG: About to call PLAT_initVideo()...\n");
 	gfx.screen = PLAT_initVideo();
+	LOG_info("DEBUG: PLAT_initVideo() completed successfully!\n");
 	gfx.vsync = VSYNC_STRICT;
 	gfx.mode = mode;
 

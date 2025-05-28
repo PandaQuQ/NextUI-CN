@@ -1831,17 +1831,28 @@ int main (int argc, char *argv[]) {
 	// LOG_info("time from launch to:\n");
 	// unsigned long main_begin = SDL_GetTicks();
 	// unsigned long first_draw = 0;
+		LOG_info("DEBUG: Starting main initialization...\n");
 	
-	if (autoResume()) return 0; // nothing to do
+	if (autoResume()) {
+		LOG_info("DEBUG: Auto-resume triggered, exiting\n");
+		return 0; // nothing to do
+	}
+	LOG_info("DEBUG: Auto-resume check passed\n");
 	
 	simple_mode = exists(SIMPLE_MODE_PATH);
 	LOG_info("NextUI\n");
+	LOG_info("DEBUG: About to call InitSettings()...\n");
 	InitSettings();
+	LOG_info("DEBUG: InitSettings() completed\n");
 	
 	// Initialize internationalization
+	LOG_info("DEBUG: About to call I18N_init()...\n");
 	I18N_init();
+	LOG_info("DEBUG: I18N_init() completed\n");
 	
+	LOG_info("DEBUG: About to call GFX_init()...\n");
 	screen = GFX_init(MODE_MAIN);
+	LOG_info("DEBUG: GFX_init() completed\n");
 	// LOG_info("- graphics init: %lu\n", SDL_GetTicks() - main_begin);
 	
 	PAD_init();
