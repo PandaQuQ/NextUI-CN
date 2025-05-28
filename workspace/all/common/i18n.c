@@ -202,27 +202,35 @@ static TranslationEntry translation_table[] = {
     {"fn_key_disable_leds", {"FN key disable LEDs", "FN键禁用LED", "FNキーでLED無効", "FN 키로 LED 비활성화"}},
     {"fn_key_will_also_disable_leds", {"FN key will also disable LEDs", "FN键也将禁用LED", "FNキーはLEDも無効にします", "FN 키는 LED도 비활성화합니다"}},
     {"adjust_brightness_when_enabled", {"Adjust brightness when enabled", "启用时调整亮度", "有効時の明るさ調整", "활성화 시 밝기 조정"}},
-    {"adjust_color_temperature_when_enabled", {"Adjust color temperature when enabled", "启用时调整色温", "有効時の色温度調整", "활성화 시 색온도 조정"}},
-    {"adjust_contrast_when_enabled", {"Adjust contrast when enabled", "启用时调整对比度", "有効時のコントラスト調整", "활성화 시 대비 조정"}},
+    {"adjust_color_temperature_when_enabled", {"Adjust color temperature when enabled", "启用时调整色温", "有効時の色温度調整", "활성화 시 색온도 조정"}},    {"adjust_contrast_when_enabled", {"Adjust contrast when enabled", "启用时调整对比度", "有効時のコントラスト調整", "활성화 시 대비 조정"}},
     {"adjust_saturation_when_enabled", {"Adjust saturation when enabled", "启用时调整饱和度", "有効時の彩度調整", "활성화 시 채도 조정"}},
     {"adjust_exposure_when_enabled", {"Adjust exposure when enabled", "启用时调整曝光", "有効時の露出調整", "활성화 시 노출 조정"}},
-    {"no_change", {"No change", "不变", "変更なし", "변경 없음"}}
+    {"no_change", {"No change", "不变", "変更なし", "변경 없음"}},
 
-    // Wifi Menu
-    {"wifi_network_title", {"Network", "网络", "ネットワーク", "네트워크"}},
-    {"wifi_toggle_label", {"WiFi", "WiFi", "WiFi", "WiFi"}},
-    {"wifi_toggle_desc", {"Enable/disable WiFi", "启用/禁用 WiFi", "WiFiを有効/無効にする", "WiFi 활성화/비활성화"}},
-    {"wifi_off", {"Off", "关闭", "オフ", "꺼짐"}},
-    {"wifi_on", {"On", "开启", "オン", "켜짐"}},
-    {"wifi_connect", {"Connect", "连接", "接続", "연결"}},
-    {"wifi_connect_desc", {"Connect to this network.", "连接到此网络。", "このネットワークに接続します。", "이 네트워크에 연결합니다."}},
-    {"wifi_enter_password", {"Enter WiFi Password", "输入 WiFi 密码", "WiFiパスワードを入力", "WiFi 비밀번호 입력"}},
-    {"wifi_forget", {"Forget", "忘记", "削除", "잊음"}},
-    {"wifi_forget_desc", {"Delete credentials for this network.", "删除此网络的凭据。", "このネットワークの資格情報を削除します。", "이 네트워크의 자격 증명을 삭제합니다."}},
-    {"wifi_disconnect", {"Disconnect", "断开连接", "切断", "연결 끊기"}},
-    {"wifi_disconnect_desc", {"Disconnect from this network.", "从此网络断开连接。", "このネットワークから切断します。", "이 네트워크에서 연결을 끊습니다."}},
-    {"wifi_options", {"Options", "选项", "オプション", "옵션"}}
-
+    // NextUI specific strings
+    {"no_preview", {"No Preview", "无预览", "プレビューなし", "미리보기 없음"}},
+    {"no_recent_records", {"No Recent Records", "无最近记录", "最近の記録はありません", "최근 기록 없음"}},
+    {"empty_folder", {"Empty Folder", "空文件夹", "空のフォルダ", "빈 폴더"}},
+    
+    // Gametime strings
+    {"playtime_total", {"Game Playtime Total", "快乐游戏时长", "ゲームプレイ時間合計", "게임 플레이 시간 합계"}},
+    {"total_time", {"Total ", "总共 ", "合計 ", "전체 "}},
+    {"average_time", {"  Average ", "  平均 ", "  平均 ", "  평균 "}},
+    {"play_count", {"  # Count ", "  # 次数 ", "  # 回数 ", "  # 횟수 "}},
+    {"up_down", {"U/D", "上/下", "上/下", "위/아래"}},    {"scroll", {"Scroll", "滚动", "スクロール", "스크롤"}},
+    {"button_b", {"B", "B", "B", "B"}},
+    {"back", {"Back", "返回", "戻る", "뒤로"}},
+    {"sleep", {"Sleep", "休眠", "スリープ", "수면"}},    {"delete", {"Delete", "删除", "削除", "삭제"}},
+    {"continue", {"Continue", "继续", "続ける", "계속"}},
+    {"open", {"Open", "打开", "開く", "열기"}},
+    {"menu", {"Menu", "菜单", "メニュー", "메뉴"}},    {"power", {"Power", "电源", "電源", "전원"}},
+    {"left_right", {"L/R", "左/右", "左/右", "왼쪽/오른쪽"}},
+    {"set", {"Set", "设置", "設定", "설정"}},
+    {"confirm", {"Confirm", "确定", "確認", "확인"}},
+    {"zoom", {"Zoom", "缩放", "ズーム", "줌"}},
+    {"select_light", {"Select Light", "选择灯光", "ライトを選択", "조명 선택"}},
+    
+    // API strings
     {"brightness_api", {"BRIGHTNESS", "亮度", "明るさ", "밝기"}},
     {"color_temperature_api", {"COLOR TEMP", "色温", "色温度", "색온도"}},
     {"menu_api", {"MNU", "菜单", "メニュー", "메뉴"}},

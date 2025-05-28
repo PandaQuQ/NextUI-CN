@@ -232,9 +232,12 @@ int main(int argc, char *argv[])
         memcpy(lightnames, brick_names, sizeof(brick_names)); // Copy values
     } else {
         const char *default_names[] = {"左摇杆","右摇杆", "Logo"};
-        memcpy(lightnames, default_names, sizeof(default_names)); // Copy values
-    }
+        memcpy(lightnames, default_names, sizeof(default_names)); // Copy values    }
     PLAT_initLeds(lightsDefault);
+    
+    // Initialize internationalization
+    I18N_init();
+    
     PWR_setCPUSpeed(CPU_SPEED_MENU);
 
 
@@ -313,10 +316,8 @@ int main(int argc, char *argv[])
 
             GFX_clear(screen);
 
-            int ow = GFX_blitHardwareGroup(screen, show_setting);            if (show_setting) GFX_blitHardwareHints(screen, show_setting);
-
-            GFX_blitButtonGroup((const char*[]){ "B","返回", NULL }, 1, screen, 1);
-            GFX_blitButtonGroup((const char*[]){ "左/右","选择灯光", NULL }, 0, screen, 0);
+            int ow = GFX_blitHardwareGroup(screen, show_setting);            if (show_setting) GFX_blitHardwareHints(screen, show_setting);            GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"), NULL }, 1, screen, 1);
+            GFX_blitButtonGroup((const char*[]){ I18N_get("left_right"),I18N_get("select_light"), NULL }, 0, screen, 0);
 
 
             int max_width = screen->w - SCALE1(PADDING * 2) - ow;

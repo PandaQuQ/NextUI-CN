@@ -4,6 +4,7 @@
 #include "platform.h"
 #include "scaler.h"
 #include "config.h"
+#include "defines.h"
 #include <stdbool.h>
 
 ///////////////////////////////

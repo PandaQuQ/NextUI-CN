@@ -1835,9 +1835,11 @@ int main (int argc, char *argv[]) {
 	if (autoResume()) return 0; // nothing to do
 	
 	simple_mode = exists(SIMPLE_MODE_PATH);
-
 	LOG_info("NextUI\n");
 	InitSettings();
+	
+	// Initialize internationalization
+	I18N_init();
 	
 	screen = GFX_init(MODE_MAIN);
 	// LOG_info("- graphics init: %lu\n", SDL_GetTicks() - main_begin);
@@ -2243,10 +2245,9 @@ int main (int argc, char *argv[]) {
 				SDL_BlitSurface(version, NULL, screen, &(SDL_Rect){(screen->w-version->w)/2,(screen->h-version->h)/2});
 				
 				// buttons (duped and trimmed from below)
-				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
-				else GFX_blitButtonGroup((const char*[]){ BTN_SLEEP==BTN_POWER?"电源":"菜单","休眠",  NULL }, 0, screen, 0);
+				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);				else GFX_blitButtonGroup((const char*[]){ BTN_SLEEP==BTN_POWER?I18N_get("power"):I18N_get("menu"),I18N_get("sleep"),  NULL }, 0, screen, 0);
 
-				GFX_blitButtonGroup((const char*[]){ "B","返回",  NULL }, 0, screen, 1);
+				GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"),  NULL }, 0, screen, 1);
 			}
 			else if(startgame) {
 				pilltargetY = +screen->w;
@@ -2311,11 +2312,10 @@ int main (int argc, char *argv[]) {
 							SCALE1(PADDING+BUTTON_PADDING),
 							SCALE1(PADDING+4)
 						});
-						SDL_FreeSurface(text);
-					}					if(can_resume) GFX_blitButtonGroup((const char*[]){ "B","返回",  NULL }, 0, screen, 0);
-					else GFX_blitButtonGroup((const char*[]){ BTN_SLEEP==BTN_POWER?"电源":"菜单","休眠",  NULL }, 0, screen, 0);
+						SDL_FreeSurface(text);					}					if(can_resume) GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"),  NULL }, 0, screen, 0);
+					else GFX_blitButtonGroup((const char*[]){ BTN_SLEEP==BTN_POWER?I18N_get("power"):I18N_get("menu"),I18N_get("sleep"),  NULL }, 0, screen, 0);
 
-					GFX_blitButtonGroup((const char*[]){ "Y", "删除", "A","继续", NULL }, 1, screen, 1);
+					GFX_blitButtonGroup((const char*[]){ "Y", I18N_get("delete"), "A",I18N_get("continue"), NULL }, 1, screen, 1);
 
 					if(has_preview) {
 						// lotta memory churn here
@@ -2392,15 +2392,15 @@ int main (int argc, char *argv[]) {
 								GFX_animateSurface(tmpsur,0-screen->w,0,0,0,screen->w,screen->h,CFG_getMenuTransitions() ? 80:20,0,255,0);
 						}
 						SDL_FreeSurface(tmpsur);
-						GFX_blitMessage(font.large, "无预览", screen, &preview_rect);
+						GFX_blitMessage(font.large, I18N_get("no_preview"), screen, &preview_rect);
 					}
 
 					Entry_free(selectedEntry);
 				}
 				else {
 					SDL_Rect preview_rect = {ox,oy,hw,hh};
-					SDL_FillRect(screen, &preview_rect, 0);					GFX_blitMessage(font.large, "无最近记录", screen, &preview_rect);
-					GFX_blitButtonGroup((const char*[]){ "B","返回", NULL }, 1, screen, 1);
+					SDL_FillRect(screen, &preview_rect, 0);					GFX_blitMessage(font.large, I18N_get("no_recent_records"), screen, &preview_rect);
+					GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"), NULL }, 1, screen, 1);
 				}
 				
 				GFX_flipHidden();
@@ -2460,8 +2460,7 @@ int main (int argc, char *argv[]) {
 					}
 				}
 
-				// buttons
-				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);				else if (can_resume) GFX_blitButtonGroup((const char*[]){ "X","继续",  NULL }, 0, screen, 0);
+				// buttons				if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);				else if (can_resume) GFX_blitButtonGroup((const char*[]){ "X",I18N_get("continue"),  NULL }, 0, screen, 0);
 				else GFX_blitButtonGroup((const char*[]){ 
 					BTN_SLEEP==BTN_POWER?"电源":"菜单",
 					BTN_SLEEP==BTN_POWER||simple_mode?"休眠":"信息",  
@@ -2469,15 +2468,15 @@ int main (int argc, char *argv[]) {
 			
 				if (total==0) {
 					if (stack->count>1) {
-						GFX_blitButtonGroup((const char*[]){ "B","返回",  NULL }, 0, screen, 1);
+						GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"),  NULL }, 0, screen, 1);
 					}
 				}
 				else {
 					if (stack->count>1) {
-						GFX_blitButtonGroup((const char*[]){ "B","返回", "A","打开", NULL }, 1, screen, 1);
+						GFX_blitButtonGroup((const char*[]){ I18N_get("button_b"),I18N_get("back"), "A",I18N_get("open"), NULL }, 1, screen, 1);
 					}
 					else {
-						GFX_blitButtonGroup((const char*[]){ "A","打开", NULL }, 0, screen, 1);
+						GFX_blitButtonGroup((const char*[]){ "A",I18N_get("open"), NULL }, 0, screen, 1);
 					}
 				}
 
@@ -2571,7 +2570,7 @@ int main (int argc, char *argv[]) {
 				}
 				else {
 					// TODO: for some reason screen's dimensions end up being 0x0 in GFX_blitMessage...
-					GFX_blitMessage(font.large, "空文件夹", screen, &(SDL_Rect){0,0,screen->w,screen->h}); //, NULL);
+					GFX_blitMessage(font.large, I18N_get("empty_folder"), screen, &(SDL_Rect){0,0,screen->w,screen->h}); //, NULL);
 				}
 				
 				

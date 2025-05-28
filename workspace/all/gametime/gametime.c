@@ -267,13 +267,11 @@ void renderList(int count, int start, int end, int selected)
             layout.list_display_start_x + num_width + thumbMargin + SCALE1(IMG_MAX_WIDTH), 
             layout.list_display_start_y + thumbMargin / 2 + elemHeight * row, 
             layout.list_display_size_x, 
-            textHeight});
-
-        serializeTime(total, entry->play_time_total);
+            textHeight});        serializeTime(total, entry->play_time_total);
         serializeTime(average, entry->play_time_average);
         snprintf(plays, 24, "%d", entry->play_count);
 
-        const char *details[] = {"总共 ", total, "  平均 ", average, "  # 次数 ", plays};
+        const char *details[] = {I18N_get("total_time"), total, I18N_get("average_time"), average, I18N_get("play_count"), plays};
         SDL_Rect detailsRect = {
             layout.list_display_start_x + num_width + thumbMargin + SCALE1(IMG_MAX_WIDTH), 
             layout.list_display_start_y + thumbMargin + textHeight + elemHeight * row, 
@@ -332,6 +330,9 @@ void initLayout()
 int main(int argc, char *argv[])
 {
     InitSettings();
+    
+    // Initialize internationalization
+    I18N_init();
 
     PWR_setCPUSpeed(CPU_SPEED_MENU);
 
@@ -413,13 +414,11 @@ int main(int argc, char *argv[])
                 if(screen->w >= SCALE1(320)) {
                     int ow = GFX_blitHardwareGroup(screen, show_setting);
                     max_width = screen->w - SCALE1(PADDING * 2) - ow;
-                }
-
-                int play_time_total = play_activities->play_time_total;
+                }                int play_time_total = play_activities->play_time_total;
                 char play_time_total_formatted[255];
                 serializeTime(play_time_total_formatted, play_time_total);
                 char display_name[256];
-                sprintf(display_name, "快乐游戏时长: %s", play_time_total_formatted);
+                sprintf(display_name, "%s: %s", I18N_get("playtime_total"), play_time_total_formatted);
 
                 char title[256];
                 int text_width = GFX_truncateText(font.large, display_name, title, max_width, SCALE1(BUTTON_PADDING * 2));
@@ -430,14 +429,12 @@ int main(int argc, char *argv[])
                 GFX_blitPill(ASSET_BLACK_PILL, screen, &(SDL_Rect){SCALE1(PADDING), SCALE1(PADDING), max_width, SCALE1(PILL_SIZE)});
                 SDL_BlitSurface(text, &(SDL_Rect){0, 0, max_width - SCALE1(BUTTON_PADDING * 2), text->h}, screen, &(SDL_Rect){SCALE1(PADDING + BUTTON_PADDING), SCALE1(PADDING + 4)});
                 SDL_FreeSurface(text);
-            }
-
-            renderList(count, start, end, selected);            if (show_setting)
+            }            renderList(count, start, end, selected);            if (show_setting)
                 GFX_blitHardwareHints(screen, show_setting);
             else
-                GFX_blitButtonGroup((const char *[]){"上/下", "滚动", NULL}, 0, screen, 0);
+                GFX_blitButtonGroup((const char *[]){I18N_get("up_down"), I18N_get("scroll"), NULL}, 0, screen, 0);
 
-            GFX_blitButtonGroup((const char *[]){"B", "返回", NULL}, 1, screen, 1);
+            GFX_blitButtonGroup((const char *[]){I18N_get("button_b"), I18N_get("back"), NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;

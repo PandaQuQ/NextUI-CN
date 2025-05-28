@@ -636,6 +636,9 @@ void initLayout()
 int main(int argc, char *argv[])
 {
     InitSettings();
+    
+    // Initialize internationalization
+    I18N_init();
 
     PWR_setCPUSpeed(CPU_SPEED_MENU);
     device_model = PLAT_getModel();
@@ -756,10 +759,9 @@ int main(int argc, char *argv[])
 
             if (show_setting)
                 GFX_blitHardwareHints(screen, show_setting);
-            else
-                GFX_blitButtonGroup((const char *[]){"左/右", "滚动", "L1/R1", "缩放", NULL}, 0, screen, 0);
+            else                GFX_blitButtonGroup((const char *[]){I18N_get("left_right"), I18N_get("scroll"), "L1/R1", I18N_get("zoom"), NULL}, 0, screen, 0);
 
-            GFX_blitButtonGroup((const char *[]){"B", "返回", NULL}, 1, screen, 1);
+            GFX_blitButtonGroup((const char *[]){I18N_get("button_b"), I18N_get("back"), NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;

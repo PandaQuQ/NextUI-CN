@@ -88,6 +88,9 @@ void unloadImages()
 int main(int argc, char *argv[])
 {
     InitSettings();
+    
+    // Initialize internationalization
+    I18N_init();
 
     PWR_setCPUSpeed(CPU_SPEED_MENU);
 
@@ -171,9 +174,8 @@ int main(int argc, char *argv[])
                     screen->h /2 - image->h / 2,
                     image->w,
                     image->h};
-                SDL_BlitSurface(image, NULL, screen, &image_rect);
-            }            GFX_blitButtonGroup((const char *[]){"左/右", "滚动", NULL}, 0, screen, 0);
-            GFX_blitButtonGroup((const char *[]){"A", "设置", "B", "返回", NULL}, 1, screen, 1);
+                SDL_BlitSurface(image, NULL, screen, &image_rect);            }            GFX_blitButtonGroup((const char *[]){I18N_get("left_right"), I18N_get("scroll"), NULL}, 0, screen, 0);
+            GFX_blitButtonGroup((const char *[]){"A", I18N_get("set"), I18N_get("button_b"), I18N_get("back"), NULL}, 1, screen, 1);
 
             GFX_flip(screen);
             dirty = 0;

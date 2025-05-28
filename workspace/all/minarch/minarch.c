@@ -6518,9 +6518,8 @@ static void Menu_loop(void) {
 			});
 			SDL_FreeSurface(text);
 			
-			if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);
-			else GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?"电源":"菜单","休眠", NULL }, 0, screen, 0);
-			GFX_blitButtonGroup((char*[]){ "B","返回", "A","确定", NULL }, 1, screen, 1);
+			if (show_setting && !GetHDMI()) GFX_blitHardwareHints(screen, show_setting);			else GFX_blitButtonGroup((char*[]){ BTN_SLEEP==BTN_POWER?I18N_get("power"):I18N_get("menu"),I18N_get("sleep"), NULL }, 0, screen, 0);
+			GFX_blitButtonGroup((char*[]){ I18N_get("button_b"),I18N_get("back"), "A",I18N_get("confirm"), NULL }, 1, screen, 1);
 
 			// list
 			oy = (((DEVICE_HEIGHT / FIXED_SCALE) - PADDING * 2) - (MENU_ITEM_COUNT * PILL_SIZE)) / 2;
@@ -6762,11 +6761,13 @@ int main(int argc , char* argv[]) {
 	LOG_info("MinArch\n");
 	pthread_t cpucheckthread;
     pthread_create(&cpucheckthread, NULL, PLAT_cpu_monitor, NULL);
-
 	setOverclock(overclock); // default to normal
 	// force a stack overflow to ensure asan is linked and actually working
 	// char tmp[2];
 	// tmp[2] = 'a';
+	
+	// Initialize internationalization
+	I18N_init();
 	
 	char core_path[MAX_PATH];
 	char rom_path[MAX_PATH]; 
