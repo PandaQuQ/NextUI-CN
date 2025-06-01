@@ -1444,6 +1444,7 @@ static int had_thumb = 0;
 static int ox;
 static int oy;
 int animationDraw = 1;
+int needDraw = 1;
 int folderbgchanged=0;
 int thumbchanged=0;
 
@@ -1617,6 +1618,7 @@ void onBackgroundLoaded(SDL_Surface* surface) {
 		return;
 	}
     folderbgbmp = surface;
+	needDraw = 1;
 	SDL_UnlockMutex(bgMutex);
 }
 
@@ -1658,6 +1660,7 @@ void onThumbLoaded(SDL_Surface* surface) {
 		&(SDL_Rect){0, 0, thumbbmp->w, thumbbmp->h},
 		SCALE1((float)CFG_getThumbnailRadius() * ((float)img_w / (float)new_w))
 	);
+	needDraw = 1;
 	SDL_UnlockMutex(thumbMutex);
 }
 
@@ -1693,6 +1696,7 @@ void animcallback(finishedTask *task) {
 
 		globalText = cropped;
 	}
+	needDraw = 1;
 	SDL_UnlockMutex(animMutex);
 	animationDraw = 1;
 }
@@ -2645,7 +2649,6 @@ int main (int argc, char *argv[]) {
 			dirty = 0;
 			readytoscroll = 0;
 		} else if(animationDraw || folderbgchanged || thumbchanged || is_scrolling) {
-		
 			// honestly this whole thing is here only for the scrolling text, I set it now to run this at 30fps which is enough for scrolling text, should move this to seperate animation function eventually
 			Uint32 now = SDL_GetTicks();
 			Uint32 frame_start = now;
@@ -2736,11 +2739,25 @@ int main (int argc, char *argv[]) {
 				SDL_UnlockMutex(animMutex);
 				PLAT_GPU_Flip();
 			} 
+			else {
+				SDL_Delay(100);
+			}
 			dirty = 0;
 		} 
 		else {
-			PLAT_GPU_Flip();
-			
+			// want to draw only if needed
+			SDL_LockMutex(bgqueueMutex);
+			SDL_LockMutex(thumbqueueMutex);
+			SDL_LockMutex(animqueueMutex);
+			if(needDraw) {
+				PLAT_GPU_Flip();
+				needDraw = 0;
+			} else {
+				SDL_Delay(17);
+			}
+			SDL_UnlockMutex(bgqueueMutex);
+			SDL_UnlockMutex(thumbqueueMutex);
+			SDL_UnlockMutex(animqueueMutex);
 		}
 		
 	
@@ -2748,7 +2765,7 @@ int main (int argc, char *argv[]) {
 		frameReady = true;
 		SDL_CondSignal(flipCond);
 		SDL_UnlockMutex(frameMutex);
-		
+
 		// handle HDMI change
 		static int had_hdmi = -1;
 		int has_hdmi = GetHDMI();
