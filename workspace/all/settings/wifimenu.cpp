@@ -131,7 +131,7 @@ void Menu::updater()
                         options = new MenuList(MenuItemType::List, "选项",
                                                {
                                                    new MenuItem{ListItemType::Button, "断开连接", "从此网络断开连接。",
-                                                                [&](MenuItem &item) -> InputReactionHint
+                                                                [&](AbstractMenuItem &item) -> InputReactionHint
                                                                 { WIFI_disconnect(); workerDirty = true; return Exit; }},
                                                    new ForgetItem(r, workerDirty)
                                                });
@@ -170,7 +170,7 @@ void Menu::updater()
 }
 
 ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
-    : MenuItem(ListItemType::Button, "连接", "连接到此网络。", [&](MenuItem &item) -> InputReactionHint{
+    : MenuItem(ListItemType::Button, "连接", "连接到此网络。", [&](AbstractMenuItem &item) -> InputReactionHint{
         WIFI_connect(net.ssid, net.security);
         dirty = true;
         return Exit;
@@ -179,7 +179,7 @@ ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
 
 ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
     : MenuItem(ListItemType::Button, "输入 WiFi 密码", "连接到此网络。", DeferToSubmenu, new KeyboardPrompt("输入 WiFi 密码",
-        [&](MenuItem &item) -> InputReactionHint {
+        [&](AbstractMenuItem &item) -> InputReactionHint {
             WIFI_connectPass(net.ssid, net.security, item.getName().c_str()); 
             dirty = true;
             return Exit; 
@@ -188,7 +188,7 @@ ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
 
 ForgetItem::ForgetItem(WIFI_network n, bool& dirty)
     : MenuItem(ListItemType::Button, "忘记", "删除此网络的凭据。",
-        [&](MenuItem &item) -> InputReactionHint {
+        [&](AbstractMenuItem &item) -> InputReactionHint {
             WIFI_forget(net.ssid, net.security); 
             dirty = true; 
             return Exit;
@@ -200,7 +200,7 @@ NetworkItem::NetworkItem(WIFI_network n, bool connected, MenuList* submenu)
     : MenuItem(ListItemType::Custom, n.ssid, n.bssid, DeferToSubmenu, submenu), net(n), connected(connected)
 {}
 
-void NetworkItem::drawCustomItem(SDL_Surface *surface, const SDL_Rect &dst, const MenuItem &item, bool selected) const
+void NetworkItem::drawCustomItem(SDL_Surface *surface, const SDL_Rect &dst, const AbstractMenuItem &item, bool selected) const
 {
     SDL_Color text_color = uintToColour(THEME_COLOR4_255);
     SDL_Surface *text = TTF_RenderUTF8_Blended(font.tiny, item.getLabel().c_str(), COLOR_WHITE); // always white
