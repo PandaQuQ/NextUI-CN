@@ -1,0 +1,101 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "NextUI",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/nextui/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/nextui/build/desktop/nextui.elf",
+            "preLaunchTask": "make desktop",
+            "environment": [{
+              "name": "SHARED_USERDATA_PATH", 
+              "value": "/Library/Developer/Projects/private/MinUI_FAKESD/.userdata/shared", 
+            }]
+        },
+        {
+            "name": "App: Battery",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/battery/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/battery/build/desktop/battery.elf",
+            "preLaunchTask": "make desktop",
+        },
+        {
+            "name": "App: Input",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/minput/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/minput/build/desktop/minput.elf",
+            "preLaunchTask": "make desktop",
+        },
+        {
+            "name": "App: Gametime",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/gametime/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/gametime/build/desktop/gametime.elf",
+            "preLaunchTask": "make desktop",
+        },
+        {
+            "name": "App: Gametimectl",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/gametimectl/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/gametimectl/build/desktop/gametimectl.elf",
+            "preLaunchTask": "make desktop",
+            "args": ["start", "foo.txt"],
+        },
+        {
+            "name": "App: Settings",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/settings/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/settings/build/desktop/settings.elf",
+            "preLaunchTask": "make desktop",
+            "environment": [{
+              "name": "SHARED_USERDATA_PATH", 
+              "value": "/Library/Developer/Projects/private/MinUI_FAKESD/.userdata/shared", 
+            }]
+        },
+        {
+            "name": "Minarch",
+            "request": "launch",
+            "type": "cppdbg",
+            "osx": {
+              "MIMode": "lldb"
+            },
+            "cwd": "${workspaceFolder}/workspace/all/minarch/build/desktop",
+            "program": "${workspaceFolder}/workspace/all/minarch/build/desktop/minarch.elf",
+            "environment": [{
+              "name": "SHARED_USERDATA_PATH", 
+              "value": "/Library/Developer/Projects/private/MinUI_FAKESD/.userdata/shared", 
+            }],
+            "args": [
+              "/Library/Developer/Projects/private/MinUI_ro8inmorgan/workspace/desktop/cores/output/gambatte_libretro.so", 
+              "/Library/Developer/Projects/private/MinUI_FAKESD/Roms/Game Boy Color (GBC)/Tetris DX (SGB Enhanced) (GB Compatible).zip"
+            ],
+        },
+    ]
+}
