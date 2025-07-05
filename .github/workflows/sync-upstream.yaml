@@ -1,9 +1,10 @@
 name: Sync Upstream
 
 on:
-  schedule:
-    # UTC 0点起每隔30分钟同步一次
-    - cron: '0,30 * * * *'
+# 修复bug前暂停自动更新
+  # schedule:
+  #   # UTC 0点起每隔30分钟同步一次
+  #   - cron: '0,30 * * * *'
   workflow_dispatch:
 
 jobs:
