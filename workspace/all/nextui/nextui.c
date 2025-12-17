@@ -2798,7 +2798,9 @@ int main (int argc, char *argv[]) {
 					Entry_free(selectedEntry);
 				}
 				else {
-					SDL_Rect preview_rect = {ox,oy,hw,hh};
+					/* hw/hh were not defined here (compile error). Use full screen
+					 * size for the preview rectangle to match the other branch. */
+					SDL_Rect preview_rect = {ox,oy,screen->w,screen->h};
 					SDL_FillRect(screen, &preview_rect, 0);
 					GFX_blitMessage(font.large, "无最近记录", screen, &preview_rect);
 					GFX_blitButtonGroup((char*[]){ "B","返回", NULL }, 1, screen, 1);
