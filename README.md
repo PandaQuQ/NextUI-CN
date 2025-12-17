@@ -10,7 +10,7 @@
 <hr>
 
 <h4 align="center">
-  <a href="https://nextui.loveretro.games/getting-started/" target="_blank">安装指南</a>
+  <a href="https://nextui.loveretro.games/usage/#getting-started" target="_blank">安装指南</a>
   ·
   <a href="https://nextui.loveretro.games/docs/" target="_blank">文档</a>
   ·
@@ -55,6 +55,7 @@
 - 游戏时间追踪！
 - 金手指支持
 - 集成WiFi功能
+- 蓝牙音频
 - 支持覆盖层！
 - 动态CPU速度调节（保持设备冷却并延长电池寿命，同时在需要时提供性能）
 - 完全基于GPU的OpenGL实现更快性能
@@ -86,21 +87,9 @@
 
 ---
 
-## 未来计划路线图
-
-- 蓝牙和WiFi集成
-- 可配置的FN和切换按钮
-- 更多与不同模拟器的兼容性测试，并在必要时修复/改进
-- 复古成就系统
-- 我们可能会在途中想到更多要添加的功能 :D
-- 一旦一切符合我的期望，我将考虑将其移植到更多设备
-- 清理所有MinUI代码，并剔除所有针对旧设备的内容等
-
----
-
 ## 安装方法
 
-请参考我们的[安装指南](https://nextui.loveretro.games/getting-started/)。
+请参考我们的[安装指南](https://nextui.loveretro.games/usage/#getting-started)。
 
 ---
 
@@ -137,7 +126,7 @@ NextUI支持各种称为Paks的可选扩展。
 
 ## 鸣谢
 
-[@josegonzalez](https://github.com/josegonzalez)开发的[minui-keyboard](https://github.com/josegonzalez/minui-keyboard/t)
+[@josegonzalez](https://github.com/josegonzalez) 贡献的 [minui-keyboard](https://github.com/josegonzalez/minui-keyboard)
 
 ---
 

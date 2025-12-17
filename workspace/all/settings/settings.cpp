@@ -7,7 +7,11 @@ extern "C"
 #include "utils.h"
 }
 
+#include <fstream>
+#include <sstream>
+#include <regex>
 #include "wifimenu.hpp"
+#include "btmenu.hpp"
 #include "keyboardprompt.hpp"
 
 static int appQuit = false;
@@ -74,10 +78,39 @@ static const std::vector<std::string> on_off = {"关闭", "开启"};
 static const std::vector<std::string> scaling_strings = {"全屏", "适应", "填充"};
 static const std::vector<std::any> scaling = {(int)GFX_SCALE_FULLSCREEN, (int)GFX_SCALE_FIT, (int)GFX_SCALE_FILL};
 
+namespace {
+    std::string execCommand(const char* cmd) {
+        std::array<char, 128> buffer;
+        std::string result;
+
+        // Redirect stderr to stdout using 2>&1
+        std::string fullCmd = std::string(cmd) + " 2>&1";
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(fullCmd.c_str(), "r"), pclose);
+        if (!pipe) throw std::runtime_error("popen() failed!");
+
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+            result += buffer.data();
+        }
+
+        return result;
+    }
+
+    std::string extractBusyBoxVersion(const std::string& output) {
+        std::regex versionRegex(R"(BusyBox\s+v[\d.]+.*)");
+        std::smatch match;
+        if (std::regex_search(output, match, versionRegex)) {
+            return match.str(0);
+        }
+        return "";
+    }
+}
 int main(int argc, char *argv[])
 {
     try
     {
+        char* device = getenv("DEVICE");
+        bool is_brick = exactMatch("brick", device);
+
         char version[128];
         PLAT_getOsVersionInfo(version, 128);
         LOG_info("This is TrimUI stock OS version %s\n", version);
@@ -93,6 +126,8 @@ int main(int argc, char *argv[])
         PWR_init();
         TIME_init();
         WIFI_init();
+        // This will briefly tear down existing connections
+        BT_init();
 
         signal(SIGINT, sigHandler);
         signal(SIGTERM, sigHandler);
@@ -100,6 +135,9 @@ int main(int argc, char *argv[])
         char timezones[MAX_TIMEZONES][MAX_TZ_LENGTH];
         int tz_count = 0;
         TIME_getTimezones(timezones, &tz_count);
+
+        int was_online = PLAT_isOnline();
+        int had_bt = PLAT_btIsConnected();
         
         std::vector<std::any> tz_values;
         std::vector<std::string> tz_labels;
@@ -139,6 +177,10 @@ int main(int argc, char *argv[])
                 []() -> std::any { return CFG_getColor(5); }, 
                 [](const std::any &value) { CFG_setColor(5, std::any_cast<uint32_t>(value)); },
                 []() { CFG_setColor(5, CFG_DEFAULT_COLOR5);}},
+                //new MenuItem{ListItemType::Color, "Background color", "Main UI background color", colors, color_strings, 
+                //[]() -> std::any { return CFG_getColor(7); }, 
+                //[](const std::any &value) { CFG_setColor(7, std::any_cast<uint32_t>(value)); },
+                //[]() { CFG_setColor(7, CFG_DEFAULT_COLOR7);}},
                 new MenuItem{ListItemType::Generic, "显示电池百分比", "显示电池电量百分比", {false, true}, on_off, 
                 []() -> std::any { return CFG_getShowBatteryPercent(); },
                 [](const std::any &value) { CFG_setShowBatteryPercent(std::any_cast<bool>(value)); },
@@ -159,11 +201,15 @@ int main(int argc, char *argv[])
                 []() -> std::any{ return (int)(CFG_getGameArtWidth() * 100); }, 
                 [](const std::any &value) { CFG_setGameArtWidth((double)std::any_cast<int>(value) / 100.0); },
                 []() { CFG_setGameArtWidth(CFG_DEFAULT_GAMEARTWIDTH);}},
-                new MenuItem{ListItemType::Generic, "显示最近", "显示 \"最近播放\" 菜单项。\n这也会禁用游戏切换器", {false, true}, on_off, 
+                new MenuItem{ListItemType::Generic, "显示文件夹名称", "显示根目录下文件夹名称", {false, true}, on_off,
+                []() -> std::any { return CFG_getShowFolderNamesAtRoot(); },
+                [](const std::any &value) { CFG_setShowFolderNamesAtRoot(std::any_cast<bool>(value)); },
+                []() { CFG_setShowFolderNamesAtRoot(CFG_DEFAULT_SHOWFOLDERNAMESATROOT);}},
+                new MenuItem{ListItemType::Generic, "显示最近游玩", "在游戏列表中显示“最近游玩”菜单项。", {false, true}, on_off, 
                 []() -> std::any { return CFG_getShowRecents(); },
                 [](const std::any &value) { CFG_setShowRecents(std::any_cast<bool>(value)); },
                 []() { CFG_setShowRecents(CFG_DEFAULT_SHOWRECENTS);}},
-                new MenuItem{ListItemType::Generic, "显示游戏封面", "显示游戏封面", {false, true}, on_off, []() -> std::any
+                new MenuItem{ListItemType::Generic, "显示游戏封面", "在主菜单中显示游戏封面", {false, true}, on_off, []() -> std::any
                 { return CFG_getShowGameArt(); },
                 [](const std::any &value)
                 { CFG_setShowGameArt(std::any_cast<bool>(value)); },
@@ -173,6 +219,10 @@ int main(int argc, char *argv[])
                 [](const std::any &value)
                 { CFG_setRomsUseFolderBackground(std::any_cast<bool>(value)); },
                 []() { CFG_setRomsUseFolderBackground(CFG_DEFAULT_ROMSUSEFOLDERBACKGROUND);}},
+                new MenuItem{ListItemType::Generic, "Show Quickswitcher UI", "Show/hide Quickswitcher UI elements.\nWhen hidden, will only draw background images.", {false, true}, on_off, 
+                []() -> std::any{ return CFG_getShowQuickswitcherUI(); },
+                [](const std::any &value){ CFG_setShowQuickswitcherUI(std::any_cast<bool>(value)); },
+                []() { CFG_setShowQuickswitcherUI(CFG_DEFAULT_SHOWQUICKWITCHERUI);}},
                 // not needed anymore
                 // new MenuItem{ListItemType::Generic, "Game switcher scaling", "The scaling algorithm used to display the savegame image.", scaling, scaling_strings, []() -> std::any
                 // { return CFG_getGameSwitcherScaling(); },
@@ -229,7 +279,7 @@ int main(int argc, char *argv[])
             { return CFG_getHaptics(); }, [](const std::any &value)
             { CFG_setHaptics(std::any_cast<bool>(value)); },
             []() { CFG_setHaptics(CFG_DEFAULT_HAPTICS);}},
-            new MenuItem{ListItemType::Generic, "显示24小时制", "以24小时制显示时钟", {false, true}, on_off, []() -> std::any
+            new MenuItem{ListItemType::Generic, "24小时制时间格式", "以24小时制格式显示时钟", {false, true}, on_off, []() -> std::any
             { return CFG_getClock24H(); },
             [](const std::any &value)
             { CFG_setClock24H(std::any_cast<bool>(value)); },
@@ -253,17 +303,18 @@ int main(int argc, char *argv[])
             { return CFG_getSaveFormat(); }, [](const std::any &value)
             { CFG_setSaveFormat(std::any_cast<int>(value)); },
             []() { CFG_setSaveFormat(CFG_DEFAULT_SAVEFORMAT);}},
-            new MenuItem{ListItemType::Generic, "保存状态格式", "要使用的保存状态格式。\nMinUI: Game.st0, Retroarch: Game.state.0",
-            {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM, (int)STATE_FORMAT_SRM_UNCOMPRESSED},
-            {"MinUI (默认)", "全能模拟器（压缩）", "全能模拟器（不压缩）"}, []() -> std::any
+            new MenuItem{ListItemType::Generic, "存档状态格式", "要使用的存档状态格式。\nMinUI: Game.st0, Retroarch: Game.state.0", 
+            {(int)STATE_FORMAT_SAV, (int)STATE_FORMAT_SRM, (int)STATE_FORMAT_SRM_UNCOMRESSED}, 
+            {"MinUI (默认)", "Retroarch（压缩）", "Retroarch（未压缩）"}, []() -> std::any
             { return CFG_getStateFormat(); }, [](const std::any &value)
             { CFG_setStateFormat(std::any_cast<int>(value)); },
             []() { CFG_setStateFormat(CFG_DEFAULT_STATEFORMAT);}},
 
-            new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
+            new MenuItem{ListItemType::Button, "重置为默认值", "将此菜单中的所有选项重置为默认值。", ResetCurrentMenu},
         });
 
         auto muteMenu = new MenuList(MenuItemType::Fixed, "FN键设置",
+        std::vector<AbstractMenuItem*> muteItems = 
         {
             new MenuItem{ListItemType::Generic, "启用时调整音量", "扬声器音量 (0-20)", 
             {(int)SETTINGS_DEFAULT_MUTE_NO_CHANGE, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}, 
@@ -305,21 +356,77 @@ int main(int argc, char *argv[])
             []() -> std::any  { return GetMutedExposure(); }, [](const std::any &value)
             { SetMutedExposure(std::any_cast<int>(value)); },
             []() { SetMutedExposure(SETTINGS_DEFAULT_MUTE_NO_CHANGE);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 A", "启用连发开火键 A", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboA(); },
+            [](const std::any &value) { SetMuteTurboA(std::any_cast<int>(value));},
+            []() { SetMuteTurboA(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 B", "启用连发开火键 B", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboB(); },
+            [](const std::any &value) { SetMuteTurboB(std::any_cast<int>(value));},
+            []() { SetMuteTurboB(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 X", "启用连发开火键 X", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboX(); },
+            [](const std::any &value) { SetMuteTurboX(std::any_cast<int>(value));},
+            []() { SetMuteTurboX(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 Y", "启用连发开火键 Y", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboY(); },
+            [](const std::any &value) { SetMuteTurboY(std::any_cast<int>(value));},
+            []() { SetMuteTurboY(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 L1", "启用连发开火键 L1", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboL1(); },
+            [](const std::any &value) { SetMuteTurboL1(std::any_cast<int>(value));},
+            []() { SetMuteTurboL1(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 L2", "启用连发开火键 L2", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboL2(); },
+            [](const std::any &value) { SetMuteTurboL2(std::any_cast<int>(value));},
+            []() { SetMuteTurboL2(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 R1", "启用连发开火键 R1", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboR1(); },
+            [](const std::any &value) { SetMuteTurboR1(std::any_cast<int>(value));},
+            []() { SetMuteTurboR1(0);}},
+            new MenuItem{ListItemType::Generic, "连发开火键 R2", "启用连发开火键 R2", {0, 1}, on_off, []() -> std::any
+            { return GetMuteTurboR2(); },
+            [](const std::any &value) { SetMuteTurboR2(std::any_cast<int>(value));},
+            []() { SetMuteTurboR2(0);}},
+        };
+        if(is_brick) {
+            muteItems.push_back(
+                new MenuItem{ListItemType::Generic, "切换时的Dpad模式", "Dpad: 默认。摇杆: Dpad专门作为模拟摇杆使用。\n两者: Dpad和摇杆同时输入。", {0, 1, 2}, {"Dpad", "摇杆", "两者"}, []() -> std::any
+                {
+                    if(!GetMuteDisablesDpad() && !GetMuteEmulatesJoystick()) return 0;
+                    if(GetMuteDisablesDpad() && GetMuteEmulatesJoystick()) return 1;
+                    return 2; 
+                },
+                [](const std::any &value)
+                { 
+                    int v = std::any_cast<int>(value);
+                    SetMuteDisablesDpad((v == 1)); 
+                    SetMuteEmulatesJoystick((v > 0));
+                },
+                []()
+                { 
+                    SetMuteDisablesDpad(0); 
+                    SetMuteEmulatesJoystick(0);
+                }});
+        }
+        muteItems.push_back(new MenuItem{ListItemType::Button, "重置为默认值", "将此菜单中的所有选项重置为默认值。", ResetCurrentMenu});
 
-            new MenuItem{ListItemType::Button, "重置默认", "重置此菜单中的所有选项为默认值。", ResetCurrentMenu},
-        });
+        auto muteMenu = new MenuList(MenuItemType::Fixed, "FN键设置", muteItems);
 
         // TODO: check WIFI_supported(), hide menu otherwise
-        auto networkMenu = new Wifi::Menu(appQuit);
+        auto networkMenu = new Wifi::Menu(appQuit, ctx.dirty);
 
+        // TODO: check BT_supported(), hide menu otherwise
+        auto btMenu = new Bluetooth::Menu(appQuit, ctx.dirty);
 
         auto aboutMenu = new MenuList(MenuItemType::Fixed, "关于",
         {
             new StaticMenuItem{ListItemType::Generic, "NextUI版本", "", 
             []() -> std::any { 
-                char release[256];
-                getFile(ROOT_SYSTEM_PATH "/version.txt", release, 256);
-                return std::string(release); 
+                std::ifstream t(ROOT_SYSTEM_PATH "/version.txt");
+                std::stringstream buffer;
+                buffer << t.rdbuf();
+                return buffer.str();
             }},
             new StaticMenuItem{ListItemType::Generic, "平台", "", 
             []() -> std::any { 
@@ -331,22 +438,26 @@ int main(int argc, char *argv[])
                 PLAT_getOsVersionInfo(osver, 128);
                 return std::string(osver); }
             },
+            new StaticMenuItem{ListItemType::Generic, "Busybox version", "", 
+            []() -> std::any { 
+                std::string output = execCommand("cat --help");
+                std::string version = extractBusyBoxVersion(output);
+
+                if (!version.empty())
+                    return version;
+                return std::string("BusyBox version not found."); }
+            },
         });
 
         ctx.menu = new MenuList(MenuItemType::List, "主菜单",
         {
-            new MenuItem{ListItemType::Generic, "外观", "UI自定义", {}, {}, nullptr, nullptr, DeferToSubmenu, appearanceMenu},
+            new MenuItem{ListItemType::Generic, "外观", "自定义UI样式", {}, {}, nullptr, nullptr, DeferToSubmenu, appearanceMenu},
             new MenuItem{ListItemType::Generic, "显示", "", {}, {}, nullptr, nullptr, DeferToSubmenu, displayMenu},
             new MenuItem{ListItemType::Generic, "系统", "", {}, {}, nullptr, nullptr, DeferToSubmenu, systemMenu},
-            new MenuItem{ListItemType::Generic, "FN键", "FN键设置", {}, {}, nullptr, nullptr, DeferToSubmenu, muteMenu},
+            new MenuItem{ListItemType::Generic, "FN键设置", "FN键设置", {}, {}, nullptr, nullptr, DeferToSubmenu, muteMenu},
             new MenuItem{ListItemType::Generic, "网络", "", {}, {}, nullptr, nullptr, DeferToSubmenu, networkMenu},
             new MenuItem{ListItemType::Generic, "关于", "", {}, {}, nullptr, nullptr, DeferToSubmenu, aboutMenu},
         });
-
-        //ctx.menu = new KeyboardPrompt("test", [](MenuItem &itm) -> InputReactionHint
-        //                              {   
-        //    LOG_info("Keyboard text: %s\n", itm.getName().c_str());
-        //    return NoOp; });
 
         const bool showTitle = false;
         const bool showIndicator = true;
@@ -381,6 +492,16 @@ int main(int argc, char *argv[])
             ctx.menu->handleInput(ctx.dirty, appQuit);
 
             PWR_update(&ctx.dirty, &ctx.show_setting, nullptr, nullptr);
+
+            int is_online = PLAT_isOnline();
+            if (was_online!=is_online) 
+                ctx.dirty = 1;
+            was_online = is_online;
+
+            int has_bt = PLAT_btIsConnected();
+            if (had_bt != has_bt)
+                ctx.dirty = 1;
+            had_bt = has_bt;
 
             if (ctx.dirty)
             {
@@ -446,6 +567,7 @@ int main(int argc, char *argv[])
         QuitSettings();
         PWR_quit();
         PAD_quit();
+        BT_quit();
         GFX_quit();
 
         return EXIT_SUCCESS;
@@ -456,6 +578,7 @@ int main(int argc, char *argv[])
         QuitSettings();
         PWR_quit();
         PAD_quit();
+        BT_quit();
         GFX_quit();
 
         return EXIT_FAILURE;

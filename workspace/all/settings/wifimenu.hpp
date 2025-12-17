@@ -8,15 +8,18 @@ namespace Wifi
     class Menu : public MenuList
     {
         const int &globalQuit;
+        int &globalDirty;
         // wifi on/off
         MenuItem *toggleItem;
+        // diagnostics on/off
+        MenuItem *diagItem;
 
         std::thread worker;
         bool quit = false;
-        bool workerDirty = false;
+        bool selectionDirty = false;
 
     public:
-        Menu(const int &globalQuit);
+        Menu(const int &globalQuit, int &globalDirty);
         ~Menu();
 
         InputReactionHint handleInput(int &dirty, int &quit) override;
@@ -25,6 +28,10 @@ namespace Wifi
         std::any getWifToggleState() const;
         void setWifiToggleState(const std::any &on);
         void resetWifiToggleState();
+
+        std::any getWifDiagnosticsState() const;
+        void setWifiDiagnosticsState(const std::any &on);
+        void resetWifiDiagnosticsState();
 
         void updater();
     };

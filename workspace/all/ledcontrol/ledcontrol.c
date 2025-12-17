@@ -29,48 +29,46 @@ const char *lr_effect_names[] = {
     "闪烁 1", "闪烁 2", "闪烁 3", "彩虹", "闪烁",
     "火", "闪光", "霓虹灯", "萤火虫", "极光", "按键响应", "LR 彩虹", "LR 按键响应"};
 
-
-
-    void save_settings() {
-        LOG_info("saving settings plat");
-        char diskfilename[256];
-        char* device = getenv("DEVICE");
-        is_brick = exactMatch("brick", device);
-        int maxlights = 4;
-        if(is_brick) {
-            snprintf(diskfilename, sizeof(diskfilename), SHARED_USERDATA_PATH "/ledsettings_brick.txt");
-        }
-        else {
-            maxlights = 3;
-            snprintf(diskfilename, sizeof(diskfilename), SHARED_USERDATA_PATH "/ledsettings.txt");
-        }
-
-        FILE *file = fopen(diskfilename, "w");
-
-        if (file == NULL)
-        {
-            perror("Unable to open settings file for writing");
-        } else {
-            LOG_info("saving leds!");
-            for (int i = 0; i < maxlights; ++i)
-            {
-                fprintf(file, "[%s]\n", lightsDefault[i].name);
-                fprintf(file, "effect=%d\n", lightsDefault[i].effect);
-                fprintf(file, "color1=0x%06X\n", lightsDefault[i].color1);
-                fprintf(file, "color2=0x%06X\n", lightsDefault[i].color2);
-                fprintf(file, "speed=%d\n", lightsDefault[i].speed);
-                fprintf(file, "brightness=%d\n", lightsDefault[i].brightness);
-                fprintf(file, "trigger=%d\n", lightsDefault[i].trigger);
-                fprintf(file, "filename=%s\n", lightsDefault[i].filename);
-                fprintf(file, "inbrightness=%i\n", lightsDefault[i].inbrightness);
-                fprintf(file, "\n"); // added last extra break seperate because everytime i add another option i forget to change it lol
-            }
-    
-            fclose(file);
-        }
+void save_settings() {
+    LOG_debug("saving settings plat\n");
+    char diskfilename[256];
+    char* device = getenv("DEVICE");
+    is_brick = exactMatch("brick", device);
+    int maxlights = 4;
+    // TODO: this shouldnt be in shared userdata
+    if(is_brick) {
+        snprintf(diskfilename, sizeof(diskfilename), SHARED_USERDATA_PATH "/ledsettings_brick.txt");
     }
-    
+    else {
+        maxlights = 3;
+        snprintf(diskfilename, sizeof(diskfilename), SHARED_USERDATA_PATH "/ledsettings.txt");
+    }
 
+    FILE *file = fopen(diskfilename, "w");
+
+    if (file == NULL)
+    {
+        perror("Unable to open settings file for writing");
+    } else {
+        LOG_debug("saving leds!\n");
+        for (int i = 0; i < maxlights; ++i)
+        {
+            fprintf(file, "[%s]\n", lightsDefault[i].name);
+            fprintf(file, "effect=%d\n", lightsDefault[i].effect);
+            fprintf(file, "color1=0x%06X\n", lightsDefault[i].color1);
+            fprintf(file, "color2=0x%06X\n", lightsDefault[i].color2);
+            fprintf(file, "speed=%d\n", lightsDefault[i].speed);
+            fprintf(file, "brightness=%d\n", lightsDefault[i].brightness);
+            fprintf(file, "trigger=%d\n", lightsDefault[i].trigger);
+            fprintf(file, "filename=%s\n", lightsDefault[i].filename);
+            fprintf(file, "inbrightness=%i\n", lightsDefault[i].inbrightness);
+            fprintf(file, "\n"); // added last extra break seperate because everytime i add another option i forget to change it lol
+        }
+
+        fclose(file);
+    }
+}
+    
 void handle_light_input(LightSettings *light, SDL_Event *event, int selected_setting)
 {
     const uint32_t bright_colors[] = {
@@ -94,14 +92,10 @@ void handle_light_input(LightSettings *light, SDL_Event *event, int selected_set
         0x000000, 0x111111, 0x222222, 0x333333, 0x444444, 0x555555, 0x666666, 0x777777, 0x888888, 0x999999, 0xAAAAAA, 0xBBBBBB, 0xCCCCCC, 0xDDDDDD, 0xFFFFFF
     };
     
-    
-    
-
     const int num_bright_colors = sizeof(bright_colors) / sizeof(bright_colors[0]);
 
     switch (selected_setting)
     {
-
     case 0: // Effect
     if (PAD_justPressed(BTN_RIGHT))
         {
@@ -124,7 +118,6 @@ void handle_light_input(LightSettings *light, SDL_Event *event, int selected_set
                     break;
                 }
             }
-            SDL_Log("saved settings to disk and shm %d", current_index);
             light->color1 = bright_colors[(current_index + 1) % num_bright_colors];
         }
         else if (PAD_justPressed(BTN_LEFT))
@@ -213,20 +206,19 @@ void handle_light_input(LightSettings *light, SDL_Event *event, int selected_set
     }
 
     // Save settings after each change
-
-    
-    LEDS_updateLeds();
+    LEDS_setProfile(LIGHT_PROFILE_DEFAULT);
+    LEDS_updateLeds(false);
     save_settings();
 }
-
-
-
 
 int main(int argc, char *argv[])
 {
     char* device = getenv("DEVICE");
     is_brick = exactMatch("brick", device);
     
+	InitSettings();
+    PWR_setCPUSpeed(CPU_SPEED_MENU);
+
     if (is_brick) {
         const char *brick_names[] = {"F1 键", "F2 键", "顶部", "L&R 扳机"};
         memcpy(lightnames, brick_names, sizeof(brick_names)); // Copy values
@@ -234,30 +226,14 @@ int main(int argc, char *argv[])
         const char *default_names[] = {"左摇杆","右摇杆", "Logo"};
         memcpy(lightnames, default_names, sizeof(default_names)); // Copy values
     }
-    PLAT_initLeds(lightsDefault);
-    PWR_setCPUSpeed(CPU_SPEED_MENU);
-
-
+    
     SDL_Surface* screen = GFX_init(MODE_MENU);
 	PAD_init();
 	PWR_init();
-	InitSettings();
 
     GFX_clearAll();
 	GFX_clearLayers(0);
 	GFX_flip(screen);
-
-
-
-    SDL_Color hex_to_sdl_color(uint32_t hex)
-    {
-        SDL_Color color;
-        color.r = (hex >> 16) & 0xFF;
-        color.g = (hex >> 8) & 0xFF;
-        color.b = hex & 0xFF;
-        color.a = 255;
-        return color;
-    }
 
     bool running = true;
     int selected_light = 0;
@@ -267,6 +243,7 @@ int main(int argc, char *argv[])
 	int dirty = 1;
     int show_setting = 0; // 1=brightness,2=volume,3=colortemp
     int was_online = PLAT_isOnline();
+    int had_bt = PLAT_btIsConnected();
 
     while (!quit)
     {
@@ -278,13 +255,18 @@ int main(int argc, char *argv[])
         PWR_update(&dirty, &show_setting, NULL, NULL);
         
         int is_online = PLAT_isOnline();
-		if (was_online!=is_online) dirty = 1;
+		if (was_online!=is_online) 
+            dirty = 1;
 		was_online = is_online;
+
+        int has_bt = PLAT_btIsConnected();
+        if (had_bt != has_bt)
+            dirty = 1;
+        had_bt = has_bt;
+
         int numOfLights = 3;
         if(is_brick) numOfLights = 4;
 
-
-    
         if (PAD_justPressed(BTN_B)) {
             quit = 1;
         }
@@ -310,7 +292,6 @@ int main(int argc, char *argv[])
         }
 
         if (dirty) {
-
             GFX_clear(screen);
 
             int ow = GFX_blitHardwareGroup(screen, show_setting);
@@ -404,12 +385,12 @@ int main(int argc, char *argv[])
             GFX_flip(screen);
             dirty = 0;
         }
-    else GFX_delay();
+        else GFX_delay();
     }
-    QuitSettings();
 	PWR_quit();
 	PAD_quit();
 	GFX_quit();
+    QuitSettings();
 
     return 0;
 }

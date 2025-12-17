@@ -11,6 +11,7 @@ uint32_t THEME_COLOR3_255;
 uint32_t THEME_COLOR4_255;
 uint32_t THEME_COLOR5_255;
 uint32_t THEME_COLOR6_255;
+uint32_t THEME_COLOR7_255;
 
 static inline uint32_t HexToUint32_unmapped(const char *hexColor) {
     // Convert the hex string to an unsigned long
@@ -31,9 +32,10 @@ void CFG_defaults(NextUISettings *cfg)
         .color4_255 = CFG_DEFAULT_COLOR4,
         .color5_255 = CFG_DEFAULT_COLOR5,
         .color6_255 = CFG_DEFAULT_COLOR6,
-        .backgroundColor_255 = CFG_DEFAULT_BACKGROUNDCOLOR,
+        .color7_255 = CFG_DEFAULT_COLOR7,
         .thumbRadius = CFG_DEFAULT_THUMBRADIUS,
         .gameArtWidth = CFG_DEFAULT_GAMEARTWIDTH,
+		.showFolderNamesAtRoot = CFG_DEFAULT_SHOWFOLDERNAMESATROOT,
 
         .showClock = CFG_DEFAULT_SHOWCLOCK,
         .clock24h = CFG_DEFAULT_CLOCK24H,
@@ -41,20 +43,29 @@ void CFG_defaults(NextUISettings *cfg)
         .showMenuAnimations = CFG_DEFAULT_SHOWMENUANIMATIONS,
         .showMenuTransitions = CFG_DEFAULT_SHOWMENUTRANSITIONS,
         .showRecents = CFG_DEFAULT_SHOWRECENTS,
+        .showTools = CFG_DEFAULT_SHOWTOOLS,
         .showGameArt = CFG_DEFAULT_SHOWGAMEART,
         .gameSwitcherScaling = CFG_DEFAULT_GAMESWITCHERSCALING,
+        .defaultView = CFG_DEFAULT_VIEW,
+        .showQuickSwitcherUi = CFG_DEFAULT_SHOWQUICKWITCHERUI,
 
         .muteLeds = CFG_DEFAULT_MUTELEDS,
 
         .screenTimeoutSecs = CFG_DEFAULT_SCREENTIMEOUTSECS,
         .suspendTimeoutSecs = CFG_DEFAULT_SUSPENDTIMEOUTSECS,
+        .powerOffProtection = CFG_DEFAULT_POWEROFFPROTECTION,
 
         .haptics = CFG_DEFAULT_HAPTICS,
         .romsUseFolderBackground = CFG_DEFAULT_ROMSUSEFOLDERBACKGROUND,
         .saveFormat = CFG_DEFAULT_SAVEFORMAT,
         .stateFormat = CFG_DEFAULT_STATEFORMAT,
+        .useExtractedFileName = CFG_DEFAULT_EXTRACTEDFILENAME,
 
         .wifi = CFG_DEFAULT_WIFI,
+        .wifiDiagnostics = CFG_DEFAULT_WIFI_DIAG,
+        .bluetooth = CFG_DEFAULT_BLUETOOTH,
+        .bluetoothDiagnostics = CFG_DEFAULT_BLUETOOTH_DIAG,
+        .bluetoothSamplerateLimit = CFG_DEFAULT_BLUETOOTH_MAXRATE,
 };
 
     *cfg = defaults;
@@ -119,6 +130,11 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
                 CFG_setColor(6, temp_color);
                 continue;
             }
+            if (sscanf(line, "color7=%x", &temp_color) == 1)
+            {
+                CFG_setColor(7, temp_color);
+                continue;
+            }
             if (sscanf(line, "radius=%i", &temp_value) == 1)
             {
                 CFG_setThumbnailRadius(temp_value);
@@ -154,6 +170,11 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
                 CFG_setShowRecents((bool)temp_value);
                 continue;
             }
+            if (sscanf(line, "tools=%i", &temp_value) == 1)
+            {
+                CFG_setShowTools((bool)temp_value);
+                continue;
+            }
             if (sscanf(line, "gameart=%i", &temp_value) == 1)
             {
                 CFG_setShowGameArt((bool)temp_value);
@@ -164,9 +185,19 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
                 CFG_setScreenTimeoutSecs(temp_value);
                 continue;
             }
+            if (sscanf(line, "showfoldernamesatroot=%i", &temp_value) == 1)
+            {
+                CFG_setShowFolderNamesAtRoot((bool)temp_value);
+                continue;
+            }
             if (sscanf(line, "suspendTimeout=%i", &temp_value) == 1)
             {
                 CFG_setSuspendTimeoutSecs(temp_value);
+                continue;
+            }
+            if (sscanf(line, "powerOffProtection=%i", &temp_value) == 1)
+            {
+                CFG_setPowerOffProtection((bool)temp_value);
                 continue;
             }
             if (sscanf(line, "switcherscale=%i", &temp_value) == 1)
@@ -194,6 +225,11 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
                 CFG_setStateFormat(temp_value);
                 continue;
             }
+            if (sscanf(line, "useExtractedFileName=%i", &temp_value) == 1)
+            {
+                CFG_setUseExtractedFileName((bool)temp_value);
+                continue;
+            }
             if (sscanf(line, "muteLeds=%i", &temp_value) == 1)
             {
                 CFG_setMuteLEDs(temp_value);
@@ -209,6 +245,36 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
                 CFG_setWifi((bool)temp_value);
                 continue;
             }
+            if (sscanf(line, "defaultView=%i", &temp_value) == 1)
+            {
+                CFG_setDefaultView(temp_value);
+                continue;
+            }
+            if (sscanf(line, "quickSwitcherUi=%i", &temp_value) == 1)
+            {
+                CFG_setShowQuickswitcherUI(temp_value);
+                continue;
+            }
+            if (sscanf(line, "wifiDiagnostics=%i", &temp_value) == 1)
+            {
+                CFG_setWifiDiagnostics(temp_value);
+                continue;
+            }
+            if (sscanf(line, "bluetooth=%i", &temp_value) == 1)
+            {
+                CFG_setBluetooth(temp_value);
+                continue;
+            }
+            if (sscanf(line, "btDiagnostics=%i", &temp_value) == 1)
+            {
+                CFG_setBluetoothDiagnostics(temp_value);
+                continue;
+            }
+            if (sscanf(line, "btMaxRate=%i", &temp_value) == 1)
+            {
+                CFG_setBluetoothSamplingrateLimit(temp_value);
+                continue;
+            }
         }
         fclose(file);
     }
@@ -220,6 +286,7 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb)
     CFG_setColor(4, CFG_getColor(4));
     CFG_setColor(5, CFG_getColor(5));
     CFG_setColor(6, CFG_getColor(6));
+    CFG_setColor(7, CFG_getColor(7));
     // avoid reloading the font if not neccessary
     if (!fontLoaded)
         CFG_setFontId(CFG_getFontId());
@@ -261,7 +328,7 @@ uint32_t CFG_getColor(int color_id)
     case 6:
         return settings.color6_255;
     case 7:
-        return settings.backgroundColor_255;
+        return settings.color7_255;
     default:
         return 0;
     }
@@ -296,7 +363,8 @@ void CFG_setColor(int color_id, uint32_t color)
         THEME_COLOR6_255 = settings.color6_255;
         break;
     case 7:
-        settings.backgroundColor_255 = color;
+        settings.color7_255 = color;
+        THEME_COLOR7_255 = settings.color7_255;
         break;
     default:
         break;
@@ -304,6 +372,17 @@ void CFG_setColor(int color_id, uint32_t color)
 
     if(settings.onColorSet)
         settings.onColorSet();
+}
+
+bool CFG_getShowFolderNamesAtRoot(void)
+{
+    return settings.showFolderNamesAtRoot;
+}
+
+void CFG_setShowFolderNamesAtRoot(bool show)
+{
+    settings.showFolderNamesAtRoot = show;
+	CFG_sync();
 }
 
 uint32_t CFG_getScreenTimeoutSecs(void)
@@ -314,6 +393,7 @@ uint32_t CFG_getScreenTimeoutSecs(void)
 void CFG_setScreenTimeoutSecs(uint32_t secs)
 {
     settings.screenTimeoutSecs = secs;
+    CFG_sync();
 }
 
 uint32_t CFG_getSuspendTimeoutSecs(void)
@@ -324,6 +404,18 @@ uint32_t CFG_getSuspendTimeoutSecs(void)
 void CFG_setSuspendTimeoutSecs(uint32_t secs)
 {
     settings.suspendTimeoutSecs = secs;
+    CFG_sync();
+}
+
+bool CFG_getPowerOffProtection(void)
+{
+    return settings.powerOffProtection;
+}
+
+void CFG_setPowerOffProtection(bool enable)
+{
+    settings.powerOffProtection = enable;
+    CFG_sync();
 }
 
 bool CFG_getShowClock(void)
@@ -334,6 +426,7 @@ bool CFG_getShowClock(void)
 void CFG_setShowClock(bool show)
 {
     settings.showClock = show;
+    CFG_sync();
 }
 
 bool CFG_getClock24H(void)
@@ -344,6 +437,7 @@ bool CFG_getClock24H(void)
 void CFG_setClock24H(bool is24)
 {
     settings.clock24h = is24;
+    CFG_sync();
 }
 
 bool CFG_getShowBatteryPercent(void)
@@ -354,6 +448,7 @@ bool CFG_getShowBatteryPercent(void)
 void CFG_setShowBatteryPercent(bool show)
 {
     settings.showBatteryPercent = show;
+    CFG_sync();
 }
 
 bool CFG_getMenuAnimations(void)
@@ -364,6 +459,7 @@ bool CFG_getMenuAnimations(void)
 void CFG_setMenuAnimations(bool show)
 {
     settings.showMenuAnimations = show;
+    CFG_sync();
 }
 
 bool CFG_getMenuTransitions(void)
@@ -374,6 +470,7 @@ bool CFG_getMenuTransitions(void)
 void CFG_setMenuTransitions(bool show)
 {
     settings.showMenuTransitions = show;
+    CFG_sync();
 }
 
 int CFG_getThumbnailRadius(void)
@@ -384,6 +481,7 @@ int CFG_getThumbnailRadius(void)
 void CFG_setThumbnailRadius(int radius)
 {
     settings.thumbRadius = clamp(radius, 0, 24);
+    CFG_sync();
 }
 
 bool CFG_getShowRecents(void)
@@ -394,6 +492,18 @@ bool CFG_getShowRecents(void)
 void CFG_setShowRecents(bool show)
 {
     settings.showRecents = show;
+    CFG_sync();
+}
+
+bool CFG_getShowTools(void)
+{
+    return settings.showTools;
+}
+
+void CFG_setShowTools(bool show)
+{
+    settings.showTools = show;
+    CFG_sync();
 }
 
 bool CFG_getShowGameArt(void)
@@ -404,6 +514,7 @@ bool CFG_getShowGameArt(void)
 void CFG_setShowGameArt(bool show)
 {
     settings.showGameArt = show;
+    CFG_sync();
 }
 
 bool CFG_getRomsUseFolderBackground(void)
@@ -414,6 +525,7 @@ bool CFG_getRomsUseFolderBackground(void)
 void CFG_setRomsUseFolderBackground(bool folder)
 {
     settings.romsUseFolderBackground = folder;
+    CFG_sync();
 }
 
 int CFG_getGameSwitcherScaling(void)
@@ -424,6 +536,7 @@ int CFG_getGameSwitcherScaling(void)
 void CFG_setGameSwitcherScaling(int enumValue)
 {
     settings.gameSwitcherScaling = clamp(enumValue, 0, GFX_SCALE_NUM_OPTIONS);
+    CFG_sync();
 }
 
 bool CFG_getHaptics(void)
@@ -434,6 +547,7 @@ bool CFG_getHaptics(void)
 void CFG_setHaptics(bool enable)
 {
     settings.haptics = enable;
+    CFG_sync();
 }
 
 int CFG_getSaveFormat(void)
@@ -444,6 +558,7 @@ int CFG_getSaveFormat(void)
 void CFG_setSaveFormat(int f)
 {
     settings.saveFormat = f;
+    CFG_sync();
 }
 
 int CFG_getStateFormat(void)
@@ -454,6 +569,18 @@ int CFG_getStateFormat(void)
 void CFG_setStateFormat(int f)
 {
     settings.stateFormat = f;
+    CFG_sync();
+}
+
+bool CFG_getUseExtractedFileName(void)
+{
+    return settings.useExtractedFileName;
+}
+
+void CFG_setUseExtractedFileName(bool use)
+{
+    settings.useExtractedFileName = use;
+    CFG_sync();
 }
 
 bool CFG_getMuteLEDs(void)
@@ -464,6 +591,7 @@ bool CFG_getMuteLEDs(void)
 void CFG_setMuteLEDs(bool on)
 {
     settings.muteLeds = on;
+    CFG_sync();
 }
 
 double CFG_getGameArtWidth(void)
@@ -474,6 +602,7 @@ double CFG_getGameArtWidth(void)
 void CFG_setGameArtWidth(double zeroToOne)
 {
     settings.gameArtWidth = clampd(zeroToOne, 0.0, 1.0);
+    CFG_sync();
 }
 
 bool CFG_getWifi(void)
@@ -484,6 +613,73 @@ bool CFG_getWifi(void)
 void CFG_setWifi(bool on)
 {
     settings.wifi = on;
+    CFG_sync();
+}
+
+int CFG_getDefaultView(void)
+{
+    return settings.defaultView;
+}
+
+void CFG_setDefaultView(int view)
+{
+    settings.defaultView = view;
+    CFG_sync();
+}
+
+bool CFG_getShowQuickswitcherUI(void)
+{
+    return settings.showQuickSwitcherUi;
+}
+
+void CFG_setShowQuickswitcherUI(bool on)
+{
+    settings.showQuickSwitcherUi = on;
+    CFG_sync();
+}
+
+bool CFG_getWifiDiagnostics(void)
+{
+    return settings.wifiDiagnostics;
+}
+
+void CFG_setWifiDiagnostics(bool on)
+{
+    settings.wifiDiagnostics = on;
+    CFG_sync();
+}
+
+bool CFG_getBluetooth(void)
+{
+    return settings.bluetooth;
+}
+
+void CFG_setBluetooth(bool on)
+{
+    settings.bluetooth = on;
+    CFG_sync();
+}
+
+bool CFG_getBluetoothDiagnostics(void)
+{
+    return settings.bluetoothDiagnostics;
+}
+
+void CFG_setBluetoothDiagnostics(bool on)
+{
+    settings.bluetoothDiagnostics = on;
+    CFG_sync();
+}
+
+int CFG_getBluetoothSamplingrateLimit(void)
+{
+    return settings.bluetoothSamplerateLimit;
+}
+
+void CFG_setBluetoothSamplingrateLimit(int value)
+{
+    settings.bluetoothSamplerateLimit = value;
+    CFG_sync();
 }
 
 void CFG_get(const char *key, char *value)
@@ -516,7 +712,7 @@ void CFG_get(const char *key, char *value)
     {
         sprintf(value, "\"0x%06X\"", CFG_getColor(6));
     }
-    else if (strcmp(key, "bgcolor") == 0)
+    else if (strcmp(key, "color7") == 0)
     {
         sprintf(value, "\"0x%06X\"", CFG_getColor(7));
     }
@@ -548,9 +744,17 @@ void CFG_get(const char *key, char *value)
     {
         sprintf(value, "%i", CFG_getShowRecents());
     }
+    else if (strcmp(key, "tools") == 0)
+    {
+        sprintf(value, "%i", CFG_getShowTools());
+    }
     else if (strcmp(key, "gameart") == 0)
     {
         sprintf(value, "%i", CFG_getShowGameArt());
+    }
+	else if (strcmp(key, "showfoldernamesatroot") == 0)
+    {
+        sprintf(value, "%i", CFG_getShowFolderNamesAtRoot());
     }
     else if (strcmp(key, "screentimeout") == 0)
     {
@@ -559,6 +763,10 @@ void CFG_get(const char *key, char *value)
     else if (strcmp(key, "suspendTimeout") == 0)
     {
         sprintf(value, "%i", CFG_getSuspendTimeoutSecs());
+    }
+    else if (strcmp(key, "powerOffProtection") == 0)
+    {
+        sprintf(value, "%i", CFG_getPowerOffProtection());
     }
     else if (strcmp(key, "switcherscale") == 0)
     {
@@ -576,6 +784,10 @@ void CFG_get(const char *key, char *value)
     {
         sprintf(value, "%i", CFG_getStateFormat());
     }
+    else if (strcmp(key, "useExtractedFileName") == 0)
+    {
+        sprintf(value, "%i", CFG_getUseExtractedFileName());
+    }
     else if (strcmp(key, "muteLeds") == 0)
     {
         sprintf(value, "%i", CFG_getMuteLEDs());
@@ -587,6 +799,30 @@ void CFG_get(const char *key, char *value)
     else if (strcmp(key, "wifi") == 0)
     {
         sprintf(value, "%i", (int)(CFG_getWifi()));
+    }
+    else if (strcmp(key, "defaultView") == 0)
+    {
+        sprintf(value, "%i", (int)(CFG_getDefaultView()));
+    }
+    else if (strcmp(key, "quickSwitcherUi") == 0)
+    {
+        sprintf(value, "%i", (int)(CFG_getShowQuickswitcherUI()));
+    }
+    else if (strcmp(key, "wifiDiagnostics") == 0)
+    {
+        sprintf(value, "%i", (int)(CFG_getWifiDiagnostics()));
+    }
+    else if (strcmp(key, "bluetooth") == 0)
+    {
+        sprintf(value, "%i", (int)(CFG_getBluetooth()));
+    }
+    else if (strcmp(key, "btDiagnostics") == 0)
+    {
+        sprintf(value, "%i", (int)(CFG_getBluetoothDiagnostics()));
+    }
+    else if (strcmp(key, "btMaxRate") == 0)
+    {
+        sprintf(value, "%i", CFG_getBluetoothSamplingrateLimit());
     }
 
     // meta, not a real setting
@@ -607,7 +843,14 @@ void CFG_sync(void)
 {
     // write to file
     char settingsPath[MAX_PATH];
-    sprintf(settingsPath, "%s/minuisettings.txt", getenv("SHARED_USERDATA_PATH"));
+    const char *shared_userdata = getenv("SHARED_USERDATA_PATH");
+    if (!shared_userdata || !shared_userdata[0])
+    {
+        printf("[CFG] SHARED_USERDATA_PATH is not set!\n");
+        return;
+    }
+
+    snprintf(settingsPath, sizeof(settingsPath), "%s/minuisettings.txt", shared_userdata);
     FILE *file = fopen(settingsPath, "w");
     if (file == NULL)
     {
@@ -622,7 +865,7 @@ void CFG_sync(void)
     fprintf(file, "color4=0x%06X\n", settings.color4_255);
     fprintf(file, "color5=0x%06X\n", settings.color5_255);
     fprintf(file, "color6=0x%06X\n", settings.color6_255);
-    fprintf(file, "bgcolor=0x%06X\n", settings.backgroundColor_255);
+    fprintf(file, "color7=0x%06X\n", settings.color7_255);
     fprintf(file, "radius=%i\n", settings.thumbRadius);
     fprintf(file, "showclock=%i\n", settings.showClock);
     fprintf(file, "clock24h=%i\n", settings.clock24h);
@@ -630,17 +873,27 @@ void CFG_sync(void)
     fprintf(file, "menuanim=%i\n", settings.showMenuAnimations);
     fprintf(file, "menutransitions=%i\n", settings.showMenuTransitions);
     fprintf(file, "recents=%i\n", settings.showRecents);
+    fprintf(file, "tools=%i\n", settings.showTools);
     fprintf(file, "gameart=%i\n", settings.showGameArt);
+    fprintf(file, "showfoldernamesatroot=%i\n", settings.showFolderNamesAtRoot);
     fprintf(file, "screentimeout=%i\n", settings.screenTimeoutSecs);
     fprintf(file, "suspendTimeout=%i\n", settings.suspendTimeoutSecs);
+    fprintf(file, "powerOffProtection=%i\n", settings.powerOffProtection);
     fprintf(file, "switcherscale=%i\n", settings.gameSwitcherScaling);
     fprintf(file, "haptics=%i\n", settings.haptics);
     fprintf(file, "romfolderbg=%i\n", settings.romsUseFolderBackground);
     fprintf(file, "saveFormat=%i\n", settings.saveFormat);
     fprintf(file, "stateFormat=%i\n", settings.stateFormat);
+    fprintf(file, "useExtractedFileName=%i\n", settings.useExtractedFileName);
     fprintf(file, "muteLeds=%i\n", settings.muteLeds);
     fprintf(file, "artWidth=%i\n", (int)(settings.gameArtWidth * 100));
     fprintf(file, "wifi=%i\n", settings.wifi);
+    fprintf(file, "defaultView=%i\n", settings.defaultView);
+    fprintf(file, "quickSwitcherUi=%i\n", settings.showQuickSwitcherUi);
+    fprintf(file, "wifiDiagnostics=%i\n", settings.wifiDiagnostics);
+    fprintf(file, "bluetooth=%i\n", settings.bluetooth);
+    fprintf(file, "btDiagnostics=%i\n", settings.bluetoothDiagnostics);
+    fprintf(file, "btMaxRate=%i\n", settings.bluetoothSamplerateLimit);
 
     fclose(file);
 }
@@ -655,7 +908,7 @@ void CFG_print(void)
     printf("\t\"color4\": \"0x%06X\",\n", settings.color4_255);
     printf("\t\"color5\": \"0x%06X\",\n", settings.color5_255);
     printf("\t\"color6\": \"0x%06X\",\n", settings.color6_255);
-    printf("\t\"bgcolor\": \"0x%06X\",\n", settings.backgroundColor_255);
+    printf("\t\"color7\": \"0x%06X\",\n", settings.color7_255);
     printf("\t\"radius\": %i,\n", settings.thumbRadius);
     printf("\t\"showclock\": %i,\n", settings.showClock);
     printf("\t\"clock24h\": %i,\n", settings.clock24h);
@@ -663,17 +916,27 @@ void CFG_print(void)
     printf("\t\"menuanim\": %i,\n", settings.showMenuAnimations);
     printf("\t\"menutransitions\": %i,\n", settings.showMenuTransitions);
     printf("\t\"recents\": %i,\n", settings.showRecents);
+    printf("\t\"tools\": %i,\n", settings.showTools);
     printf("\t\"gameart\": %i,\n", settings.showGameArt);
+    printf("\t\"showfoldernamesatroot\": %i,\n", settings.showFolderNamesAtRoot);
     printf("\t\"screentimeout\": %i,\n", settings.screenTimeoutSecs);
     printf("\t\"suspendTimeout\": %i,\n", settings.suspendTimeoutSecs);
+    printf("\t\"powerOffProtection\": %i,\n", settings.powerOffProtection);
     printf("\t\"switcherscale\": %i,\n", settings.gameSwitcherScaling);
     printf("\t\"haptics\": %i,\n", settings.haptics);
     printf("\t\"romfolderbg\": %i,\n", settings.romsUseFolderBackground);
     printf("\t\"saveFormat\": %i,\n", settings.saveFormat);
     printf("\t\"stateFormat\": %i,\n", settings.stateFormat);
+    printf("\t\"useExtractedFileName\": %i,\n", settings.useExtractedFileName);
     printf("\t\"muteLeds\": %i,\n", settings.muteLeds);
     printf("\t\"artWidth\": %i,\n", (int)(settings.gameArtWidth * 100));
     printf("\t\"wifi\": %i,\n", settings.wifi);
+    printf("\t\"defaultView\": %i,\n", settings.defaultView);
+    printf("\t\"quickSwitcherUi\": %i,\n", settings.showQuickSwitcherUi);
+    printf("\t\"wifiDiagnostics\": %i,\n", settings.wifiDiagnostics);
+    printf("\t\"bluetooth\": %i,\n", settings.bluetooth);
+    printf("\t\"btDiagnostics\": %i,\n", settings.bluetoothDiagnostics);
+    printf("\t\"btMaxRate\": %i,\n", settings.bluetoothSamplerateLimit);
 
     // meta, not a real setting
     if (settings.font == 1)

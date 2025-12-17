@@ -31,6 +31,8 @@ libretro-common
 **/other/rsce-go
 bl_enable
 bl_disable
+workspace/tg5040/wifimanager/daemon/wifi_daemon
+workspace/tg5040/audiomon/audiomon.elf
 
 **/tmp
 
@@ -39,4 +41,3 @@ workspace/readmes
 
 FAKESD
 .vscode
-.vscode/launch.json

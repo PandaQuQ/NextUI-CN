@@ -18,7 +18,7 @@ endif
 ###########################################################
 
 BUILD_HASH:=$(shell git rev-parse --short HEAD)
-BUILD_BRANCH:=$(shell git rev-parse --abbrev-ref HEAD)
+BUILD_BRANCH:=$(shell git symbolic-ref --short HEAD)
 RELEASE_TIME:=$(shell TZ=GMT date +%Y%m%d)
 ifeq ($(BUILD_BRANCH),main)
   RELEASE_BETA :=
@@ -34,11 +34,21 @@ RELEASE_BASE=NextUI-$(RELEASE_TIME)$(RELEASE_BETA)
 RELEASE_DOT:=$(shell find ./releases/. -regex ".*/${RELEASE_BASE}-[0-9]+-base\.zip" | wc -l | sed 's/ //g')
 RELEASE_NAME ?= $(RELEASE_BASE)-$(RELEASE_DOT)
 
+# Extra paks to ship
+VENDOR_DEST := ./build/VENDOR/Tools
+PACKAGE_URL_MAPPINGS := \
+	"https://github.com/UncleJunVIP/nextui-pak-store/releases/latest/download/Pak.Store.pakz nextui.pak_store.pakz" \
+	"https://github.com/LanderN/nextui-updater-pak/releases/latest/download/nextui-updater-pak.zip nextui.updater.pakz"
+	# add more URLs as needed
+
 ###########################################################
 
 .PHONY: build
 
 export MAKEFLAGS=--no-print-directory
+
+deploy: setup $(PLATFORMS) special package
+	adb push ./build/BASE/MinUI.zip /mnt/SDCARD && adb shell reboot
 
 all: setup $(PLATFORMS) special package done
 	
@@ -93,9 +103,10 @@ endif
 
 	cp ./workspace/all/settings/build/$(PLATFORM)/settings.elf ./build/EXTRAS/工具/$(PLATFORM)/设置.pak/
 ifeq ($(PLATFORM), tg5040)
-	cp ./workspace/all/ledcontrol/build/$(PLATFORM)/ledcontrol.elf ./build/EXTRAS/工具/$(PLATFORM)/LED控制.pak/
-	cp ./workspace/all/bootlogo/build/$(PLATFORM)/bootlogo.elf ./build/EXTRAS/工具/$(PLATFORM)/启动logo.pak/
-
+	cp ./workspace/all/ledcontrol/build/$(PLATFORM)/ledcontrol.elf ./build/EXTRAS/Tools/$(PLATFORM)/LedControl.pak/
+	cp ./workspace/all/bootlogo/build/$(PLATFORM)/bootlogo.elf ./build/EXTRAS/Tools/$(PLATFORM)/Bootlogo.pak/
+	cp ./workspace/tg5040/poweroff_next/build/$(PLATFORM)/poweroff_next.elf ./build/SYSTEM/$(PLATFORM)/bin/poweroff_next
+	
 	# lib dependencies
 	cp ./workspace/all/minarch/build/$(PLATFORM)/libsamplerate.* ./build/SYSTEM/$(PLATFORM)/lib/
 	# This is a bandaid fix, needs to be cleaned up if/when we expand to other platforms.
@@ -121,6 +132,10 @@ cores: # TODO: can't assume every platform will have the same stock cores (platf
 	cp ./workspace/$(PLATFORM)/cores/output/pcsx_rearmed_libretro.so ./build/SYSTEM/$(PLATFORM)/cores
 	
 	# extras
+	cp ./workspace/$(PLATFORM)/cores/output/a5200_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/A5200.pak
+	cp ./workspace/$(PLATFORM)/cores/output/prosystem_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/A7800.pak
+	cp ./workspace/$(PLATFORM)/cores/output/stella2014_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/A2600.pak
+	cp ./workspace/$(PLATFORM)/cores/output/handy_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/LYNX.pak
 ifeq ($(PLATFORM), trimuismart)
 	cp ./workspace/miyoomini/cores/output/fake08_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/P8.pak
 else ifeq ($(PLATFORM), m17)
@@ -147,6 +162,8 @@ endif
 	cp ./workspace/$(PLATFORM)/cores/output/vice_xplus4_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/PLUS4.pak
 	cp ./workspace/$(PLATFORM)/cores/output/vice_xpet_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/PET.pak
 	cp ./workspace/$(PLATFORM)/cores/output/vice_xvic_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/VIC.pak
+	cp ./workspace/$(PLATFORM)/cores/output/bluemsx_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/MSX.pak
+	cp ./workspace/$(PLATFORM)/cores/output/gearcoleco_libretro.so ./build/EXTRAS/Emus/$(PLATFORM)/COLECO.pak
 endif
 
 common: build system cores
@@ -176,7 +193,7 @@ setup: name
 	cp ./skeleton/EXTRAS/README.txt ./workspace/readmes/EXTRAS-in.txt
 	
 done:
-	say "done" 2>/dev/null || true
+	# say "done" 2>/dev/null || true
 
 special:
 	# setup miyoomini/trimui/magicx family .tmp_update in BOOT
@@ -224,11 +241,24 @@ package: tidy
 	
 	cd ./build/PAYLOAD && zip -r MinUI.zip .system .tmp_update 工具
 	mv ./build/PAYLOAD/MinUI.zip ./build/BASE
+
+	# Fetch, rename, and stage vendored packages
+	mkdir -p $(VENDOR_DEST)
+	@for entry in $(PACKAGE_URL_MAPPINGS); do \
+		url=$$(echo $$entry | awk '{print $$1}'); \
+		target=$$(echo $$entry | awk '{print $$2}'); \
+		echo "Downloading $$url → $(VENDOR_DEST)/$$target"; \
+		curl -Ls -o "$(VENDOR_DEST)/$$target" "$$url"; \
+	done
+
+	# Move renamed .pakz files into base folder
+	mkdir -p ./build/BASE
+	mv $(VENDOR_DEST)/* ./build/BASE/
 	
 	# TODO: can I just add everything in BASE to zip?
 	# cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves miyoo miyoo354 trimui rg35xx rg35xxplus gkdpixel miyoo355 magicx em_ui.sh MinUI.zip README.txt
-	cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves Shaders trimui em_ui.sh MinUI.zip README.txt
-	cd ./build/EXTRAS && zip -r ../../releases/$(RELEASE_NAME)-extras.zip Bios Emus Roms Saves Shaders 工具 README.txt
+	cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves Shaders trimui em_ui.sh MinUI.zip *.pakz README.txt
+	cd ./build/EXTRAS && zip -r ../../releases/$(RELEASE_NAME)-extras.zip Bios Emus Roms Saves Shaders Tools README.txt
 	echo "$(RELEASE_VERSION)" > ./build/latest.txt
 
 	# compound zip (brew install libzip needed) 

@@ -20,9 +20,9 @@ ifeq ($(PLATFORM), desktop)
 	cd ./$(PLATFORM) && make early # eg. other libs
 	cd ./all/nextui/ && make
 	cd ./all/minarch/ && make
+	cd ./all/libbatmondb/ && make
 	cd ./all/battery/ && make
 	cd ./all/clock/ && make
-	cd ./all/libbatmondb/ && make
 	cd ./all/batmon/ && make
 	cd ./all/libgametimedb/ && make
 	cd ./all/gametimectl/ && make
@@ -31,7 +31,10 @@ ifeq ($(PLATFORM), desktop)
 	cd ./all/nextval/ && make
 	cd ./all/settings/ && make
 else 
-	cd ./$(PLATFORM)/wifimanager && make
+	cd ./$(PLATFORM)/rfkill && make all
+	cd ./$(PLATFORM)/btmanager && make all
+	cd ./$(PLATFORM)/audiomon && make all
+	cd ./$(PLATFORM)/wifimanager && make all
 	cd ./$(PLATFORM)/libmsettings && make
 	cd ./$(PLATFORM) && make early # eg. other libs
 	cd ./$(PLATFORM)/keymon && make
@@ -50,6 +53,9 @@ else
 	cd ./all/settings/ && make
 	cd ./all/ledcontrol/ && make
 	cd ./all/bootlogo/ && make
+ifeq ($(PLATFORM), tg5040)
+	cd ./tg5040/poweroff_next/ && make
+endif
 endif
 ifdef COMPILE_CORES
 	make cores
@@ -69,11 +75,17 @@ endif
 
 clean:
 ifneq ($(PLATFORM), desktop)
+	cd ./$(PLATFORM)/rfkill && make clean
 	cd ./$(PLATFORM)/wifimanager && make clean
+	cd ./$(PLATFORM)/audiomon && make clean
+	cd ./$(PLATFORM)/btmanager && make clean
 	cd ./$(PLATFORM)/keymon && make clean
 	cd ./all/syncsettings/ && make clean
 	cd ./all/ledcontrol/ && make clean
 	cd ./all/bootlogo/ && make clean
+ifeq ($(PLATFORM), tg5040)
+	cd ./tg5040/poweroff_next/ && make clean
+endif
 endif
 	cd ./$(PLATFORM)/libmsettings && make clean
 	cd ./all/nextui/ && make clean

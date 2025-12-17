@@ -74,12 +74,15 @@ extern uint32_t THEME_COLOR3;
 extern uint32_t THEME_COLOR4;
 extern uint32_t THEME_COLOR5;
 extern uint32_t THEME_COLOR6;
+extern uint32_t THEME_COLOR7;
 extern SDL_Color ALT_BUTTON_TEXT_COLOR;
 
 // TODO: do we need that many free externs? This should move
 // to a structure or something.
 extern float currentratio;
 extern int currentbufferfree;
+extern int avgbufferfree;
+extern int currentbuffertarget;
 extern int currentframecount;
 extern double currentfps;
 extern double currentreqfps;
@@ -119,6 +122,7 @@ enum {
 	ASSET_COLORS,
 	
 	ASSET_BRIGHTNESS,
+	ASSET_COLORTEMP,
 	ASSET_VOLUME_MUTE,
 	ASSET_VOLUME,
 	ASSET_BATTERY,
@@ -133,11 +137,21 @@ enum {
 	ASSET_WIFI,
 	ASSET_WIFI_MED,
 	ASSET_WIFI_LOW,
+	ASSET_WIFI_OFF,
+
+	ASSET_BLUETOOTH,
+	ASSET_BLUETOOTH_OFF,
+	ASSET_AUDIO,
+	ASSET_CONTROLLER,
 	
 	ASSET_CHECKCIRCLE,
 	ASSET_LOCK,
-
+	ASSET_SETTINGS,
+	ASSET_STORE,
 	ASSET_GAMEPAD,
+	ASSET_POWEROFF,
+	ASSET_RESTART,
+	ASSET_SUSPEND,
 	
 	ASSET_COUNT,
 };
@@ -225,9 +239,17 @@ typedef struct {
 	GLint uniformLocation;
 } ShaderParam;
 
+enum {
+	LAYER_ALL = 0,
+	LAYER_BACKGROUND = 1,
+	LAYER_TRANSITION = 2,
+	LAYER_THUMBNAIL = 3,
+	LAYER_SCROLLTEXT = 4,
+	LAYER_IDK2 = 5, // unused?
+};
+
 SDL_Surface* GFX_init(int mode);
 #define GFX_resize PLAT_resizeVideo				// (int w, int h, int pitch);
-#define GFX_setScaleClip PLAT_setVideoScaleClip // (int x, int y, int width, int height)
 #define GFX_setSharpness PLAT_setSharpness // (int sharpness)
 #define GFX_setEffectColor PLAT_setEffectColor // (int color)
 #define GFX_setEffect PLAT_setEffect // (int effect)
@@ -239,30 +261,25 @@ SDL_Surface* GFX_init(int mode);
 #define GFX_captureRendererToSurface PLAT_captureRendererToSurface //(void)
 #define GFX_animateSurface PLAT_animateSurface //(SDL_Surface *inputSurface,int x, int y)
 #define GFX_animateSurfaceOpacity PLAT_animateSurfaceOpacity //(SDL_Surface *inputSurface,int x, int y)
-#define GFX_animateSurfaceOpacityAndScale PLAT_animateSurfaceOpacityAndScale //(SDL_Surface *inputSurface,int x, int y)
 #define GFX_animateAndFadeSurface PLAT_animateAndFadeSurface //(SDL_Surface *inputSurface,int x, int y)
-#define GFX_animateAndRevealSurfaces PLAT_animateAndRevealSurfaces
 #define GFX_resetScrollText PLAT_resetScrollText
 #define GFX_scrollTextTexture PLAT_scrollTextTexture
 #define GFX_flipHidden PLAT_flipHidden //(void)
 #define GFX_GL_screenCapture PLAT_GL_screenCapture //(void)
 
-#define GFX_present PLAT_present //(SDL_Surface *inputSurface,int x, int y)
 void GFX_setMode(int mode);
 int GFX_hdmiChanged(void);
-SDL_Color /*GFX_*/uintToColour(uint32_t colour);
+SDL_Color /*GFX_*/ uintToColour(uint32_t colour);
 
 #define GFX_clear PLAT_clearVideo // (SDL_Surface* screen)
 #define GFX_clearAll PLAT_clearAll // (void)
 
 void GFX_startFrame(void);
-void audioFPS(void);
 void GFX_flip(SDL_Surface* screen);
 void PLAT_flipHidden();
 void GFX_flip_fixed_rate(SDL_Surface* screen, double target_fps); // if target_fps is 0, then use the native screen FPS
 #define GFX_supportsOverscan PLAT_supportsOverscan // (void)
 void GFX_sync(void); // call this to maintain 60fps when not calling GFX_flip() this frame
-void GFX_sync_fixed_rate(double target_fps);
 void GFX_delay(void); // gfx_sync() is only for everywhere where there is no audio buffer to rely on for delaying, stupid so doing gfx_delay() for like waiting for input loop in binding menu. Need to remove gfx_sync() everwhere eventually
 void GFX_quit(void);
 
@@ -304,6 +321,7 @@ SDL_Rect GFX_blitScaleAspect(SDL_Surface *src, SDL_Surface *dst);
 SDL_Rect GFX_blitScaleToFill(SDL_Surface *src, SDL_Surface *dst);
 
 // NOTE: all dimensions should be pre-scaled
+void GFX_blitSurfaceColor(SDL_Surface* src, SDL_Rect* src_rect, SDL_Surface* dst, SDL_Rect* dst_rect, uint32_t asset_color);
 void GFX_blitAssetColor(int asset, SDL_Rect* src_rect, SDL_Surface* dst, SDL_Rect* dst_rect, uint32_t asset_color);
 void GFX_blitAsset(int asset, SDL_Rect* src_rect, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitPillColor(int asset, SDL_Surface* dst, SDL_Rect* dst_rect, uint32_t asset_color, uint32_t fill_color);
@@ -311,7 +329,9 @@ void GFX_blitPill(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitPillLight(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitPillDark(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitRect(int asset, SDL_Surface* dst, SDL_Rect* dst_rect);
-int GFX_blitBattery(SDL_Surface* dst, SDL_Rect* dst_rect);
+void GFX_blitRectColor(int asset, SDL_Surface* dst, SDL_Rect* dst_rect, uint32_t asset_color);
+void GFX_blitBattery(SDL_Surface* dst, SDL_Rect* dst_rect);
+void GFX_blitBatteryAtPosition(SDL_Surface *dst, int x, int y);
 int GFX_getButtonWidth(char* hint, char* button);
 void GFX_blitButton(char* hint, char*button, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_blitMessage(TTF_Font* font, char* msg, SDL_Surface* dst, SDL_Rect* dst_rect);
@@ -320,6 +340,7 @@ int GFX_blitHardwareGroup(SDL_Surface* dst, int show_setting);
 void GFX_blitHardwareHints(SDL_Surface* dst, int show_setting);
 int GFX_blitButtonGroup(char** hints, int primary, SDL_Surface* dst, int align_right);
 
+void GFX_assetRect(int asset, SDL_Rect* dst_rect);
 void GFX_sizeText(TTF_Font* font, const char* str, int leading, int* w, int* h);
 void GFX_blitText(TTF_Font* font, const char* str, int leading, SDL_Color color, SDL_Surface* dst, SDL_Rect* dst_rect);
 void GFX_setAmbientColor(const void *data, unsigned width, unsigned height, size_t pitch,int mode);
@@ -346,7 +367,22 @@ size_t SND_batchSamples(const SND_Frame* frames, size_t frame_count);
 size_t SND_batchSamples_fixed_rate(const SND_Frame* frames, size_t frame_count);
 void SND_quit(void);
 void SND_resetAudio(double sample_rate, double frame_rate);
+void SND_pauseAudio(bool paused);
 void SND_setQuality(int quality);
+
+// watch audio device changes
+typedef enum {
+	DIRWATCH_CREATE = 0,
+	DIRWATCH_DELETE,
+	FILEWATCH_MODIFY,
+	FILEWATCH_DELETE,
+	FILEWATCH_CLOSE_WRITE,
+} WatchEvent;
+void PLAT_audioDeviceWatchRegister(void (*cb)(int, int));
+void PLAT_audioDeviceWatchUnregister(void);
+
+#define SND_registerDeviceWatcher PLAT_audioDeviceWatchRegister
+#define SND_removeDeviceWatcher PLAT_audioDeviceWatchUnregister
 
 ///////////////////////////////
 
@@ -381,6 +417,7 @@ extern PAD_Context pad;
 
 #define PAD_init PLAT_initInput
 #define PAD_quit PLAT_quitInput
+#define PAD_update PLAT_updateInput
 #define PAD_poll PLAT_pollInput
 #define PAD_wake PLAT_shouldWake
 
@@ -397,6 +434,7 @@ int PAD_justReleased(int btn);
 int PAD_justRepeated(int btn);
 
 int PAD_tappedMenu(uint32_t now); // special case, returns 1 on release of BTN_MENU within 250ms if BTN_PLUS/BTN_MINUS haven't been pressed
+int PAD_tappedSelect(uint32_t now); // special case, returns 1 on release of BTN_SELECT within 250ms if BTN_PLUS/BTN_MINUS haven't been pressed
 
 ///////////////////////////////
 #define VIB_sleepStrength 4
@@ -424,9 +462,10 @@ void PWR_warn(int enable);
 
 int PWR_ignoreSettingInput(int btn, int show_setting);
 void PWR_update(int* dirty, int* show_setting, PWR_callback_t before_sleep, PWR_callback_t after_sleep);
+void PWR_updateFrequency(int secs, int updateWifi);
 
 void PWR_disablePowerOff(void);
-void PWR_powerOff(void);
+void PWR_powerOff(int reboot);
 int PWR_isPoweringOff(void);
 
 void PWR_sleep(void);
@@ -442,14 +481,48 @@ int PWR_preventAutosleep(void);
 int PWR_isCharging(void);
 int PWR_getBattery(void);
 
+// rules-based presets managed and applied by LEDS_applyRules()
+enum LightProfile {
+	LIGHT_PROFILE_DEFAULT = 0, // configured via LedControl
+	LIGHT_PROFILE_OFF = 1, // all forced off
+	LIGHT_PROFILE_LOW_BATTERY = 2, // low battery warning
+	LIGHT_PROFILE_CRITICAL_BATTERY = 3, // critical battery warning
+	LIGHT_PROFILE_CHARGING = 4, // derived from default
+	LIGHT_PROFILE_SLEEP = 5, // sleep mode
+	LIGHT_PROFILE_AMBIENT = 6, // ambient mode
+	LIGHT_PROFILE_COUNT
+};
+
+// initialize LED structures based on user settings and derives
+// automatic profiles from it
 void LEDS_initLeds();
-void LEDS_updateLeds();
-void LEDS_SaveSettings();
-void LEDS_setEffect(int);
-void LEDS_setColor(uint32_t color);
-void LED_setColor(uint32_t color,int ledindex);
-void LEDS_setIndicator(int effect,uint32_t color, int cycles);
-void LED_setIndicator(int effect,uint32_t color,int cycles,int ledindex);
+
+// selects the correct LED profile based on predefined rules (charging, low battery, etc).
+void LEDS_applyRules();
+
+// temporary overrides outside of the scope of LEDS_applyRules
+// these will survive LEDS_applyRules() and need to be manually revoked, e.g. 
+/*
+	LEDS_applyRules(); // applies rules
+	LEDS_pushProfile(LIGHT_PROFILE_AMBIENT); // manual override
+	LEDS_applyRules(); // ignored
+	LEDS_popProfile(); // revoke override
+	LEDS_applyRules(); // applies rules
+*/
+// returns true if value was added to the stack.
+// \note this will also call LEDS_updateLeds()
+bool LEDS_pushProfileOverride(int profile);
+// returns true if value was taken off the stack
+// \note this will also call LEDS_updateLeds()
+bool LEDS_popProfileOverride(int profile);
+// returns top of stack, or default if stack is empty
+int LEDS_getProfileOverride();
+
+// changes the active led profile, calls LEDS_updateLeds() implicitly if needed
+void LEDS_setProfile(int profile); // enum LightProfile
+// reapplies the current led config. This should only be necessary
+// if youre directly modifying the LightSettings structure.
+void LEDS_updateLeds(bool indicator_only);
 
 enum {
 	CPU_SPEED_MENU,
@@ -466,7 +539,9 @@ FILE *PLAT_OpenSettings(const char *filename);
 FILE *PLAT_WriteSettings(const char *filename);
 char* PLAT_findFileInDir(const char *directory, const char *filename);
 void PLAT_initInput(void);
+void PLAT_updateInput(const SDL_Event *event);
 void PLAT_quitInput(void);
+
 void PLAT_pollInput(void);
 int PLAT_shouldWake(void);
 
@@ -477,7 +552,6 @@ void PLAT_clearVideo(SDL_Surface* screen);
 void PLAT_clearAll(void);
 void PLAT_setVsync(int vsync);
 SDL_Surface* PLAT_resizeVideo(int w, int h, int pitch);
-void PLAT_setVideoScaleClip(int x, int y, int width, int height);
 void PLAT_setSharpness(int sharpness);
 void PLAT_setEffectColor(int color);
 void PLAT_setEffect(int effect);
@@ -505,47 +579,9 @@ void PLAT_animateAndFadeSurface(
 	int start_opacity, int target_opacity, int layer
 );
 
-
-
 void PLAT_animateSurfaceOpacity(SDL_Surface *inputSurface, int x, int y, int w, int h,
 	int start_opacity, int target_opacity, int duration_ms, int layer);
-void PLAT_animateSurfaceOpacityAndScale(
-	SDL_Surface *inputSurface,
-	int x, int y,
-	int start_w, int start_h,
-	int target_w, int target_h,
-	int start_opacity, int target_opacity,
-	int duration_ms,
-	int layer
-);
-void PLAT_animateSurfaceOpacity(SDL_Surface *inputSurface, int x, int y, int w, int h,
-	int start_opacity, int target_opacity, int duration_ms, int layer);
-void PLAT_animateSurfaceOpacityAndScale(
-	SDL_Surface *inputSurface,
-	int x, int y,
-	int start_w, int start_h,
-	int target_w, int target_h,
-	int start_opacity, int target_opacity,
-	int duration_ms,
-	int layer
-);
 
-void PLAT_animateAndRevealSurfaces(
-	SDL_Surface* inputMoveSurface,
-	SDL_Surface* inputRevealSurface,
-	int move_start_x, int move_start_y,
-	int move_target_x, int move_target_y,
-	int move_w, int move_h,
-	int reveal_x, int reveal_y,
-	int reveal_w, int reveal_h,
-	const char* reveal_direction,
-	int duration_ms,
-	int move_start_opacity,
-	int move_target_opacity,
-	int reveal_opacity,
-	int layer1,
-	int layer2
-);
 void PLAT_scrollTextTexture(
     TTF_Font* font,
     const char* in_name,
@@ -555,7 +591,6 @@ void PLAT_scrollTextTexture(
     float transparency
 );
 void drawTextWithCache(TTF_Font* font, const char* text, SDL_Color color, SDL_Rect* destRect);
-void PLAT_present();
 void PLAT_vsync(int remaining);
 scaler_t PLAT_getScaler(GFX_Renderer* renderer);
 void PLAT_blitRenderer(GFX_Renderer* renderer);
@@ -592,7 +627,7 @@ void PLAT_getBatteryStatusFine(int* is_charging, int* charge); // 0,1 and 0-100
 void PLAT_enableBacklight(int enable);
 int PLAT_supportsDeepSleep(void);
 int PLAT_deepSleep(void);
-void PLAT_powerOff(void);
+void PLAT_powerOff(int reboot);
 
 void *PLAT_cpu_monitor(void *arg);
 void PLAT_setCPUSpeed(int speed); // enum
@@ -602,7 +637,17 @@ int PLAT_pickSampleRate(int requested, int max);
 
 char* PLAT_getModel(void);
 void PLAT_getOsVersionInfo(char *output_str, size_t max_len);
+void PLAT_updateNetworkStatus();
+bool PLAT_btIsConnected(void);
 int PLAT_isOnline(void);
+typedef enum {
+	SIGNAL_STRENGTH_OFF = -1,
+	SIGNAL_STRENGTH_DISCONNECTED,
+	SIGNAL_STRENGTH_LOW,
+	SIGNAL_STRENGTH_MED,
+	SIGNAL_STRENGTH_HIGH,
+} ConnectionStrength;
+ConnectionStrength PLAT_connectionStrength(void);
 int PLAT_setDateTime(int y, int m, int d, int h, int i, int s);
 
 void PLAT_initLeds(LightSettings *lights);
@@ -612,6 +657,10 @@ void PLAT_setLedBrightness(LightSettings *led);
 void PLAT_setLedInbrightness(LightSettings *led);
 void PLAT_setLedEffectSpeed(LightSettings *led);
 void PLAT_setLedEffectCycles(LightSettings *led);
+
+bool PLAT_canTurbo(void);
+int PLAT_toggleTurbo(int btn_id);
+void PLAT_clearTurbo();
 
 ///////////////////
 
@@ -656,6 +705,7 @@ struct WIFI_network {
 };
 
 struct WIFI_connection {
+	bool valid;
 	char ssid[SSID_MAX];
 	char ip[32];
 	int freq;
@@ -691,6 +741,10 @@ void PLAT_wifiConnect(char *ssid, WifiSecurityType sec);
 void PLAT_wifiConnectPass(const char *ssid, WifiSecurityType sec, const char* pass);
 // disconnect from any active network
 void PLAT_wifiDisconnect();
+// enable wifi diagnostic logging
+bool PLAT_wifiDiagnosticsEnabled();
+// returns true if diagnostic logging is enabled
+void PLAT_wifiDiagnosticsEnable(bool on);
 
 #define WIFI_init PLAT_wifiInit
 #define WIFI_supported PLAT_hasWifi
@@ -704,5 +758,97 @@ void PLAT_wifiDisconnect();
 #define WIFI_connect PLAT_wifiConnect
 #define WIFI_connectPass PLAT_wifiConnectPass
 #define WIFI_disconnect PLAT_wifiDisconnect
+#define WIFI_diagnosticsEnabled PLAT_wifiDiagnosticsEnabled
+#define WIFI_diagnosticsEnable PLAT_wifiDiagnosticsEnable
+
+////////////////////////
+typedef enum {
+	BLUETOOTH_NONE = 0,
+	BLUETOOTH_AUDIO,
+	BLUETOOTH_CONTROLLER,
+} BluetoothDeviceType;
+
+struct BT_device {
+	char addr[18]; // MAX_BT_ADDR_LEN
+	char name[249]; // MAX_BT_NAME_LEN
+	BluetoothDeviceType kind;
+};
+
+//struct BT_deviceUUID {
+//	char *uuid;
+//	char *uuid_name;
+//};
+
+struct BT_devicePaired {
+	char remote_addr[18]; // MAX_BT_ADDR_LEN
+	char remote_name[249]; // MAX_BT_NAME_LEN
+	int16_t rssi;
+	bool is_bonded;
+	bool is_connected;
+	//int uuid_len;
+	//BT_deviceUUID *uuids;
+};
+
+// initializes our BT context and synchronizes it with the current system state
+void PLAT_bluetoothInit();
+void PLAT_bluetoothDeinit();
+// returns availability of a usable BT device
+bool PLAT_hasBluetooth();
+// returns if BT devices are currently enabled
+// \note the platform specific implementation of this may vary, could be e.g. systemval entries for trimui
+// \sa PLAT_bluetoothEnable
+bool PLAT_bluetoothEnabled();
+void PLAT_bluetoothEnable(bool on);
+// enable bt diagnostic logging
+bool PLAT_bluetoothDiagnosticsEnabled();
+// returns true if diagnostic logging is enabled
+void PLAT_bluetoothDiagnosticsEnable(bool on);
+// enables or disabled bt discovery.
+void PLAT_bluetoothDiscovery(int on);
+bool PLAT_bluetoothDiscovering();
+// returns the list of available devices
+int PLAT_bluetoothScan(struct BT_device *devices, int max);
+// returns the list of paired devices
+int PLAT_bluetoothPaired(struct BT_devicePaired *devices, int max);
+// pair with the given address
+void PLAT_bluetoothPair(char *addr);
+// unpair from the given address
+void PLAT_bluetoothUnpair(char *addr);
+// connect with the given address
+void PLAT_bluetoothConnect(char *addr);
+// disconnect from the given address
+void PLAT_bluetoothDisconnect(char *addr);
+// returns true if connected to at least one sink
+bool PLAT_bluetoothConnected();
+// init audio stream
+void PLAT_bluetoothStreamInit(int ch, int samplerate);
+// start audio stream
+void PLAT_bluetoothStreamBegin(int buffersize);
+// stop audio stream
+void PLAT_bluetoothStreamEnd();
+// deinit audio stream
+void PLAT_bluetoothStreamQuit();
+// volume getter/setter
+int PLAT_bluetoothVolume();
+void PLAT_bluetoothSetVolume(int vol);
+
+#define BT_init PLAT_bluetoothInit
+#define BT_quit PLAT_bluetoothDeinit
+#define BT_supported PLAT_hasBluetooth
+#define BT_enabled PLAT_bluetoothEnabled
+#define BT_enable PLAT_bluetoothEnable
+#define BT_diagnosticsEnabled PLAT_bluetoothDiagnosticsEnabled
+#define BT_diagnosticsEnable PLAT_bluetoothDiagnosticsEnable
+#define BT_discovery PLAT_bluetoothDiscovery
+#define BT_discovering PLAT_bluetoothDiscovering
+#define BT_availableDevices PLAT_bluetoothScan
+#define BT_pairedDevices PLAT_bluetoothPaired
+#define BT_pair PLAT_bluetoothPair
+#define BT_unpair PLAT_bluetoothUnpair
+#define BT_connect PLAT_bluetoothConnect
+#define BT_disconnect PLAT_bluetoothDisconnect
+#define BT_isConnected PLAT_bluetoothConnected
+#define BT_getVolume PLAT_bluetoothVolume
+#define BT_setVolume PLAT_bluetoothSetVolume
 
 #endif

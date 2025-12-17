@@ -11,6 +11,7 @@ extern uint32_t THEME_COLOR3_255;
 extern uint32_t THEME_COLOR4_255;
 extern uint32_t THEME_COLOR5_255;
 extern uint32_t THEME_COLOR6_255;
+extern uint32_t THEME_COLOR7_255;
 
 // Read-only interface for minui.c usage
 // Read/Write interface for settings.cpp usage
@@ -20,37 +21,51 @@ typedef int (*ColorSet_callback_t)(void);
 
 enum
 {
+	// MinUI: Game.gba.sav
 	SAVE_FORMAT_SAV,
+	//Retroarch: Game.srm
 	SAVE_FORMAT_SRM,
+	// Generic: Game.sav
 	SAVE_FORMAT_GEN,
+	//Retroarch: Game.srm
 	SAVE_FORMAT_SRM_UNCOMPRESSED
 };
 
 enum
 {
+	// MinUI: Game.st0
 	STATE_FORMAT_SAV,
+	//Retroarch-ish: Game.state.<n> (a typo, but keeping it to avoid a breaking change)
+	STATE_FORMAT_SRM_EXTRADOT,
+	//Retroarch-ish: Game.state.<n> (a typo, but keeping it to avoid a breaking change)
+	STATE_FORMAT_SRM_UNCOMRESSED_EXTRADOT,
+	//Retroarch: Game.state<n>
 	STATE_FORMAT_SRM,
-	STATE_FORMAT_SRM_UNCOMPRESSED
+	//Retroarch: Game.state<n>
+	STATE_FORMAT_SRM_UNCOMRESSED
+};
+
+enum {
+	// actual views
+	SCREEN_GAMELIST,
+	SCREEN_GAMESWITCHER,
+	SCREEN_QUICKMENU,
+	// meta
+	SCREEN_GAME,
+	SCREEN_OFF
 };
 
 typedef struct
 {
 	// Theme
 	int font;
-	//uint32_t color1;
 	uint32_t color1_255; // not screen mapped
-	//uint32_t color2;
 	uint32_t color2_255; // not screen mapped
-	//uint32_t color3;
 	uint32_t color3_255; // not screen mapped
-	//uint32_t color4;
 	uint32_t color4_255; // not screen mapped
-	//uint32_t color5;
 	uint32_t color5_255; // not screen mapped
-	//uint32_t color6;
 	uint32_t color6_255; // not screen mapped
-	//uint32_t backgroundColor;
-	uint32_t backgroundColor_255; // not screen mapped
+	uint32_t color7_255; // not screen mapped
 	int thumbRadius;
 	int gameSwitcherScaling; // enum
 	double gameArtWidth;	 // [0,1] -> 0-100% of screen width
@@ -68,25 +83,35 @@ typedef struct
 	bool showMenuAnimations;
 	bool showMenuTransitions;
 	bool showRecents;
+	bool showTools;
 	bool showGameArt;
+	bool showFolderNamesAtRoot;
 	bool romsUseFolderBackground;
+	bool showQuickSwitcherUi;
+	int defaultView;
 
 	// Mute switch
 	bool muteLeds;
-	
+
 	// Power
 	uint32_t screenTimeoutSecs;
 	uint32_t suspendTimeoutSecs;
+	bool powerOffProtection;
 
 	// Emulator
 	int saveFormat;
 	int stateFormat;
+	bool useExtractedFileName;
 
 	// Haptic
 	bool haptics;
 
 	// Network
 	bool wifi;
+	bool wifiDiagnostics;
+	bool bluetooth;
+	bool bluetoothDiagnostics;
+	int bluetoothSamplerateLimit;
 
 } NextUISettings;
 
@@ -97,7 +122,7 @@ typedef struct
 #define CFG_DEFAULT_COLOR4 0xffffffU
 #define CFG_DEFAULT_COLOR5 0x000000U
 #define CFG_DEFAULT_COLOR6 0xffffffU
-#define CFG_DEFAULT_BACKGROUNDCOLOR 0x000000U
+#define CFG_DEFAULT_COLOR7 0x000000U
 #define CFG_DEFAULT_THUMBRADIUS 20 // unscaled!
 #define CFG_DEFAULT_SHOWCLOCK false
 #define CFG_DEFAULT_CLOCK24H true
@@ -106,16 +131,26 @@ typedef struct
 #define CFG_DEFAULT_SHOWMENUTRANSITIONS true
 #define CFG_DEFAULT_SHOWRECENTS true
 #define CFG_DEFAULT_SHOWGAMEART true
+#define CFG_DEFAULT_SHOWFOLDERNAMESATROOT true
 #define CFG_DEFAULT_GAMESWITCHERSCALING GFX_SCALE_FULLSCREEN
 #define CFG_DEFAULT_SCREENTIMEOUTSECS 60
 #define CFG_DEFAULT_SUSPENDTIMEOUTSECS 30
+#define CFG_DEFAULT_POWEROFFPROTECTION true
 #define CFG_DEFAULT_HAPTICS false
 #define CFG_DEFAULT_ROMSUSEFOLDERBACKGROUND true
 #define CFG_DEFAULT_SAVEFORMAT SAVE_FORMAT_SAV
 #define CFG_DEFAULT_STATEFORMAT STATE_FORMAT_SAV
+#define CFG_DEFAULT_EXTRACTEDFILENAME false
 #define CFG_DEFAULT_MUTELEDS false
 #define CFG_DEFAULT_GAMEARTWIDTH 0.45
 #define CFG_DEFAULT_WIFI false
+#define CFG_DEFAULT_VIEW SCREEN_GAMELIST
+#define CFG_DEFAULT_SHOWQUICKWITCHERUI true
+#define CFG_DEFAULT_WIFI_DIAG false
+#define CFG_DEFAULT_SHOWTOOLS true
+#define CFG_DEFAULT_BLUETOOTH false
+#define CFG_DEFAULT_BLUETOOTH_DIAG false
+#define CFG_DEFAULT_BLUETOOTH_MAXRATE 48000
 
 void CFG_init(FontLoad_callback_t fontCallback, ColorSet_callback_t ccb);
 void CFG_print(void);
@@ -139,6 +174,9 @@ void CFG_setScreenTimeoutSecs(uint32_t secs);
 // Time in secs before the device enters suspend mode (aka deep sleep).
 uint32_t CFG_getSuspendTimeoutSecs(void);
 void CFG_setSuspendTimeoutSecs(uint32_t secs);
+// Enable/disable PMIC power-off protection mode.
+bool CFG_getPowerOffProtection(void);
+void CFG_setPowerOffProtection(bool enable);
 // Show/hide clock in the status pill.
 bool CFG_getShowClock(void);
 void CFG_setShowClock(bool show);
@@ -160,6 +198,9 @@ void CFG_setThumbnailRadius(int radius);
 // Show/hide recently played in the main menu.
 bool CFG_getShowRecents(void);
 void CFG_setShowRecents(bool show);
+// Show/hide tools folder in the main menu.
+bool CFG_getShowTools(void);
+void CFG_setShowTools(bool show);
 // Show/hide game art in the main menu.
 bool CFG_getShowGameArt(void);
 void CFG_setShowGameArt(bool show);
@@ -179,19 +220,42 @@ int CFG_getSaveFormat(void);
 void CFG_setSaveFormat(int);
 // Save state format to use for libretro cores
 // 0 - .st0
-// 1 - .state.0 (compressed rzip)
+// 1 - .state.<n> (compressed rzip)
 int CFG_getStateFormat(void);
 void CFG_setStateFormat(int);
+// use extracted file name instead of archive name (for cores that do not support archives natively)
+bool CFG_getUseExtractedFileName(void);
+void CFG_setUseExtractedFileName(bool);
 // Enable/disable mute also shutting off LEDs.
 bool CFG_getMuteLEDs(void);
 void CFG_setMuteLEDs(bool);
 // Set game art width percentage.
 double CFG_getGameArtWidth(void);
 void CFG_setGameArtWidth(double zeroToOne);
+// Show/hide folder names at root directory.
+bool CFG_getShowFolderNamesAtRoot(void);
+void CFG_setShowFolderNamesAtRoot(bool show);
 // WiFi on/off (if available)
 bool CFG_getWifi(void);
 void CFG_setWifi(bool on);
-
+// Default view on boot
+int CFG_getDefaultView(void);
+void CFG_setDefaultView(int view);
+// Quick switcher UI painting on/off
+bool CFG_getShowQuickswitcherUI(void);
+void CFG_setShowQuickswitcherUI(bool on);
+// WiFi diagnostic logging on/off
+bool CFG_getWifiDiagnostics(void);
+void CFG_setWifiDiagnostics(bool on);
+// Bluetooth on/off (if available)
+bool CFG_getBluetooth(void);
+void CFG_setBluetooth(bool on);
+// BT diagnostic logging on/off
+bool CFG_getBluetoothDiagnostics(void);
+void CFG_setBluetoothDiagnostics(bool on);
+// BT maximum sample rate to request
+int CFG_getBluetoothSamplingrateLimit(void);
+void CFG_setBluetoothSamplingrateLimit(int value);
 
 void CFG_sync(void);
 void CFG_quit(void);

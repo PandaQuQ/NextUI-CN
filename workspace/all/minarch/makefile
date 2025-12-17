@@ -25,7 +25,7 @@ INCDIR = -I. -I./libretro-common/include/ -I../common/ -I../../$(PLATFORM)/platf
 SOURCE = $(TARGET).c ../common/scaler.c ../common/utils.c ../common/config.c ../common/api.c ../../$(PLATFORM)/platform/platform.c
 
 CC = $(CROSS_COMPILE)gcc
-CFLAGS  += $(ARCH) -fomit-frame-pointer
+CFLAGS  += $(OPT) -fomit-frame-pointer
 CFLAGS  += $(INCDIR) -DPLATFORM=\"$(PLATFORM)\" -std=gnu99
 LDFLAGS	 += -lmsettings -lsamplerate
 ifeq ($(PLATFORM), desktop)
@@ -39,6 +39,11 @@ else
 LDFLAGS	 +=  -Llibretro-common -lsrm -lzip
 CFLAGS   += -DHAS_SRM
 endif
+ifeq ($(PLATFORM), tg5040)
+CFLAGS += -DHAS_WIFIMG -DHAS_BTMG
+LDFLAGS +=  -lwifimg -lwifid
+LDFLAGS +=  -lbtmg -lglib-2.0 -lgio-2.0 -lshared-mainloop -lbluetooth-internal -lasound -ljson-c
+endif
 # CFLAGS  += -Wall -Wno-unused-variable -Wno-unused-function -Wno-format-overflow
 # CFLAGS  += -fsanitize=address -fno-common
 # LDFLAGS += -lasan
@@ -51,18 +56,18 @@ BUILD_HASH!=cat ../../hash.txt
 CFLAGS += -DBUILD_DATE=\"${BUILD_DATE}\" -DBUILD_HASH=\"${BUILD_HASH}\"
 
 ifeq ($(PLATFORM), desktop)
-all: libretro-common $(PREFIX_LOCAL)/include/msettings.h
+all: clean libretro-common $(PREFIX_LOCAL)/include/msettings.h
 	mkdir -p build/$(PLATFORM)
 	$(CC) $(SOURCE) -o $(PRODUCT) $(CFLAGS) $(LDFLAGS)
 else
-all: libretro-common libsrm.a $(PREFIX_LOCAL)/include/msettings.h
+all: clean libretro-common libsrm.a $(PREFIX_LOCAL)/include/msettings.h
 	mkdir -p build/$(PLATFORM)
-	cp /usr/lib/aarch64-linux-gnu/libsamplerate.so.0 build/$(PLATFORM)
+	cp $(PREFIX)/lib/libsamplerate.so.0 build/$(PLATFORM)
 	# This is a bandaid fix, needs to be cleaned up if/when we expand to other platforms.
-	cp /usr/local/lib/libzip.so.5 build/$(PLATFORM)
-	cp /lib/aarch64-linux-gnu/libbz2.so.1.0 build/$(PLATFORM)
-	cp /lib/aarch64-linux-gnu/liblzma.so.5 build/$(PLATFORM)
-	cp /usr/lib/aarch64-linux-gnu/libzstd.so.1 build/$(PLATFORM)
+	cp $(PREFIX)/lib/libzip.so.5 build/$(PLATFORM)
+	cp $(PREFIX)/lib/libbz2.so.1.0 build/$(PLATFORM)
+	cp $(PREFIX)/lib/liblzma.so.5 build/$(PLATFORM)
+	cp $(PREFIX)/lib/libzstd.so.1 build/$(PLATFORM)
 	$(CC) $(SOURCE) -o $(PRODUCT) $(CFLAGS) $(LDFLAGS)
 endif
 
