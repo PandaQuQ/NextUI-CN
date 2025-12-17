@@ -200,11 +200,16 @@ jobs:
             echo -e "\n**完整变更日志 (Full Changelog)**: $CHANGELOG_URL" >> notes_zh.txt
           fi
 
-      - name: Release
+      - name: Release (prerelease-beta)
         uses: softprops/action-gh-release@v2
         with:
           files: releases/*
           body_path: notes_zh.txt
-          tag_name: ${{ needs.prepare.outputs.next-tag }}
-          make_latest: "true"
+          # create a prerelease tag with -beta suffix
+          tag_name: ${{ needs.prepare.outputs.next-tag }}-beta
+          # set a descriptive release name and mark as prerelease
+          name: ${{ needs.prepare.outputs.release-name }}-beta
+          prerelease: "true"
+          # don't mark as the repository's "latest" release for prereleases
+          make_latest: "false"
 
