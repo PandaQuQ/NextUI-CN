@@ -179,37 +179,22 @@ jobs:
 
       - name: Generate Release Notes (ZH+EN)
         run: |
-          git fetch --tags --force
-          PREV_TAG=$(git tag --list 'v*.*.*-CN' --sort=-v:refname | head -n 1)
-          CURR_TAG=${{ needs.prepare.outputs.next-tag }}
-          if [ -n "$PREV_TAG" ] && git rev-parse "$PREV_TAG" >/dev/null 2>&1 && [ "$PREV_TAG" != "$CURR_TAG" ]; then
-            git log --pretty=format:"- %s by @%an in %h" "$PREV_TAG..HEAD" > changes.txt
-            CHANGELOG_URL="https://github.com/PandaQuQ/NextUI-CN/compare/$PREV_TAG...$CURR_TAG"
-          else
-            git log --pretty=format:"- %s by @%an in %h" HEAD > changes.txt
-            CHANGELOG_URL=""
-          fi
-          echo "NextUI 的完整功能列表和使用帮助：" > notes_zh.txt
-          echo "https://nextui.loveretro.games/docs/" >> notes_zh.txt
-          echo "## 如何安装/更新" >> notes_zh.txt
-          echo "全新安装请参考：https://nextui.loveretro.games/getting-started/installation/" >> notes_zh.txt
-          echo "从旧版本升级请参考：https://nextui.loveretro.games/getting-started/updating/" >> notes_zh.txt
-          echo "## 主要变更 (What's Changed)" >> notes_zh.txt
-          cat changes.txt >> notes_zh.txt
-          if [ -n "$CHANGELOG_URL" ]; then
-            echo -e "\n**完整变更日志 (Full Changelog)**: $CHANGELOG_URL" >> notes_zh.txt
-          fi
+          # generate lightweight notes for this prerelease build (no tag-related operations)
+          git fetch --no-tags
+          echo "NextUI 的快速预发布构建说明：" > notes_zh.txt
+          echo "构建由 workflow 生成，未在仓库创建持久 tag。如需正式发布请使用 Release workflow 创建带 tag 的 release。" >> notes_zh.txt
+          echo "\n## 变更摘要 (recent commits)" >> notes_zh.txt
+          git --no-pager log -n 20 --pretty=format:"- %s by @%an in %h" >> notes_zh.txt || true
 
-      - name: Release (prerelease-beta)
-        uses: softprops/action-gh-release@v2
+      - name: Upload prerelease artifacts (no tag)
+        uses: actions/upload-artifact@v4.6.2
         with:
-          files: releases/*
-          body_path: notes_zh.txt
-          # create a prerelease tag with -beta suffix
-          tag_name: ${{ needs.prepare.outputs.next-tag }}-beta
-          # set a descriptive release name and mark as prerelease
-          name: ${{ needs.prepare.outputs.release-name }}-beta
-          prerelease: "true"
-          # don't mark as the repository's "latest" release for prereleases
-          make_latest: "false"
+          name: prerelease-${{ needs.prepare.outputs.next-tag }}
+          path: releases/*
+
+      - name: Upload prerelease notes
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: prerelease-${{ needs.prepare.outputs.next-tag }}-notes
+          path: notes_zh.txt
 
