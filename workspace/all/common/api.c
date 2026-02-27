@@ -2796,10 +2796,10 @@ void SND_init(double sample_rate, double frame_rate)
 	snd.frame_count = ((float)spec_out.freq / SCREEN_FPS) * 8; // buffer size based on sample rate out (times 12 samples headroom)
 	
 	// Clamp buffer size to prevent excessive memory usage
-	if (snd.frame_count > MAX_AUDIO_BUFFER_SIZE) {
+	if (snd.frame_count > (size_t)MAX_AUDIO_BUFFER_SIZE) {
 		LOG_warn("Audio buffer size %d exceeds limit %d, clamping\n", 
 		         (int)snd.frame_count, MAX_AUDIO_BUFFER_SIZE);
-		snd.frame_count = MAX_AUDIO_BUFFER_SIZE;
+		snd.frame_count = (size_t)MAX_AUDIO_BUFFER_SIZE;
 	}
 	
 	currentbuffersize = snd.frame_count;
