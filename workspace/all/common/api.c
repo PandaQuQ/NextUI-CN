@@ -2736,7 +2736,7 @@ void SND_init(double sample_rate, double frame_rate)
 	         spec_in.freq, spec_in.format, spec_in.channels);
 
 #if defined(USE_SDL2)
-	SDL_AudioDeviceId device_id = 0;
+	SDL_AudioDeviceID device_id = 0;
 	bool use_legacy = false;
 
 	// First try with exact parameters (no SDL_AUDIO_ALLOW_ANY_CHANGE)
