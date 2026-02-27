@@ -2129,12 +2129,15 @@ SDL_Color GFX_mapColor(uint32_t c)
 #define SAMPLES 512 // default
 #endif
 
+#define MAX_AUDIO_BUFFER_SIZE 12800 // Limit max buffer size to prevent excessive memory usage
+
 // Output sample rate preference: 0=48kHz, 1=96kHz, 2=Auto
 static int output_sample_rate_preference = 2; // Default: Auto
 
 #define ms SDL_GetTicks
 
 pthread_mutex_t audio_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t audio_config_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void SND_audioCallback(void *userdata, uint8_t *stream, int len)
 {
@@ -2465,8 +2468,7 @@ size_t SND_batchSamples(const SND_Frame *frames, size_t frame_count)
 		framecount -= amount;
 
 		// Check if resampling is needed
-		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out) ||
-		                    (fabs(ratio - 1.0) > 0.001);
+		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out);
 
 		int written_frames = 0;
 		if (need_resample) {
@@ -2613,8 +2615,7 @@ size_t SND_batchSamples_fixed_rate(const SND_Frame *frames, size_t frame_count)
 		framecount -= amount;
 
 		// Check if resampling is needed
-		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out) ||
-		                    (fabs(ratio - 1.0) > 0.001);
+		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out);
 
 		// Write frames to the buffer
 		int written_frames = 0;
@@ -2662,6 +2663,7 @@ size_t SND_batchSamples_fixed_rate(const SND_Frame *frames, size_t frame_count)
 
 void SND_setOutputSampleRate(int preference)
 {
+	pthread_mutex_lock(&audio_config_mutex);
 	if (preference < 0 || preference > 2) {
 		LOG_warn("Invalid output sample rate preference: %d, using Auto\n", preference);
 		output_sample_rate_preference = 2;
@@ -2669,11 +2671,16 @@ void SND_setOutputSampleRate(int preference)
 		output_sample_rate_preference = preference;
 		LOG_info("Output sample rate preference set to: %d\n", preference);
 	}
+	pthread_mutex_unlock(&audio_config_mutex);
 }
 
 static int SND_selectOutputRate(int core_sample_rate)
 {
-	switch (output_sample_rate_preference) {
+	pthread_mutex_lock(&audio_config_mutex);
+	int preference = output_sample_rate_preference;
+	pthread_mutex_unlock(&audio_config_mutex);
+
+	switch (preference) {
 		case 0: // 48kHz
 			LOG_info("Sample rate mode: 48kHz (Standard)\n");
 			return 48000;
@@ -2737,21 +2744,31 @@ void SND_init(double sample_rate, double frame_rate)
 	         spec_in.freq, spec_in.format, spec_in.channels);
 
 #if defined(USE_SDL2)
+	SDL_AudioDeviceId device_id = 0;
+	bool use_legacy = false;
+
 	// First try with exact parameters (no SDL_AUDIO_ALLOW_ANY_CHANGE)
-	snd.device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, 0);
-	if (snd.device_id <= 0)
+	device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, 0);
+	if (device_id <= 0)
 	{
 		LOG_info("SDL_OpenAudioDevice (exact) failed: %s\n", SDL_GetError());
 		// Fallback: allow SDL to adjust parameters
-		snd.device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, SDL_AUDIO_ALLOW_ANY_CHANGE);
-		if (snd.device_id <= 0) {
+		device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, SDL_AUDIO_ALLOW_ANY_CHANGE);
+		if (device_id <= 0) {
 			LOG_info("SDL_OpenAudioDevice (fallback) error: %s\n", SDL_GetError());
-			if (SDL_OpenAudio(&spec_in, &spec_out) < 0) {
-				LOG_info("SDL_OpenAudio error: %s\n", SDL_GetError());
-				SDL_QuitSubSystem(SDL_INIT_AUDIO);
-				return;
-			}
+			use_legacy = true;
 		}
+	}
+
+	if (use_legacy) {
+		if (SDL_OpenAudio(&spec_in, &spec_out) < 0) {
+			LOG_info("SDL_OpenAudio error: %s\n", SDL_GetError());
+			SDL_QuitSubSystem(SDL_INIT_AUDIO);
+			return;
+		}
+		snd.device_id = 1; // Legacy mode marker
+	} else {
+		snd.device_id = device_id;
 	}
 #else
 	if (SDL_OpenAudio(&spec_in, &spec_out) < 0) {
@@ -2777,6 +2794,14 @@ void SND_init(double sample_rate, double frame_rate)
 	}
 
 	snd.frame_count = ((float)spec_out.freq / SCREEN_FPS) * 8; // buffer size based on sample rate out (times 12 samples headroom)
+	
+	// Clamp buffer size to prevent excessive memory usage
+	if (snd.frame_count > MAX_AUDIO_BUFFER_SIZE) {
+		LOG_warn("Audio buffer size %d exceeds limit %d, clamping\n", 
+		         (int)snd.frame_count, MAX_AUDIO_BUFFER_SIZE);
+		snd.frame_count = MAX_AUDIO_BUFFER_SIZE;
+	}
+	
 	currentbuffersize = snd.frame_count;
 	snd.sample_rate_in = sample_rate;
 	snd.sample_rate_out = spec_out.freq;
