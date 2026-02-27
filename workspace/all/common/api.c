@@ -2682,20 +2682,12 @@ static int SND_selectOutputRate(int core_sample_rate)
 
 	switch (preference) {
 		case 0: // 48kHz
-			LOG_info("Sample rate mode: 48kHz (Standard)\n");
 			return 48000;
 		case 1: // 96kHz
-			LOG_info("Sample rate mode: 96kHz (Hi-Fi)\n");
 			return 96000;
-		case 2: // Auto
-			if (core_sample_rate == 44100) {
-				LOG_info("Sample rate mode: Auto (44100Hz - PS Native)\n");
-				return 44100;
-			}
-			LOG_info("Sample rate mode: Auto (48000Hz - Standard)\n");
-			return 48000;
+		case 2: // Auto - use core native sample rate
+			return core_sample_rate;
 		default:
-			LOG_warn("Unknown sample rate preference: %d, using Auto\n", output_sample_rate_preference);
 			return 48000;
 	}
 }
