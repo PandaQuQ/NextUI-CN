@@ -1147,6 +1147,12 @@ static char* resample_labels[] = {
 	"Max",
 	NULL
 };
+static char* sample_rate_labels[] = {
+	"48kHz",
+	"96kHz",
+	"Auto",
+	NULL
+};
 static char* ambient_labels[] = {
 	"Off",
 	"All",
@@ -1368,6 +1374,7 @@ static char* shscaletype_labels[] = {
 enum {
 	FE_OPT_SCALING,
 	FE_OPT_RESAMPLING,
+	FE_OPT_OUTPUT_SAMPLE_RATE,
 	FE_OPT_AMBIENT,
 	FE_OPT_EFFECT,
 	FE_OPT_OVERLAY,
@@ -1569,6 +1576,7 @@ static char* gamepad_values[] = {
 static char** i18n_onoff_labels = NULL;
 static char** i18n_scaling_labels = NULL;
 static char** i18n_resample_labels = NULL;
+static char** i18n_sample_rate_labels = NULL;
 static char** i18n_ambient_labels = NULL;
 static char** i18n_effect_labels = NULL;
 static char** i18n_overlay_labels = NULL;
@@ -2009,6 +2017,7 @@ static void Minarch_initFrontendI18nOnce(void) {
 	static const char* onoff_keys[] = {"common.off", "common.on", NULL};
 	static const char* scaling_keys[] = {"minarch.scaling.native", "minarch.scaling.aspect", "minarch.scaling.aspect_screen", "minarch.scaling.fullscreen", "minarch.scaling.cropped", NULL};
 	static const char* resample_keys[] = {"minarch.resample.low", "minarch.resample.medium", "minarch.resample.high", "minarch.resample.max", NULL};
+	static const char* sample_rate_keys[] = {"minarch.samplerate.48k", "minarch.samplerate.96k", "minarch.samplerate.auto", NULL};
 	static const char* ambient_keys[] = {"minarch.ambient.off", "minarch.ambient.all", "minarch.ambient.top", "minarch.ambient.fn", "minarch.ambient.lr", "minarch.ambient.top_lr", NULL};
 	static const char* effect_keys[] = {"common.none", "minarch.effect.line", "minarch.effect.grid", NULL};
 	static const char* overlay_keys[] = {"common.none", NULL};
@@ -2021,6 +2030,7 @@ static void Minarch_initFrontendI18nOnce(void) {
 	i18n_onoff_labels = Minarch_buildI18nLabels(onoff_keys, onoff_labels);
 	i18n_scaling_labels = Minarch_buildI18nLabels(scaling_keys, scaling_labels);
 	i18n_resample_labels = Minarch_buildI18nLabels(resample_keys, resample_labels);
+	i18n_sample_rate_labels = Minarch_buildI18nLabels(sample_rate_keys, sample_rate_labels);
 	i18n_ambient_labels = Minarch_buildI18nLabels(ambient_keys, ambient_labels);
 	i18n_effect_labels = Minarch_buildI18nLabels(effect_keys, effect_labels);
 	i18n_overlay_labels = Minarch_buildI18nLabels(overlay_keys, overlay_labels);
@@ -2109,7 +2119,7 @@ static struct Config {
 				.labels = scaling_labels,
 			},
 			[FE_OPT_RESAMPLING] = {
-				.key	= "minarch__resampling_quality", 
+				.key	= "minarch__resampling_quality",
 				.name	= "Audio Resampling Quality",
 				.desc	= "Resampling quality higher takes more CPU", // will call getScreenScalingDesc()
 				.default_value = 2,
@@ -2117,6 +2127,16 @@ static struct Config {
 				.count = 4,
 				.values = resample_labels,
 				.labels = resample_labels,
+			},
+			[FE_OPT_OUTPUT_SAMPLE_RATE] = {
+				.key	= "minarch__output_sample_rate",
+				.name	= "Output Sample Rate",
+				.desc	= "Audio output sample rate. Auto uses 44.1kHz for PS cores",
+				.default_value = 2,
+				.value = 2,
+				.count = 3,
+				.values = sample_rate_labels,
+				.labels = sample_rate_labels,
 			},
 			[FE_OPT_AMBIENT] = {
 				.key	= "minarch_ambient", 
@@ -2530,6 +2550,10 @@ static void Config_syncFrontend(char* key, int value) {
 		SND_setQuality(resampling_quality);
 		i = FE_OPT_RESAMPLING;
 	}
+	else if (exactMatch(key,config.frontend.options[FE_OPT_OUTPUT_SAMPLE_RATE].key)) {
+		SND_setOutputSampleRate(value);
+		i = FE_OPT_OUTPUT_SAMPLE_RATE;
+	}
 	else if (exactMatch(key,config.frontend.options[FE_OPT_AMBIENT].key)) {
 		ambient_mode = value;
 		if(ambient_mode > 0)
@@ -2916,6 +2940,9 @@ static void Config_load(void) {
 
 	config.frontend.options[FE_OPT_RESAMPLING].name = (char*)TR("minarch.frontend.audio_resampling_quality");
 	config.frontend.options[FE_OPT_RESAMPLING].labels = i18n_resample_labels;
+
+	config.frontend.options[FE_OPT_OUTPUT_SAMPLE_RATE].name = (char*)TR("minarch.frontend.output_sample_rate");
+	config.frontend.options[FE_OPT_OUTPUT_SAMPLE_RATE].labels = i18n_sample_rate_labels;
 
 	config.frontend.options[FE_OPT_AMBIENT].name = (char*)TR("minarch.frontend.ambient_mode");
 	config.frontend.options[FE_OPT_AMBIENT].labels = i18n_ambient_labels;

@@ -144,6 +144,7 @@ minarch.options.save_changes=保存更改
 # minarch frontend labels (values are kept English in config; these are UI labels only)
 minarch.frontend.screen_scaling=屏幕缩放
 minarch.frontend.audio_resampling_quality=音频重采样质量
+minarch.frontend.output_sample_rate=输出采样率
 minarch.frontend.ambient_mode=环境灯模式
 minarch.frontend.screen_effect=屏幕效果
 minarch.frontend.overlay=叠加层
@@ -212,6 +213,10 @@ minarch.resample.low=低
 minarch.resample.medium=中
 minarch.resample.high=高
 minarch.resample.max=最高
+
+minarch.samplerate.48k=48kHz
+minarch.samplerate.96k=96kHz
+minarch.samplerate.auto=自动
 
 minarch.ambient.off=关
 minarch.ambient.all=全部

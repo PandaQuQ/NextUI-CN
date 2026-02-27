@@ -2123,11 +2123,14 @@ SDL_Color GFX_mapColor(uint32_t c)
 // to (try to) understand it
 // better
 
-#define MAX_SAMPLE_RATE 48000
+#define MAX_SAMPLE_RATE 96000
 #define BATCH_SIZE 100
 #ifndef SAMPLES
 #define SAMPLES 512 // default
 #endif
+
+// Output sample rate preference: 0=48kHz, 1=96kHz, 2=Auto
+static int output_sample_rate_preference = 2; // Default: Auto
 
 #define ms SDL_GetTicks
 
@@ -2461,27 +2464,50 @@ size_t SND_batchSamples(const SND_Frame *frames, size_t frame_count)
 		consumed += amount;
 		framecount -= amount;
 
-		ResampledFrames resampled = resample_audio(
-			tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+		// Check if resampling is needed
+		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out) ||
+		                    (fabs(ratio - 1.0) > 0.001);
 
 		int written_frames = 0;
-		for (int i = 0; i < resampled.frame_count; i++)
-		{
-			// Check if buffer full (leave one slot free)
-			if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+		if (need_resample) {
+			// Resample audio
+			ResampledFrames resampled = resample_audio(
+				tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+
+			for (int i = 0; i < resampled.frame_count; i++)
 			{
-				// Buffer full, break early
-				break;
+				// Check if buffer full (leave one slot free)
+				if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+				{
+					// Buffer full, break early
+					break;
+				}
+				pthread_mutex_lock(&audio_mutex);
+				snd.buffer[snd.frame_in] = resampled.frames[i];
+				snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
+				pthread_mutex_unlock(&audio_mutex);
+				written_frames++;
 			}
-			pthread_mutex_lock(&audio_mutex);
-			snd.buffer[snd.frame_in] = resampled.frames[i];
-			snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
-			pthread_mutex_unlock(&audio_mutex);
-			written_frames++;
+			free(resampled.frames);
+		} else {
+			// No resampling needed, write frames directly
+			for (int i = 0; i < amount; i++)
+			{
+				// Check if buffer full (leave one slot free)
+				if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+				{
+					// Buffer full, break early
+					break;
+				}
+				pthread_mutex_lock(&audio_mutex);
+				snd.buffer[snd.frame_in] = tmpbuffer[i];
+				snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
+				pthread_mutex_unlock(&audio_mutex);
+				written_frames++;
+			}
 		}
 
 		total_consumed_frames += written_frames;
-		free(resampled.frames);
 	}
 
 	return total_consumed_frames;
@@ -2586,31 +2612,85 @@ size_t SND_batchSamples_fixed_rate(const SND_Frame *frames, size_t frame_count)
 		consumed += amount;
 		framecount -= amount;
 
-		ResampledFrames resampled = resample_audio(
-			tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+		// Check if resampling is needed
+		bool need_resample = (snd.sample_rate_in != snd.sample_rate_out) ||
+		                    (fabs(ratio - 1.0) > 0.001);
 
-		// Write resampled frames to the buffer
+		// Write frames to the buffer
 		int written_frames = 0;
 
-		for (int i = 0; i < resampled.frame_count; i++)
-		{
-			if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+		if (need_resample) {
+			ResampledFrames resampled = resample_audio(
+				tmpbuffer, amount, snd.sample_rate_in, snd.sample_rate_out, ratio);
+
+			for (int i = 0; i < resampled.frame_count; i++)
 			{
-				// Buffer is full, break. This should never happen tho, but just to be safe
-				break;
+				if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+				{
+					// Buffer is full, break. This should never happen tho, but just to be safe
+					break;
+				}
+				pthread_mutex_lock(&audio_mutex);
+				snd.buffer[snd.frame_in] = resampled.frames[i];
+				snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
+				pthread_mutex_unlock(&audio_mutex);
+				written_frames++;
 			}
-			pthread_mutex_lock(&audio_mutex);
-			snd.buffer[snd.frame_in] = resampled.frames[i];
-			snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
-			pthread_mutex_unlock(&audio_mutex);
-			written_frames++;
+			free(resampled.frames);
+		} else {
+			// No resampling needed, write frames directly
+			for (int i = 0; i < amount; i++)
+			{
+				if ((snd.frame_in + 1) % snd.frame_count == snd.frame_out)
+				{
+					// Buffer is full, break. This should never happen tho, but just to be safe
+					break;
+				}
+				pthread_mutex_lock(&audio_mutex);
+				snd.buffer[snd.frame_in] = tmpbuffer[i];
+				snd.frame_in = (snd.frame_in + 1) % snd.frame_count;
+				pthread_mutex_unlock(&audio_mutex);
+				written_frames++;
+			}
 		}
 
 		total_consumed_frames += written_frames;
-		free(resampled.frames);
 	}
 
 	return total_consumed_frames;
+}
+
+void SND_setOutputSampleRate(int preference)
+{
+	if (preference < 0 || preference > 2) {
+		LOG_warn("Invalid output sample rate preference: %d, using Auto\n", preference);
+		output_sample_rate_preference = 2;
+	} else {
+		output_sample_rate_preference = preference;
+		LOG_info("Output sample rate preference set to: %d\n", preference);
+	}
+}
+
+static int SND_selectOutputRate(int core_sample_rate)
+{
+	switch (output_sample_rate_preference) {
+		case 0: // 48kHz
+			LOG_info("Sample rate mode: 48kHz (Standard)\n");
+			return 48000;
+		case 1: // 96kHz
+			LOG_info("Sample rate mode: 96kHz (Hi-Fi)\n");
+			return 96000;
+		case 2: // Auto
+			if (core_sample_rate == 44100) {
+				LOG_info("Sample rate mode: Auto (44100Hz - PS Native)\n");
+				return 44100;
+			}
+			LOG_info("Sample rate mode: Auto (48000Hz - Standard)\n");
+			return 48000;
+		default:
+			LOG_warn("Unknown sample rate preference: %d, using Auto\n", output_sample_rate_preference);
+			return 48000;
+	}
 }
 
 void SND_init(double sample_rate, double frame_rate)
@@ -2645,21 +2725,32 @@ void SND_init(double sample_rate, double frame_rate)
 	SDL_AudioSpec spec_in;
 	SDL_AudioSpec spec_out;
 
-	spec_in.freq = PLAT_pickSampleRate(sample_rate, MAX_SAMPLE_RATE);
+	// Use intelligent sample rate selection
+	int preferred_rate = SND_selectOutputRate(sample_rate);
+	spec_in.freq = PLAT_pickSampleRate(preferred_rate, MAX_SAMPLE_RATE);
 	spec_in.format = AUDIO_S16;
 	spec_in.channels = 2;
 	spec_in.samples = SAMPLES;
 	spec_in.callback = SND_audioCallback;
 
+	LOG_info("Requesting audio: freq=%d Hz, format=%d, channels=%d\n",
+	         spec_in.freq, spec_in.format, spec_in.channels);
+
 #if defined(USE_SDL2)
-	snd.device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, SDL_AUDIO_ALLOW_ANY_CHANGE);
+	// First try with exact parameters (no SDL_AUDIO_ALLOW_ANY_CHANGE)
+	snd.device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, 0);
 	if (snd.device_id <= 0)
 	{
-		LOG_info("SDL_OpenAudioDevice error: %s\n", SDL_GetError());
-		if (SDL_OpenAudio(&spec_in, &spec_out) < 0) {
-			LOG_info("SDL_OpenAudio error: %s\n", SDL_GetError());
-			SDL_QuitSubSystem(SDL_INIT_AUDIO);
-			return;
+		LOG_info("SDL_OpenAudioDevice (exact) failed: %s\n", SDL_GetError());
+		// Fallback: allow SDL to adjust parameters
+		snd.device_id = SDL_OpenAudioDevice(NULL, 0, &spec_in, &spec_out, SDL_AUDIO_ALLOW_ANY_CHANGE);
+		if (snd.device_id <= 0) {
+			LOG_info("SDL_OpenAudioDevice (fallback) error: %s\n", SDL_GetError());
+			if (SDL_OpenAudio(&spec_in, &spec_out) < 0) {
+				LOG_info("SDL_OpenAudio error: %s\n", SDL_GetError());
+				SDL_QuitSubSystem(SDL_INIT_AUDIO);
+				return;
+			}
 		}
 	}
 #else
@@ -2671,7 +2762,19 @@ void SND_init(double sample_rate, double frame_rate)
 	snd.device_id = 1;
 #endif
 
-	LOG_info("We now have audio device #%d\n", snd.device_id);
+	LOG_info("Audio device opened: #%d\n", snd.device_id);
+	LOG_info("Audio parameters obtained: freq=%d Hz, format=%d, channels=%d\n",
+	         spec_out.freq, spec_out.format, spec_out.channels);
+
+	// Check if hardware supports the requested sample rate
+	if (spec_out.freq != spec_in.freq) {
+		LOG_warn("Hardware does not support requested sample rate\n");
+		LOG_warn("  Requested: %d Hz\n", spec_in.freq);
+		LOG_warn("  Obtained:  %d Hz\n", spec_out.freq);
+		LOG_warn("  Resampling will be used\n");
+	} else {
+		LOG_info("Sample rate matched perfectly: %d Hz\n", spec_out.freq);
+	}
 
 	snd.frame_count = ((float)spec_out.freq / SCREEN_FPS) * 8; // buffer size based on sample rate out (times 12 samples headroom)
 	currentbuffersize = snd.frame_count;
