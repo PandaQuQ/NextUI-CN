@@ -584,13 +584,13 @@ SDL_Surface* PLAT_initVideo(void) {
 	vid.pitch	= p;
 	
 	SDL_transparentBlack = SDL_MapRGBA(vid.screen->format, 0, 0, 0, 0);
-	
+
 	device_width	= w;
 	device_height	= h;
 	device_pitch	= p;
-	
+
 	vid.sharpness = SHARPNESS_SOFT;
-	
+
 	return vid.screen;
 }
 
@@ -1752,6 +1752,7 @@ void runShaderPass(GLuint src_texture, GLuint shader_program, GLuint* target_tex
 		glBindTexture(GL_TEXTURE_2D, src_texture);
 		last_bound_texture = src_texture;
 	}
+
 	glViewport(x, y, dst_width, dst_height);
 
 	
@@ -2072,7 +2073,7 @@ unsigned char* PLAT_GL_screenCapture(int* outWidth, int* outHeight) {
     glViewport(0, 0, device_width, device_height);
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-	
+
     int width = viewport[2];
     int height = viewport[3];
 
@@ -2090,8 +2091,6 @@ unsigned char* PLAT_GL_screenCapture(int* outWidth, int* outHeight) {
 }
 
 ///////////////////////////////
-
-// TODO: 
 #define OVERLAY_WIDTH PILL_SIZE // unscaled
 #define OVERLAY_HEIGHT PILL_SIZE // unscaled
 #define OVERLAY_BPP 4

@@ -5309,8 +5309,12 @@ static void video_refresh_callback(const void* data, unsigned width, unsigned he
 			}
 		}
 
-		if(ambient_mode && !fast_forward && data)
-			GFX_setAmbientColor(data, width, height,pitch,ambient_mode);
+		if(ambient_mode && !fast_forward && data) {
+			// Pass pixel format to GFX_setAmbientColor
+			// 0 = RGB565, 1 = RGB888 (XRGB8888)
+			int pixel_format = (fmt == RETRO_PIXEL_FORMAT_XRGB8888) ? 1 : 0;
+			GFX_setAmbientColor(data, width, height, pitch, ambient_mode, pixel_format);
+		}
 
 		if (!data) {
 			if (lastframe) {
