@@ -1,8 +1,7 @@
 diff --git forkSrcPrefix/platform/libretro/Makefile forkDstPrefix/platform/libretro/Makefile
-index be0f1b46bb3ab10be4a9f896f5e8841dd630b35b..f6b4d892627ec2a81b01ddb4da7f0c7a8022221f
-100644
+index be0f1b46bb3ab10be4a9f896f5e8841dd630b35b..f6b4d892627ec2a81b01ddb4da7f0c7a8022221f 100644
 --- forkSrcPrefix/platform/libretro/Makefile
-+++ forkSrcPrefix/platform/libretro/Makefile
++++ forkDstPrefix/platform/libretro/Makefile
 @@ -123,7 +123,16 @@ else ifeq ($(platform), miyoomini)
     CXXFLAGS += -marm -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -march=armv7ve -D_NEED_FULL_PATH_
     fpic := -fPIC
