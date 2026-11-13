@@ -48,8 +48,26 @@ NextUI 是一个基于 MinUI 的自定义固件（CFW），通过重建模拟器
 
 字体说明（本中文分支）：
 
-- 项目使用 [Dream Han Sans CN](https://github.com/Pal3love/dream-han-cjk) 作为中文字体来源。
-- 为了避免把字体大文件长期放进仓库，本仓库在 CI 中会在构建时注入字体（见工作流），并将默认字体文件替换为中文可用字体。
+- 内置三套完整中文字库（已随仓库和安装包提供，SIL OFL 1.1）：
+  - `font1` [梦源黑体 CN W10](https://github.com/Pal3love/dream-han-cjk)（默认）
+  - `font2` [缝合像素](https://github.com/TakWolf/fusion-pixel-font)
+  - `font3` [寒蝉半圆体](https://github.com/Warren2060/ChillRound)
+- 在「设置 → 外观 → 字体」中切换。也可以把 `.ttf` / `.otf` 放到 SD 卡根目录的 [`Fonts`](skeleton/BASE/Fonts/README.txt) 文件夹，然后选择「自定义：<文件名>」。
+- 更完整的字体与许可说明见 [`workspace/i18n/FONTS.md`](workspace/i18n/FONTS.md)。
+
+## 中文版特性
+
+相对上游 [LoveRetro/NextUI](https://github.com/LoveRetro/NextUI)，本分支额外提供：
+
+- 已同步上游 v6.15.0（含界面配色 / 背景色等新功能）
+- 完整中文界面；版本名称统一为 `NextUI-CN`（如 `v6.15.0-CN-fix1`）
+- 自定义字体（见上方字体说明）
+- 全新安装和更新包不再附带 Airlock；如果旧卡上还有，安装 / 更新时会自动删除
+- 首次安装和更新动画为中文（安装中… / 升级中… / 正在解压）
+- 文件管理器（NextCommander）在 TrimUI Brick / Smart Pro（tg5040 / tg5050）上跟随系统字体设置
+- 配套更新器 [nextui-updater-pak-CN](https://github.com/PandaQuQ/nextui-updater-pak-CN) 可在「稳定版」和「预发布版」之间选择（默认只检查正式版）
+
+说明：h700 从原厂系统第一次安装时，最开始那一步仍显示英文 `INSTALLING NEXTUI`；h700 上的文件管理器暂不跟随系统字体。
 
 ## 许可证
 
@@ -92,6 +110,17 @@ NextUI 是一个基于 MinUI 的自定义固件（CFW），通过重建模拟器
 - PAL 模式
 - Next 字体支持中日韩（CJK）游戏名显示
 - 许多其他小修复和优化
+
+## 截图
+
+<img src="github/minui-main.png" width="320" alt="主界面" />
+<img src="github/minui-settings-UI.png" width="320" alt="外观与字体" />
+<img src="github/minui-settings-custom-font.png" width="320" alt="自定义字体" />
+<img src="github/minui-install.png" width="320" alt="安装中" />
+<img src="github/minui-updating.png" width="320" alt="升级中" />
+<img src="github/minui-clock.png" width="320" alt="时钟" />
+
+更多截图见 [github/README.md](github/README.md)。
 
 ---
 
