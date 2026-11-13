@@ -15,6 +15,7 @@ extern "C"
 #include <csignal>
 #include <cstdlib>
 #include <dirent.h>
+#include <unistd.h>
 #include <fstream>
 #include <memory>
 #include <sstream>
