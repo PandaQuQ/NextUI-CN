@@ -1125,7 +1125,14 @@ int main(int argc, char *argv[])
                 std::ifstream t(ROOT_SYSTEM_PATH "/version.txt");
                 std::stringstream buffer;
                 buffer << t.rdbuf();
-                return buffer.str();
+                // NextUI-CN: version.txt is "<release>\n<hash>\n"; CJK fonts draw
+                // control characters as tofu boxes, so flatten to one line.
+                std::string v = buffer.str();
+                for (auto &c : v)
+                    if (c == '\n' || c == '\r' || c == '\t') c = ' ';
+                size_t end = v.find_last_not_of(' ');
+                v = (end == std::string::npos) ? std::string() : v.substr(0, end + 1);
+                return v;
             }},
             new StaticMenuItem{ListItemType::Generic, TR("settings.about.platform"), "",
             []() -> std::any {

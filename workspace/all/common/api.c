@@ -4010,9 +4010,13 @@ static void *VIB_thread(void *arg)
 }
 void VIB_init(void)
 {
+	static int vib_atexit_registered = 0;
 	if (vib.initialized)
 		return;
-	atexit(VIB_atexit);
+	if (!vib_atexit_registered) {
+		atexit(VIB_atexit);
+		vib_atexit_registered = 1;
+	}
 
 	vib.queued_strength = vib.strength = 0;
 	spawn_thread(&vib.pt, &VIB_thread, NULL);

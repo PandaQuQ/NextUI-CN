@@ -198,6 +198,7 @@ static Entry* Entry_new(const char* path, int type) {
 
 static Entry* Entry_newNamed(const char* path, int type, const char* displayName) {
 	Entry *self = Entry_new(path, type);
+	if (self->display) free(self->display);
 	self->display = strdup(displayName);
 	return self;
 }
@@ -867,6 +868,7 @@ static Array* getQuickEntries(void) {
 		// Icon assets are keyed by Entry->name (e.g. /res/Recents@2x.png)
 		if (e->name) free(e->name);
 		e->name = strdup("Recents");
+		if (e->display) free(e->display);
 		e->display = strdup(TR("recents"));
 		Array_push(entries, e);
 	}
@@ -880,6 +882,7 @@ static Array* getQuickEntries(void) {
 		// Icon assets are keyed by Entry->name (e.g. /res/Games@2x.png)
 		if (e->name) free(e->name);
 		e->name = strdup("Games");
+		if (e->display) free(e->display);
 		e->display = strdup(TR("games"));
 		Array_push(entries, e);
 	}
@@ -898,7 +901,7 @@ static Array* getQuickToggles(void) {
 	Array *entries = Array_new();
 	I18N_init();
 
-	Entry *settings = entryFromPakName("settings");
+	Entry *settings = entryFromPakName("Settings"); // must match Settings.pak exactly (case-sensitive FS)
 	if (settings) {
 		// NOTE: quick-menu icon/action mapping matches on Entry->name (case-sensitive).
 		// Keep the internal identifier as upstream expects ("Settings"), and translate only
@@ -910,8 +913,8 @@ static Array* getQuickToggles(void) {
 		Array_push(entries, settings);
 	}
 
-	Entry *store = entryFromPakName("pak_store");
-	if (!store) store = entryFromPakName("Pak Store");
+	Entry *store = entryFromPakName("Pak Store");
+	if (!store) store = entryFromPakName("pak_store");
 	if (store) {
 		// Internal name must stay "Pak Store" so ASSET_STORE path/mapping works.
 		if (store->name) free(store->name);
@@ -924,26 +927,31 @@ static Array* getQuickToggles(void) {
 	// quick actions
 	if(WIFI_supported()) {
 		Entry* e = Entry_new("Wifi", ENTRY_DIP);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("wifi"));
 		Array_push(entries, e);
 	}
 	if(BT_supported()) {
 		Entry* e = Entry_new("Bluetooth", ENTRY_DIP);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("bluetooth"));
 		Array_push(entries, e);
 	}
 	if(PLAT_supportsDeepSleep() && !simple_mode) {
 		Entry* e = Entry_new("Sleep", ENTRY_DIP);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("sleep"));
 		Array_push(entries, e);
 	}
 	{
 		Entry* e = Entry_new("Reboot", ENTRY_DIP);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("reboot"));
 		Array_push(entries, e);
 	}
 	{
 		Entry* e = Entry_new("Poweroff", ENTRY_DIP);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("poweroff"));
 		Array_push(entries, e);
 	}
@@ -977,6 +985,7 @@ static Array* getRoot(void) {
 		char tools_path[256];
 		snprintf(tools_path, sizeof(tools_path), "%s/Tools/%s", SDCARD_PATH, PLATFORM);
 		Entry* e = Entry_new(tools_path, ENTRY_DIR);
+		if (e->display) free(e->display);
 		e->display = strdup(TR("tools"));
 		Array_push(root, e);
     }
@@ -2415,7 +2424,7 @@ int main (int argc, char *argv[]) {
 	int is_scrolling = 0;
 	bool list_show_entry_names = true;
 
-	char folderBgPath[1024];
+	char folderBgPath[1024] = {0};
 	folderbgbmp = NULL;
 
 	SDL_Surface * blackBG = SDL_CreateRGBSurfaceWithFormat(0,screen->w,screen->h,screen->format->BitsPerPixel,screen->format->format);
