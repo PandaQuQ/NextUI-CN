@@ -74,8 +74,8 @@ This keeps the UI package smaller, and still covers all translated strings.
 Users can add their own UI fonts without touching system files:
 
 - Folder: `SDCARD_PATH/Fonts` (`/mnt/SDCARD/Fonts` on device), shipped empty with a `README.txt` from `skeleton/BASE/Fonts/`. It is outside `.system`, so updates never overwrite it.
-- Any `*.ttf` / `*.otf` there (hidden and `._` files ignored, max 64, sorted by name) shows up in Settings → 外观 → 字体 as `自定义：<name>` (`settings.font_name.custom_fmt`).
+- Any `*.ttf` / `*.otf` there that SDL_ttf can open (hidden, `._` and unloadable files are skipped and logged; max 64, sorted by name) shows up in Settings → 外观 → 字体 as `自定义：<name>` (`settings.font_name.custom_fmt`).
 - Persisted in `minuisettings.txt` as `font=custom:<filename>`. Built-in fonts keep the old format (`font=1` / `font=0` / `font=font3.ttf`), and legacy `fontOrder=2` ids are still migrated, so older settings files keep working.
 - Path resolution: `CFG_resolveFontPath()` in `workspace/all/common/config.c` (`custom:` → `SDCARD_PATH/Fonts/<name>`, anything else → `RES_PATH/<name>`; names containing `/` are rejected).
-- Fallback: if the file is missing, `CFG_setFontFile()` logs and switches to `font1.ttf`. If it exists but `TTF_OpenFont` fails, `GFX_loadSystemFont()` logs, loads `font1.ttf` instead and the setting is reverted to the default. Missing glyphs in a font just render as boxes (no crash).
+- Fallback: if the file is missing, `CFG_setFontFile()` logs and switches to `font1.ttf`. If it exists but `TTF_OpenFont` fails, `GFX_loadSystemFont()` logs, loads `font1.ttf` instead and the setting is reverted to the default; the Settings menu re-reads the value so it immediately shows the font actually in use. Missing glyphs in a font just render as boxes (no crash).
 - All UI programs (nextui, settings, minarch, minput, clock, …) load the font through `GFX_init()` → `CFG_init()`, so they all honour the choice. `nextval`'s `fontpath` reports the resolved path.

@@ -148,6 +148,16 @@ static std::vector<FontEntry> enumerateFonts() {
             const char *ext = ent->d_name + len - 4;
             if (strcasecmp(ext, ".ttf") != 0 && strcasecmp(ext, ".otf") != 0)
                 continue;
+            // NextUI-CN: skip files SDL_ttf can't open (corrupt/unsupported) so
+            // they never show up as a selectable entry
+            char path[512];
+            snprintf(path, sizeof(path), "%s/%s/%s", SDCARD_PATH, CFG_CUSTOM_FONT_DIR, ent->d_name);
+            TTF_Font *probe = TTF_WasInit() ? TTF_OpenFont(path, 16) : NULL;
+            if (!probe) {
+                LOG_warn("enumerateFonts: skipping unloadable font %s (%s)\n", path, TTF_GetError());
+                continue;
+            }
+            TTF_CloseFont(probe);
             custom.push_back(ent->d_name);
         }
         closedir(dir);
@@ -522,10 +532,20 @@ int main(int argc, char *argv[])
             font_values.push_back(f.filename);
             font_labels.push_back(f.label);
         }
-        appearanceItems.push_back(new MenuItem{ListItemType::Generic, TR("settings.font"), TR("settings.font.desc"), font_values, font_labels,
+        // NextUI-CN: if the chosen font can't be applied (file removed or broken
+        // after the list was built), CFG_setFontFile reverts to the default;
+        // re-sync the menu so it shows the font actually in use.
+        static MenuItem *fontItem = nullptr;
+        fontItem = new MenuItem{ListItemType::Generic, TR("settings.font"), TR("settings.font.desc"), font_values, font_labels,
             []() -> std::any { return std::string(CFG_getFontFile()); },
-            [](const std::any &value) { CFG_setFontFile(std::any_cast<std::string>(value).c_str()); },
-            []() { CFG_setFontFile(CFG_DEFAULT_FONT_FILE); }});
+            [](const std::any &value) {
+                const std::string wanted = std::any_cast<std::string>(value);
+                CFG_setFontFile(wanted.c_str());
+                if (fontItem && wanted != CFG_getFontFile())
+                    fontItem->reselect();
+            },
+            []() { CFG_setFontFile(CFG_DEFAULT_FONT_FILE); }};
+        appearanceItems.push_back(fontItem);
         appearanceItems.push_back(new MenuItem{ListItemType::Generic, TR("settings.font_style"), TR("settings.font_style.desc"), std::vector<std::any>{0, 1}, std::vector<std::string>{TR("settings.font_style.normal"), TR("settings.font_style.bold")},
             []() -> std::any { return CFG_getFontStyle(); },
             [](const std::any &value) { CFG_setFontStyle(std::any_cast<int>(value)); },
