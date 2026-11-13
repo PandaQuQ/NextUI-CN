@@ -51,7 +51,15 @@ NextUI 是一个基于 MinUI 的自定义固件（CFW），通过重建模拟器
 - 项目使用 [Dream Han Sans CN](https://github.com/Pal3love/dream-han-cjk) 作为中文字体来源。
 - 为了避免把字体大文件长期放进仓库，本仓库在 CI 中会在构建时注入字体（见工作流），并将默认字体文件替换为中文可用字体。
 
-功能亮点（来自上游 README，并做中文化整理）：
+## 许可证
+
+上游项目自 2026 年 8 月 15 日起由 GPL 3.0 改为 [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) 许可证。
+允许个人、教育及其他非商业用途自由使用，禁止商业用途。
+完整条款见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)，变更经过与理由见上游 [issue #765](https://github.com/LoveRetro/NextUI/issues/765)。
+
+## 功能亮点
+
+（来自上游 README，并做中文化整理）
 
 - 通过重建模拟器引擎核心，修复 MinUI 的屏幕撕裂和同步卡顿问题
 - 游戏切换菜单（Onion OS 风格）由 [@frysee](https://github.com/frysee) 开发
@@ -82,13 +90,17 @@ NextUI 是一个基于 MinUI 的自定义固件（CFW），通过重建模拟器
 - 震动强度修复：现在可变并由游戏驱动
 - FBNeo 街机屏幕旋转
 - PAL 模式
+- Next 字体支持中日韩（CJK）游戏名显示
 - 许多其他小修复和优化
 
 ---
 
 ## 当前支持的设备
 - Trimui Brick
+- Trimui Brick Pro
 - Trimui Smart Pro
+- Trimui Smart Pro S
+- Anbernic H700 Devices
 
 ---
 
@@ -133,20 +145,17 @@ NextUI 是一个基于 MinUI 的自定义固件（CFW），通过重建模拟器
 
 ## 关于其他功能？
 
-NextUI 支持各种可选扩展（Paks）。
+NextUI 支持各种由社区成员维护的可选扩展（Paks）。
 
-这些 Paks 会带来更多功能与模拟器。
-
-社区整理了：
-
-- [最受欢迎的 Paks 列表](https://nextui.loveretro.games/paks/community-favorites/)
-- [独立模拟器列表](https://nextui.loveretro.games/paks/standalone-emulators/)
+官方 Wiki 提供了[全部可用 Paks 列表](https://nextui.loveretro.games/pak-store/)，可以直接在设备上通过 Pak Store 下载安装。
 
 ---
 
 ## 鸣谢
 
-[@josegonzalez](https://github.com/josegonzalez) for [minui-keyboard](https://github.com/josegonzalez/minui-keyboard)
+- [josegonzalez](https://github.com/josegonzalez) for [minui-keyboard](https://github.com/josegonzalez/minui-keyboard)
+- [knulli-cfw](https://github.com/knulli-cfw)/[Mikhailzrick](https://github.com/Mikhailzrick) for [fan-control-daemon](https://github.com/knulli-cfw/knulli-linux/commit/5c1b4724330b59cbe8af79d0a7f1dac86f1c221a)
+- [Kenney](www.kenney.nl) for [Input Prompts](https://kenney.nl/assets/input-prompts)
 
 ---
 

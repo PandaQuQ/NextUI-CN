@@ -64,7 +64,9 @@ std::any Menu::getWifToggleState() const
 
 void Menu::setWifiToggleState(const std::any &on)
 {
-    WIFI_enable(std::any_cast<bool>(on));
+    auto state = std::any_cast<bool>(on);
+    ScopedOverlay overlay(state ? TR("settings.network.enabling") : TR("settings.network.disabling"));
+    WIFI_enable(state);
 }
 
 void Menu::resetWifiToggleState()
@@ -102,7 +104,6 @@ void Menu::updater()
     while (!quit && !globalQuit)
     {
         // TODO: pause when menu is not rendered
-        // Scan
         if (WIFI_enabled())
         {
             // scan for available networks and add a menu item for each
@@ -210,6 +211,7 @@ void Menu::updater()
 
 ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
     : MenuItem(ListItemType::Button, TR("settings.network.connect"), TR("settings.network.connect.desc"), [&](AbstractMenuItem &item) -> InputReactionHint{
+        ScopedOverlay overlay(TR("settings.network.connecting"));
         WIFI_connect(net.ssid, net.security); 
         dirty = true;
         return Exit;
@@ -219,6 +221,7 @@ ConnectKnownItem::ConnectKnownItem(WIFI_network n, bool& dirty)
 ConnectNewItem::ConnectNewItem(WIFI_network n, bool& dirty)
     : MenuItem(ListItemType::Button, TR("settings.network.enter_wifi_passcode"), TR("settings.network.enter_wifi_passcode.desc"), DeferToSubmenu, new KeyboardPrompt(TR("settings.network.enter_wifi_passcode.title"), 
         [&](AbstractMenuItem &item) -> InputReactionHint {
+            ScopedOverlay overlay(TR("settings.network.connecting"));
             WIFI_connectPass(net.ssid, net.security, item.getName().c_str()); 
             dirty = true;
             return Exit; 

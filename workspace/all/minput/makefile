@@ -24,13 +24,9 @@ INCDIR = -I. -I../common/ -I../../$(PLATFORM)/platform/ -I../../i18n/
 SOURCE = $(TARGET).c ../common/utils.c ../common/api.c ../common/config.c ../common/scaler.c ../../i18n/i18n.c ../../$(PLATFORM)/platform/platform.c
 
 CC = $(CROSS_COMPILE)gcc
-CFLAGS  += $(OPT) -fomit-frame-pointer
+CFLAGS  += $(OPT)
 CFLAGS  += $(INCDIR) -DPLATFORM=\"$(PLATFORM)\" -std=gnu99
 LDFLAGS	 += -lmsettings
-ifeq ($(PLATFORM), tg5040)
-CFLAGS += -DHAS_WIFIMG
-LDFLAGS +=  -lwifimg -lwifid
-endif
 
 PRODUCT= build/$(PLATFORM)/$(TARGET).elf
 

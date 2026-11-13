@@ -1,5 +1,8 @@
 #include "btmenu.hpp"
 #include "keyboardprompt.hpp"
+#ifdef HAS_BTAGENT
+#   include "btagent.hpp"
+#endif
 
 extern "C"
 {
@@ -28,17 +31,24 @@ Menu::Menu(const int &globalQuit, int &globalDirty) : MenuList(MenuItemType::Fix
                               std::bind(&Menu::getBtDiagnosticsState, this),
                               std::bind(&Menu::setBtDiagnosticsState, this, std::placeholders::_1),
                               std::bind(&Menu::resetBtDiagnosticsState, this));
+    items.push_back(toggleItem);
+    items.push_back(diagItem);
     rateItem = new MenuItem(ListItemType::Generic, TR("settings.bluetooth.max_sampling_rate"), TR("settings.bluetooth.max_sampling_rate.desc"), {44100, 48000}, {"44100 Hz", "48000 Hz"},
                               std::bind(&Menu::getSamplerateMaximum, this),
                               std::bind(&Menu::setSamplerateMaximum, this, std::placeholders::_1),
                               std::bind(&Menu::resetSamplerateMaximum, this));
-    items.push_back(toggleItem);
-    items.push_back(diagItem);
     items.push_back(rateItem);
 
     // best effort layout based on the platform defines, user should really call performLayout manually
     MenuList::performLayout((SDL_Rect){0, 0, FIXED_WIDTH, FIXED_HEIGHT});
     layout_called = false;
+
+#ifdef HAS_BTAGENT
+    // Only NoInputNoOutput for now, but this needs to interact with the UI thread if we 
+    // ever want to show a PIN or passkey
+    pairingAgent = new PairingAgent();
+    pairingAgent->startPairingWindow();
+#endif
 
     worker = std::thread{&Menu::updater, this};
 }
@@ -48,6 +58,11 @@ Menu::~Menu()
     quit = true;
     if (worker.joinable())
         worker.join();
+
+#ifdef HAS_BTAGENT
+    pairingAgent->stopPairingWindow();
+    delete pairingAgent;
+#endif
 }
 
 InputReactionHint Menu::handleInput(int &dirty, int &quit)
@@ -69,7 +84,9 @@ std::any Menu::getBtToggleState() const
 
 void Menu::setBtToggleState(const std::any &on)
 {
-    BT_enable(std::any_cast<bool>(on));
+    auto state = std::any_cast<bool>(on);
+    ScopedOverlay overlay(state ? TR("settings.bluetooth.enabling") : TR("settings.bluetooth.disabling"));
+    BT_enable(state);
 }
 
 void Menu::resetBtToggleState()
@@ -133,7 +150,7 @@ void Menu::updater()
             std::vector<BT_devicePaired> kl(SCAN_MAX_RESULTS);
             int known = BT_pairedDevices(kl.data(), SCAN_MAX_RESULTS);
             for (int i = 0; i < known; i++)
-                pairedMap.emplace(kl[i].remote_name, kl[i]);
+                pairedMap.emplace(kl[i].remote_addr, kl[i]);  // Use MAC address as key (unique)
 
             // grab list and compare it to previous result
             // only relayout the menu if changes happended
@@ -167,7 +184,7 @@ void Menu::updater()
                     items.clear();
                     items.push_back(toggleItem);
                     items.push_back(diagItem);
-                    items.push_back(rateItem);
+                    if (rateItem) items.push_back(rateItem);
                     layout_called = false;
 
                     for (auto &[s, r] : scanMap)
@@ -216,7 +233,7 @@ void Menu::updater()
             items.clear();
             items.push_back(toggleItem);
             items.push_back(diagItem);
-            items.push_back(rateItem);
+            if (rateItem) items.push_back(rateItem);
             layout_called = false;
             selectionDirty = true;
             pollSecs = 15;
@@ -236,6 +253,7 @@ void Menu::updater()
 PairNewItem::PairNewItem(BT_device d, bool& dirty)
     : MenuItem(ListItemType::Button, TR("settings.bluetooth.pair"), TR("settings.bluetooth.pair.desc"), 
         [&](AbstractMenuItem &item) -> InputReactionHint {
+            ScopedOverlay overlay(TR("settings.bluetooth.pairing"));
             BT_pair(dev.addr); 
             dirty = true;
             return Exit; 
@@ -254,6 +272,7 @@ UnpairItem::UnpairItem(BT_devicePaired d, bool& dirty)
 ConnectKnownItem::ConnectKnownItem(BT_devicePaired d, bool& dirty)
     : MenuItem(ListItemType::Button, TR("settings.bluetooth.connect"), TR("settings.bluetooth.connect.desc"),
         [&](AbstractMenuItem &item) -> InputReactionHint {
+            ScopedOverlay overlay(TR("settings.network.connecting"));
             BT_connect(dev.remote_addr); 
             dirty = true;
             return Exit; 

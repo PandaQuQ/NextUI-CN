@@ -19,7 +19,6 @@ REQUIRES_FILEMGR=other/NextCommander
 NEXTCOMMANDER_REPO_URL ?= https://github.com/PandaQuQ/NextCommander-CN.git
 
 all: readmes
-	cd show && make
 
 early: $(REQUIRES_EVTEST) $(REQUIRES_JSTEST) $(REQUIRES_UNZIP60) $(REQUIRES_FILEMGR)
 	mkdir -p other
@@ -29,7 +28,6 @@ early: $(REQUIRES_EVTEST) $(REQUIRES_JSTEST) $(REQUIRES_UNZIP60) $(REQUIRES_FILE
 	cd $(REQUIRES_UNZIP60) && make -f unix/Makefile.trimuismart unzip
 
 clean:
-	cd show && make clean
 	cd $(REQUIRES_FILEMGR) && make clean
 	cd $(REQUIRES_UNZIP60) && make -f unix/Makefile.trimuismart clean
 

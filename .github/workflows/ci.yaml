@@ -12,17 +12,19 @@ on:
   pull_request: {}
 
 permissions:
+  attestations: write
   contents: read
-  pull-requests: read
+  id-token: write
 
 jobs:
   prepare:
     runs-on: ubuntu-24.04-arm
     outputs:
+      next-tag: ${{ steps.next-tag.outputs.version }}
       release-name: ${{ steps.release-name.outputs.RELEASE_NAME }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -30,7 +32,6 @@ jobs:
         id: release-name
         run: |
           echo "RELEASE_NAME=$(make name)" >> "$GITHUB_OUTPUT"
-      # removed tag generation (not needed for quick CI tests)
 
   core-matrix:
     runs-on: ubuntu-24.04-arm
@@ -43,10 +44,12 @@ jobs:
       matrix:
         toolchain:
           - tg5040
+          - tg5050
+          - h700
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
 
       - name: Generate cores matrix
         id: cores
@@ -60,108 +63,25 @@ jobs:
     env:
       PLATFORM: ${{ matrix.toolchain }}
     strategy:
-      fail-fast: false
-      max-parallel: 8
+      fail-fast: true
       matrix:
         toolchain:
           - tg5040
+          - tg5050
+          - h700
         core: ${{ fromJson(needs.core-matrix.outputs.cores) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
-
-      - name: Get toolchain hash
-        id: toolchain-hash
-        run: |
-          if [[ -d "toolchains/${PLATFORM}-toolchain/.git" ]]; then
-            TOOLCHAIN_HASH=$(cd "toolchains/${PLATFORM}-toolchain" && git rev-parse HEAD)
-          else
-            TOOLCHAIN_HASH="missing"
-          fi
-          echo "toolchain-hash=${TOOLCHAIN_HASH}" >> "$GITHUB_OUTPUT"
-          echo "Toolchain hash: ${TOOLCHAIN_HASH}"
-
-      - name: Get core source hash
-        id: core-hash
-        run: |
-          if [[ -d "workspace/${PLATFORM}/cores/src/${{ matrix.core }}" ]]; then
-            CORE_HASH=$(cd "workspace/${PLATFORM}/cores/src/${{ matrix.core }}" && git rev-parse HEAD 2>/dev/null || echo "unknown")
-          else
-            CORE_HASH="unknown"
-          fi
-          echo "core-hash=${CORE_HASH}" >> "$GITHUB_OUTPUT"
-          echo "Core ${{ matrix.core }} hash: ${CORE_HASH}"
-
-      - name: Cache toolchains
-        uses: actions/cache@v4
-        with:
-          path: toolchains
-          key: toolchains-${{ runner.os }}-${{ env.PLATFORM }}-modernize-${{ steps.toolchain-hash.outputs.toolchain-hash }}
-
-      - name: Cache compiled cores
-        uses: actions/cache@v4
-        with:
-          path: workspace/${{ env.PLATFORM }}/cores/output/${{ matrix.core }}_libretro.so
-          key: core-${{ env.PLATFORM }}-${{ matrix.core }}-${{ steps.core-hash.outputs.core-hash }}-${{ steps.toolchain-hash.outputs.toolchain-hash }}
-
-      - name: Restore toolchain from cache
-        run: |
-          if [[ ! -d "toolchains/${PLATFORM}-toolchain/.git" ]]; then
-            echo "Toolchain not in cache, will need to download"
-          else
-            echo "Toolchain restored from cache"
-          fi
-
-      - name: Ensure toolchain repo (retry)
-        shell: bash
-        run: |
-          set -uo pipefail
-          if [[ -d "toolchains/${PLATFORM}-toolchain/.git" ]]; then
-            echo "Toolchain repo already present (from cache)."
-            exit 0
-          fi
-          mkdir -p toolchains
-          git config --global http.postBuffer 524288000
-          git config --global http.lowSpeedLimit 0
-          git config --global http.lowSpeedTime 999999
-          for i in 1 2 3 4 5 6 7 8 9 10; do
-            echo "Cloning toolchain (attempt $i of 10)..."
-            if timeout 300 git clone -b modernize --depth 1 "https://github.com/LoveRetro/${PLATFORM}-toolchain/" "toolchains/${PLATFORM}-toolchain" 2>&1; then
-              echo "Toolchain cloned successfully on attempt $i"
-              exit 0
-            else
-              CLONE_EXIT=$?
-              echo "::warning::Clone attempt $i failed with exit code $CLONE_EXIT"
-              rm -rf "toolchains/${PLATFORM}-toolchain" || true
-              if [[ $i -lt 10 ]]; then
-                echo "Waiting $((i * 15)) seconds before retry..."
-                sleep $((i * 15))
-              fi
-            fi
-          done
-          echo "::error::Failed to clone toolchain repo after 10 attempts"
-          exit 1
+        uses: actions/checkout@v7.0.1
 
       - name: Setup
         run: make setup
 
-      - name: Check if core is cached
-        id: core-cached
-        run: |
-          if [[ -f "workspace/${PLATFORM}/cores/output/${{ matrix.core }}_libretro.so" ]]; then
-            echo "core-exists=true" >> "$GITHUB_OUTPUT"
-            echo "Core ${{ matrix.core }} already compiled, skipping build"
-          else
-            echo "core-exists=false" >> "$GITHUB_OUTPUT"
-            echo "Core ${{ matrix.core }} not cached, will build"
-          fi
-
       - name: Build ${{ matrix.core }} core
-        if: steps.core-cached.outputs.core-exists != 'true'
         run: make build-core CORE=${{ matrix.core }}
 
       - name: Upload core
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: core-${{ matrix.toolchain }}-${{ matrix.core }}.zip
           path: workspace/${{ env.PLATFORM }}/cores/output/
@@ -172,24 +92,15 @@ jobs:
       - build-core
     runs-on: ubuntu-24.04-arm
     env:
-      PLATFORM: ${{ matrix.toolchain }}
       RELEASE_NAME: ${{ needs.prepare.outputs.release-name }}
-      # Use the workflow run id as a stable, non-tag-based identifier for quick testing
-      RELEASE_VERSION: ${{ github.run_id }}
-    strategy:
-      fail-fast: true
-      matrix:
-        toolchain:
-          - tg5040
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
 
       - name: Inject fonts (CI-time)
         shell: bash
         env:
-          DREAM_VERSION: dream-3.01-sans-2.004-serif-2.002
+          DREAM_VERSION: dream-3.02-sans-2.004-serif-2.003
           FUSION_VERSION: 2026.01.04
           CHILLROUND_VERSION: v1.800
         run: |
@@ -255,7 +166,7 @@ jobs:
           cp -f "$FUSION_FONT" skeleton/SYSTEM/res/BPreplayBold-unhinted.ttf
           cp -f "$FUSION_FONT" skeleton/SYSTEM/res/BPreplayBold.ttf
           
-          echo "All fonts injected into skeleton/SYSTEM/res:"
+          echo "All fonts injected into skeleton/SYSTEM/res:";
           ls -la skeleton/SYSTEM/res | sed 's#^#- #' || true
 
       - name: Install dependencies
@@ -266,15 +177,41 @@ jobs:
       - name: Setup
         run: make setup
 
-      - name: Download Cores
-        uses: actions/download-artifact@v4.3.0
+      - name: Download Cores (tg5040)
+        uses: actions/download-artifact@v8.0.2
         with:
-          path: workspace/${{ env.PLATFORM }}/cores/output/
-          pattern: core-${{ matrix.toolchain }}-*
+          path: workspace/tg5040/cores/output/
+          pattern: core-tg5040-*
           merge-multiple: true
 
-      - name: Build
-        run: make ${{ matrix.toolchain }}
+      - name: Build (tg5040)
+        run: make tg5040
+        env:
+          PLATFORM: tg5040
+
+      - name: Download Cores (tg5050)
+        uses: actions/download-artifact@v8.0.2
+        with:
+          path: workspace/tg5050/cores/output/
+          pattern: core-tg5050-*
+          merge-multiple: true
+
+      - name: Build (tg5050)
+        run: make tg5050
+        env:
+          PLATFORM: tg5050
+
+      - name: Download Cores (h700)
+        uses: actions/download-artifact@v8.0.2
+        with:
+          path: workspace/h700/cores/output/
+          pattern: core-h700-*
+          merge-multiple: true
+
+      - name: Build (h700)
+        run: make h700
+        env:
+          PLATFORM: h700
 
       - name: Special
         run: make special
@@ -283,36 +220,22 @@ jobs:
         run: make package
 
       - name: Upload All
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
-          # Use ASCII-only artifact names (avoid branch names with non-ASCII)
-          name: nextui-${{ github.run_id }}-all.zip
+          name: ${{ env.RELEASE_NAME }}-all.zip
           path: releases/${{ env.RELEASE_NAME }}-all.zip
 
       - name: Upload Base
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
-          name: nextui-${{ github.run_id }}-base.zip
+          name: ${{ env.RELEASE_NAME }}-base.zip
           path: releases/${{ env.RELEASE_NAME }}-base.zip
 
       - name: Upload Extras
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
-          name: nextui-${{ github.run_id }}-extras.zip
+          name: ${{ env.RELEASE_NAME }}-extras.zip
           path: releases/${{ env.RELEASE_NAME }}-extras.zip
-
-      - name: Generate prerelease notes
-        run: |
-          echo "NextUI quick prerelease build notes" > notes_zh.txt
-          echo "Built by CI on branch: $GITHUB_REF" >> notes_zh.txt
-          echo "Recent commits:" >> notes_zh.txt
-          git --no-pager log -n 20 --pretty=format:"- %s by @%an in %h" >> notes_zh.txt || true
-
-      - name: Upload prerelease notes
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: nextui-prerelease-${{ github.run_id }}-notes
-          path: notes_zh.txt
 
       - name: Skip Attest for PRs from forks
         id: skip
@@ -321,7 +244,7 @@ jobs:
           echo '::warning title=Attest skipped::Attest action requires permissions and is performed only for main branch.'
 
       - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v2.3.0
+        uses: actions/attest-build-provenance@v4.2.2
         if: github.ref == 'refs/heads/main'
         with:
           subject-path: |

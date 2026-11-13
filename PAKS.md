@@ -14,7 +14,7 @@ pak 是按平台区分的。在 Emus 和 Tools 目录中，你会看到（或需
 
 它们都必须是全小写。最新支持的平台目录名以 extras 包为准。
 
-有些平台下面还会有多台具有不同特性的设备。NextUI 使用环境变量 `DEVICE` 来区分这些设备。例如平台 “rg35xxplus” 下面有两种设备：RG CubeXX 对应 “cube”，RG34xx 对应 “wide”。同时也支持 “hdmi”（表示 HDMI 输出模式）。pak 可以选择使用或忽略这个环境变量。
+有些平台下面还会有多台具有不同特性的设备。NextUI 使用环境变量 `DEVICE` 来区分这些设备。在 tg5040 上取值为 `brick`、`brickpro` 或 `smartpro`；在 h700 上则是具体的 SKU 编号，例如 `rg40xxv`、`rg34xxsp` 或 `rgcubexx`（完整列表见 Wiki 中的 H700 Pak 移植页面）。pak 可以选择使用或忽略这个环境变量。
 
 # 模拟器 pak 的类型
 
@@ -136,4 +136,4 @@ NextUI 的惯例是：只默认绑定原机实体手柄上“确实存在”的�
 
 # 注意事项
 
-NextUI 目前只支持 RGB565 像素格式，并且没有实现 OpenGL 的 libretro API。也许可以用原厂固件的 RetroArch 替代 NextUI 的 minarch 来运行某些 核心，但这就留给读者自行研究了。
+NextUI 目前只支持 XRGB8888 和 RGB565 像素格式，并且没有实现 OpenGL 的 libretro API。也许可以用原厂固件的 RetroArch 替代 NextUI 的 minarch 来运行某些 核心，但这就留给读者自行研究了。
