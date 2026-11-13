@@ -571,29 +571,57 @@ const char* CFG_getFontFile(void)
     return settings.fontFile;
 }
 
+int CFG_resolveFontPath(const char* fontFile, char* out, size_t outSize)
+{
+    if (!fontFile || !fontFile[0] || !out || outSize == 0)
+        return -1;
+    size_t plen = strlen(CFG_CUSTOM_FONT_PREFIX);
+    if (strncmp(fontFile, CFG_CUSTOM_FONT_PREFIX, plen) == 0) {
+        const char *name = fontFile + plen;
+        // plain file names only: no directories / traversal
+        if (!name[0] || strchr(name, '/') || strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+            return -1;
+        snprintf(out, outSize, "%s/%s/%s", SDCARD_PATH, CFG_CUSTOM_FONT_DIR, name);
+        return 0;
+    }
+    if (strchr(fontFile, '/'))
+        return -1;
+    snprintf(out, outSize, "%s/%s", RES_PATH, fontFile);
+    return 0;
+}
+
 void CFG_setFontFile(const char* filename)
 {
     if (!filename || !filename[0]) {
         strncpy(settings.fontFile, CFG_DEFAULT_FONT_FILE, sizeof(settings.fontFile) - 1);
         settings.fontFile[sizeof(settings.fontFile) - 1] = '\0';
-    } else {
+    } else if (filename != settings.fontFile) {
         strncpy(settings.fontFile, filename, sizeof(settings.fontFile) - 1);
         settings.fontFile[sizeof(settings.fontFile) - 1] = '\0';
     }
 
-    // resolve full path: all fonts live in RES_PATH
+    // resolve full path: built-in fonts live in RES_PATH, custom ones in /Fonts
     char fontPath[512];
-    snprintf(fontPath, sizeof(fontPath), "%s/%s", RES_PATH, settings.fontFile);
+    int ok = CFG_resolveFontPath(settings.fontFile, fontPath, sizeof(fontPath)) == 0;
 
     // fall back to default if file doesn't exist
-    if (access(fontPath, F_OK) != 0) {
+    if (!ok || access(fontPath, F_OK) != 0) {
+        printf("[CFG] font \"%s\" not found, falling back to %s\n", settings.fontFile, CFG_DEFAULT_FONT_FILE);
+        fflush(stdout);
         strncpy(settings.fontFile, CFG_DEFAULT_FONT_FILE, sizeof(settings.fontFile) - 1);
         settings.fontFile[sizeof(settings.fontFile) - 1] = '\0';
         snprintf(fontPath, sizeof(fontPath), "%s/%s", RES_PATH, settings.fontFile);
     }
 
-    if (settings.onFontChange)
-        settings.onFontChange(fontPath);
+    if (settings.onFontChange && settings.onFontChange(fontPath) != 0
+        && strcmp(settings.fontFile, CFG_DEFAULT_FONT_FILE) != 0) {
+        // the font file exists but could not be loaded (corrupt/unsupported);
+        // the loader already fell back, so persist the default as well
+        printf("[CFG] font \"%s\" could not be loaded, reverting to %s\n", settings.fontFile, CFG_DEFAULT_FONT_FILE);
+        fflush(stdout);
+        strncpy(settings.fontFile, CFG_DEFAULT_FONT_FILE, sizeof(settings.fontFile) - 1);
+        settings.fontFile[sizeof(settings.fontFile) - 1] = '\0';
+    }
 
     CFG_sync();
 }
@@ -1616,7 +1644,10 @@ void CFG_get(const char *key, char *value)
     // meta, not a real setting
     else if (strcmp(key, "fontpath") == 0)
     {
-        sprintf(value, "\"%s/%s\"", RES_PATH, CFG_getFontFile());
+        char fp[512];
+        if (CFG_resolveFontPath(CFG_getFontFile(), fp, sizeof(fp)) != 0)
+            snprintf(fp, sizeof(fp), "%s/%s", RES_PATH, CFG_DEFAULT_FONT_FILE);
+        sprintf(value, "\"%s\"", fp);
     }
 
     else {
@@ -1790,7 +1821,12 @@ void CFG_print(void)
     printf("\t\"inputPromptStyle\": %i,\n", settings.inputPromptStyle);
 
     // meta, not a real setting
-    printf("\t\"fontpath\": \"%s/%s\"\n", RES_PATH, CFG_getFontFile());
+    {
+        char fp[512];
+        if (CFG_resolveFontPath(CFG_getFontFile(), fp, sizeof(fp)) != 0)
+            snprintf(fp, sizeof(fp), "%s/%s", RES_PATH, CFG_DEFAULT_FONT_FILE);
+        printf("\t\"fontpath\": \"%s\"\n", fp);
+    }
 
     printf("}\n");
 }

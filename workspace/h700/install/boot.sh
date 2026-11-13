@@ -26,9 +26,9 @@ mkdir -p "$LOGS_PATH"
 echo "install: starting $(date)" > "$INSTALL_LOG"
 
 # Installation splash
-shim_log "Installing..."
+shim_log "安装中..."
 if [ -x ./show2.elf ]; then
-	./show2.elf --mode=daemon --image="logo.png" --text="Installing..." --logoheight=128 --progress=-1 >/dev/null 2>&1 &
+	./show2.elf --mode=daemon --image="logo.png" --text="安装中..." --logoheight=128 --progress=-1 >/dev/null 2>&1 &
 fi
 
 h700_prepare_install
@@ -36,7 +36,7 @@ h700_prepare_install
 # generic NextUI package install
 for pakz in $PAKZ_PATH; do
 	if [ ! -e "$pakz" ]; then continue; fi
-	echo "TEXT:Extracting $pakz" > /tmp/show2.fifo 2>/dev/null || true
+	echo "TEXT:正在解压 $pakz" > /tmp/show2.fifo 2>/dev/null || true
 	shim_log "extracting $pakz"
 	./unzip -o -d "$SDCARD_PATH" "$pakz" >> "$INSTALL_LOG" 2>&1
 	unzip_status=$?
@@ -46,7 +46,7 @@ for pakz in $PAKZ_PATH; do
 
 	# run postinstall if present
 	if [ -f "$SDCARD_PATH/post_install.sh" ]; then
-		echo "TEXT:Installing $pakz" > /tmp/show2.fifo 2>/dev/null || true
+		echo "TEXT:正在安装 $pakz" > /tmp/show2.fifo 2>/dev/null || true
 		shim_log "running post_install.sh for $pakz"
 		sh "$SDCARD_PATH/post_install.sh" >> "$INSTALL_LOG" 2>&1
 		post_status=$?
@@ -59,9 +59,9 @@ done
 # install/update
 if [ -f "$UPDATE_PATH" ]; then
 	if [ -d "$SYSTEM_PATH/$PLATFORM" ]; then
-		echo "TEXT:Updating NextUI" > /tmp/show2.fifo 2>/dev/null || true
+		echo "TEXT:升级中..." > /tmp/show2.fifo 2>/dev/null || true
 	else
-		echo "TEXT:Installing NextUI" > /tmp/show2.fifo 2>/dev/null || true
+		echo "TEXT:安装中..." > /tmp/show2.fifo 2>/dev/null || true
 	fi
 
 	# clean replacement for core paths

@@ -30,7 +30,7 @@ ifeq ($(PLATFORM), desktop)
 else
 	TOOLCHAIN_FILE := makefile.toolchain
 endif
-RELEASE_BASE=NextUI-Adam-$(RELEASE_TIME)$(RELEASE_BETA)
+RELEASE_BASE=NextUI-CN-$(RELEASE_TIME)$(RELEASE_BETA)
 RELEASE_DOT:=$(shell find ./releases/. -regex ".*/${RELEASE_BASE}-[0-9]+-base\.zip" | wc -l | sed 's/ //g')
 RELEASE_NAME ?= $(RELEASE_BASE)-$(RELEASE_DOT)
 
@@ -108,9 +108,9 @@ endif
 	cp ./workspace/all/clock/build/$(PLATFORM)/clock.elf ./build/EXTRAS/Tools/$(PLATFORM)/Clock.pak/
 	cp ./workspace/all/minput/build/$(PLATFORM)/minput.elf ./build/EXTRAS/Tools/$(PLATFORM)/Input.pak/
 	cp ./workspace/all/settings/build/$(PLATFORM)/settings.elf ./build/EXTRAS/Tools/$(PLATFORM)/Settings.pak/
-ifeq ($(PLATFORM), tg5040)
-	cp ./workspace/all/airlock/build/$(PLATFORM)/airlock.elf ./build/EXTRAS/Tools/$(PLATFORM)/Airlock.pak/
-endif
+# NextUI-CN: Airlock is kept in-tree (workspace/all/airlock) but is not
+# built or copied into EXTRAS/Tools. package also deletes any leftover pak
+# so it cannot land in MinUI.zip (fresh install / updates) or extras.zip.
 ifneq (,$(filter $(PLATFORM),tg5040 tg5050 h700))
 	cp ./workspace/all/ledcontrol/build/$(PLATFORM)/ledcontrol.elf ./build/EXTRAS/Tools/$(PLATFORM)/LedControl.pak/
 ifeq ($(PLATFORM), tg5040)
@@ -264,6 +264,9 @@ package: tidy
 
 	# Remove Loading app from extras (don't include in package)
 	rm -rf "./build/EXTRAS/Tools/tg5040/Remove Loading.pak"
+	# NextUI-CN: do not ship Airlock in the base MinUI.zip payload or extras
+	rm -rf ./build/EXTRAS/Tools/tg5040/Airlock.pak
+	rm -rf ./build/EXTRAS/Tools/*/Airlock.pak
 
 	mkdir -p ./build/PAYLOAD
 	mv ./build/SYSTEM ./build/PAYLOAD/.system
@@ -289,7 +292,7 @@ package: tidy
 	# TODO: can I just add everything in BASE to zip?
 	# cd ./build/BASE && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves miyoo miyoo354 trimui rg35xx rg35xxplus gkdpixel miyoo355 magicx em_ui.sh MinUI.zip README.txt
 	mkdir -p ./releases
-	cd ./build/BASE && mkdir -p ../../releases/$(dir $(RELEASE_NAME)) && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves Shaders Overlays trimui h700 em_ui.sh MinUI.zip *.pakz README.txt
+	cd ./build/BASE && mkdir -p ../../releases/$(dir $(RELEASE_NAME)) && zip -r ../../releases/$(RELEASE_NAME)-base.zip Bios Roms Saves Shaders Overlays Fonts trimui h700 em_ui.sh MinUI.zip *.pakz README.txt
 	cd ./build/EXTRAS && mkdir -p ../../releases/$(dir $(RELEASE_NAME)) && zip -r ../../releases/$(RELEASE_NAME)-extras.zip Bios Emus Roms Saves Shaders Overlays Tools README.txt
 	echo "$(RELEASE_VERSION)" > ./build/latest.txt
 

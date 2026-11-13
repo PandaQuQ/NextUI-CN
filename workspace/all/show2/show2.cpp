@@ -33,7 +33,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "embedded_font_rounded.h"
+#include "embedded_font_cjk.h"
 
 constexpr const char* FIFO_PATH = "/tmp/show2.fifo";
 constexpr int MAX_TEXT_LEN = 256;
@@ -62,6 +62,7 @@ struct Config {
     int timeout_seconds = 0;  // Auto-close timeout (0 = no timeout)
     int logo_height = 0;      // Scale logo to this height (0 = no scaling)
     int font_size = 24;       // Font size in pixels
+    std::string font_path;    // Optional TTF path; empty = auto/embedded CJK font
 };
 
 class ShowApp {
@@ -101,6 +102,49 @@ public:
     ~ShowApp() {
         cleanup();
         pthread_mutex_destroy(&mutex);
+    }
+
+    bool tryOpenFontPath(const std::string& path) {
+        if (path.empty() || access(path.c_str(), R_OK) != 0) {
+            return false;
+        }
+        font = TTF_OpenFont(path.c_str(), config.font_size);
+        if (!font) {
+            std::cerr << "Failed to load font " << path << ": " << TTF_GetError() << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    bool openFont() {
+        if (tryOpenFontPath(config.font_path)) {
+            return true;
+        }
+
+        std::string img = config.image_path;
+        auto slash = img.find_last_of('/');
+        std::string dir = (slash == std::string::npos) ? std::string(".") : img.substr(0, slash);
+        const char* local_names[] = {"font.ttf", "font1.ttf", nullptr};
+        for (int i = 0; local_names[i]; ++i) {
+            if (tryOpenFontPath(dir + "/" + local_names[i]) || tryOpenFontPath(local_names[i])) {
+                return true;
+            }
+        }
+        if (tryOpenFontPath("/mnt/SDCARD/.system/res/font1.ttf")) {
+            return true;
+        }
+
+        SDL_RWops* rw = SDL_RWFromConstMem(embedded_cjk_font_ttf, embedded_cjk_font_ttf_len);
+        if (!rw) {
+            std::cerr << "Failed to create RWops for embedded font" << std::endl;
+            return false;
+        }
+        font = TTF_OpenFontRW(rw, 1, config.font_size);
+        if (!font) {
+            std::cerr << "Failed to load embedded font: " << TTF_GetError() << std::endl;
+            return false;
+        }
+        return true;
     }
 
     bool initialize() {
@@ -165,20 +209,11 @@ public:
             std::cerr << "Image not found: " << config.image_path << std::endl;
         }
 
-        // Initialize font
+        // Initialize font: --font, a TTF next to the image/binary, system font1, then embedded CJK.
         if (TTF_Init() < 0) {
             std::cerr << "TTF_Init failed: " << TTF_GetError() << std::endl;
-        } else {
-            SDL_RWops* rw = SDL_RWFromConstMem(RoundedMplus1c_Bold_reduced_ttf,
-                                                RoundedMplus1c_Bold_reduced_ttf_len);
-            if (rw) {
-                font = TTF_OpenFontRW(rw, 1, config.font_size);
-                if (!font) {
-                    std::cerr << "Failed to load embedded font: " << TTF_GetError() << std::endl;
-                }
-            } else {
-                std::cerr << "Failed to create RWops for embedded font" << std::endl;
-            }
+        } else if (!openFont()) {
+            std::cerr << "No usable font loaded" << std::endl;
         }
 
         return true;
@@ -544,6 +579,7 @@ void printUsage() {
     std::cout << "Default positions: texty=80, progressy=90\n";
     std::cout << "Logo height parameter (logoheight) scales the logo to the specified height in pixels (0 = no scaling)\n";
     std::cout << "Font size parameter (fontsize) sets the text size in pixels (default = 24)\n";
+    std::cout << "Font parameter (font) loads a TTF; if omitted, show2 uses a nearby font.ttf / system font1 / embedded CJK font\n";
     std::cout << "Timeout parameter (timeout) is in seconds (0 = no timeout, runs until killed)\n";
     std::cout << "\n";
     std::cout << "Daemon mode commands via FIFO (" << FIFO_PATH << "):\n";
@@ -616,6 +652,10 @@ int main(int argc, char* argv[]) {
 
     if (args.find("fontsize") != args.end()) {
         config.font_size = std::stoi(args["fontsize"]);
+    }
+
+    if (args.find("font") != args.end()) {
+        config.font_path = args["font"];
     }
 
     // Create and run app

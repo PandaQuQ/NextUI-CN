@@ -18,6 +18,11 @@ on:
         description: "Optional manual tag (vX.Y.Z-CN[-suffix] or vX.Y.Z; empty = auto bump)"
         required: false
         type: string
+      prerelease:
+        description: "Publish as pre-release (not marked Latest)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   attestations: write
@@ -172,70 +177,9 @@ jobs:
           CHILLROUND_VERSION: v1.800
         run: |
           set -euo pipefail
-          install -d skeleton/SYSTEM/res
-          
-          # Download Dream Han Sans CN
-          mkdir -p /tmp/dream-han-sans
-          DREAM_ZIP_OUT="/tmp/dream-han-sans/DreamHanSansCN.zip"
-          DREAM_URL="https://github.com/Pal3love/dream-han-cjk/releases/download/${DREAM_VERSION}/DreamHanSansCN.zip"
-          echo "Downloading Dream Han Sans CN: $DREAM_URL"
-          curl -fL --retry 5 --retry-delay 2 --connect-timeout 20 -o "$DREAM_ZIP_OUT" "$DREAM_URL"
-          unzip -q "$DREAM_ZIP_OUT" -d /tmp/dream-han-sans
-          DREAM_SRC_DIR="/tmp/dream-han-sans"
-          DREAM_FONT_W16="$(find "$DREAM_SRC_DIR" -maxdepth 3 -type f -name 'DreamHanSansCN-W10.ttf' | head -n 1 || true)"
-          if [[ -z "$DREAM_FONT_W16" ]]; then
-            echo "Extracted Dream Han Sans files:"; find "$DREAM_SRC_DIR" -maxdepth 3 -type f | sed 's#^#- #' || true
-            echo "::error::Dream Han Sans CN W10 TTF font not found in release archive"
-            exit 1
-          fi
-          cp -f "$DREAM_FONT_W16" skeleton/SYSTEM/res/font1.ttf
-          echo "Injected Dream Han Sans CN W10 as font1.ttf"
-          
-          # Download Fusion Pixel
-          mkdir -p /tmp/fusion-pixel-font
-          FUSION_ZIP_OUT="/tmp/fusion-pixel-font/fusion-pixel-font-12px-proportional-ttf-v${FUSION_VERSION}.zip"
-          FUSION_URL="https://github.com/TakWolf/fusion-pixel-font/releases/download/${FUSION_VERSION}/fusion-pixel-font-12px-proportional-ttf-v${FUSION_VERSION}.zip"
-          echo "Downloading Fusion Pixel: $FUSION_URL"
-          curl -fL --retry 5 --retry-delay 2 --connect-timeout 20 -o "$FUSION_ZIP_OUT" "$FUSION_URL"
-          unzip -q "$FUSION_ZIP_OUT" -d /tmp/fusion-pixel-font
-          FUSION_SRC_DIR="/tmp/fusion-pixel-font"
-          FUSION_FONT="$(find "$FUSION_SRC_DIR" -maxdepth 1 -type f -name 'fusion-pixel-12px-proportional-zh_hans.ttf' | head -n 1 || true)"
-          if [[ -z "$FUSION_FONT" ]]; then
-            echo "Extracted Fusion Pixel files:"; find "$FUSION_SRC_DIR" -maxdepth 1 -type f | sed 's#^#- #' || true
-            echo "::error::Fusion Pixel TTF font not found in release archive"
-            exit 1
-          fi
-          cp -f "$FUSION_FONT" skeleton/SYSTEM/res/font2.ttf
-          echo "Injected Fusion Pixel as font2.ttf"
-          
-          # Download ChillRound (寒蝉半圆体)
-          mkdir -p /tmp/chillround-font
-          CHILLROUND_ZIP_OUT="/tmp/chillround-font/ChillRoundM_v1.800.zip"
-          CHILLROUND_URL="https://github.com/Warren2060/ChillRound/releases/download/${CHILLROUND_VERSION}/ChillRoundM_v1.800.zip"
-          echo "Downloading ChillRound: $CHILLROUND_URL"
-          curl -fL --retry 5 --retry-delay 2 --connect-timeout 20 -o "$CHILLROUND_ZIP_OUT" "$CHILLROUND_URL"
-          unzip -q "$CHILLROUND_ZIP_OUT" -d /tmp/chillround-font
-          CHILLROUND_SRC_DIR="/tmp/chillround-font"
-          CHILLROUND_FONT="$(find "$CHILLROUND_SRC_DIR" -maxdepth 3 -type f -iname 'ChillRoundM.ttf' | head -n 1 || true)"
-          if [[ -z "$CHILLROUND_FONT" ]]; then
-            # Try OTF as fallback
-            CHILLROUND_FONT="$(find "$CHILLROUND_SRC_DIR" -maxdepth 3 -type f -iname 'ChillRoundM.otf' | head -n 1 || true)"
-          fi
-          if [[ -z "$CHILLROUND_FONT" ]]; then
-            echo "Extracted ChillRound files:"; find "$CHILLROUND_SRC_DIR" -maxdepth 3 -type f | sed 's#^#- #' || true
-            echo "::error::ChillRound font not found in release archive"
-            exit 1
-          fi
-          cp -f "$CHILLROUND_FONT" skeleton/SYSTEM/res/font3.ttf
-          echo "Injected ChillRound as font3.ttf"
-          
-          # Also copy to BPreplay fonts
-          cp -f "$FUSION_FONT" skeleton/SYSTEM/res/BPreplayBold-unhinted.ttf
-          cp -f "$FUSION_FONT" skeleton/SYSTEM/res/BPreplayBold.ttf
-          
-          echo "All fonts injected into skeleton/SYSTEM/res:";
-          ls -la skeleton/SYSTEM/res | sed 's#^#- #' || true
-
+          bash workspace/i18n/font_sync.sh
+          echo "All fonts in skeleton/SYSTEM/res:"
+          ls -la skeleton/SYSTEM/res/font*.ttf skeleton/SYSTEM/res/BPreplayBold*.ttf | sed 's#^#- #' || true
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -386,5 +330,6 @@ jobs:
         with:
           files: releases/*
           tag_name: ${{ needs.prepare.outputs.next-tag }}
-          make_latest: "true"
+          prerelease: ${{ inputs.prerelease }}
+          make_latest: ${{ inputs.prerelease && 'false' || 'true' }}
           body_path: notes_zh.txt

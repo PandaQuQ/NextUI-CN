@@ -17,6 +17,7 @@ REQUIRES_FILEMGR=other/NextCommander
 
 # External deps (override in CI if needed)
 NEXTCOMMANDER_REPO_URL ?= https://github.com/PandaQuQ/NextCommander-CN.git
+NEXTCOMMANDER_REPO_REF ?= master
 
 all: readmes
 
@@ -34,7 +35,7 @@ clean:
 ###########################################################
 
 $(REQUIRES_FILEMGR):
-	git clone --depth 1 $(NEXTCOMMANDER_REPO_URL) $(REQUIRES_FILEMGR)
+	git clone --depth 1 --branch $(NEXTCOMMANDER_REPO_REF) $(NEXTCOMMANDER_REPO_URL) $(REQUIRES_FILEMGR)
 	
 $(REQUIRES_EVTEST):
 	git clone --depth 1 https://github.com/freedesktop-unofficial-mirror/evtest.git $(REQUIRES_EVTEST)

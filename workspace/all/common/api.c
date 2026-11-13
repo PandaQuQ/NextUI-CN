@@ -380,6 +380,28 @@ int GFX_loadSystemFont(const char *fontPath)
 	font.tiny = TTF_OpenFont(fontPath, SCALE1(FONT_TINY));
 	font.micro = TTF_OpenFont(fontPath, SCALE1(FONT_MICRO));
 
+	// NextUI-CN: a user-supplied font (SD:/Fonts) may be corrupt or unsupported.
+	// Never leave the UI without a font: fall back to the bundled default.
+	int fellBack = 0;
+	if (!font.large || !font.medium || !font.small || !font.tiny || !font.micro) {
+		char fallback[512];
+		snprintf(fallback, sizeof(fallback), "%s/%s", RES_PATH, CFG_DEFAULT_FONT_FILE);
+		LOG_error("GFX_loadSystemFont: failed to load \"%s\" (%s), falling back to %s\n",
+			fontPath ? fontPath : "(null)", TTF_GetError(), fallback);
+		TTF_CloseFont(font.large);
+		TTF_CloseFont(font.medium);
+		TTF_CloseFont(font.small);
+		TTF_CloseFont(font.tiny);
+		TTF_CloseFont(font.micro);
+		fontPath = fallback;
+		fellBack = 1;
+		font.large = TTF_OpenFont(fontPath, SCALE1(FONT_LARGE));
+		font.medium = TTF_OpenFont(fontPath, SCALE1(FONT_MEDIUM));
+		font.small = TTF_OpenFont(fontPath, SCALE1(FONT_SMALL));
+		font.tiny = TTF_OpenFont(fontPath, SCALE1(FONT_TINY));
+		font.micro = TTF_OpenFont(fontPath, SCALE1(FONT_MICRO));
+	}
+
 	// NextUI-CN: many fonts (especially CJK) look overly thick or blurry when SDL_ttf
 	// "fake bold" is forced. Honour the user's font style for the main UI font, but
 	// use normal style for the injected pixel/rounded CJK fonts (font2.ttf / font3.ttf).
@@ -400,7 +422,7 @@ int GFX_loadSystemFont(const char *fontPath)
 	TTF_SetFontHinting(font.tiny, TTF_HINTING_LIGHT);
 	TTF_SetFontHinting(font.micro, TTF_HINTING_LIGHT);
 
-	return 0;
+	return fellBack ? -1 : 0;
 }
 
 int GFX_updateColors(void)
