@@ -15,6 +15,10 @@ REQUIRES_JSTEST=other/jstest
 REQUIRES_UNZIP60=other/unzip60
 REQUIRES_FILEMGR=other/NextCommander
 
+# Use the CN fork so the file manager follows NextUI-CN system fonts.
+NEXTCOMMANDER_REPO_URL ?= https://github.com/PandaQuQ/NextCommander-CN.git
+NEXTCOMMANDER_REPO_REF ?= feature/system-font
+
 all: readmes
 
 early: $(REQUIRES_EVTEST) $(REQUIRES_JSTEST) $(REQUIRES_UNZIP60) $(REQUIRES_FILEMGR)
@@ -31,7 +35,7 @@ clean:
 ###########################################################
 
 $(REQUIRES_FILEMGR):
-	git clone --depth 1 https://github.com/LoveRetro/NextCommander.git $(REQUIRES_FILEMGR)
+	git clone --depth 1 --branch $(NEXTCOMMANDER_REPO_REF) $(NEXTCOMMANDER_REPO_URL) $(REQUIRES_FILEMGR)
 	
 $(REQUIRES_EVTEST):
 	git clone --depth 1 https://github.com/freedesktop-unofficial-mirror/evtest.git $(REQUIRES_EVTEST)
