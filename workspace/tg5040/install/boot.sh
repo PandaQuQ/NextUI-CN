@@ -38,9 +38,9 @@ fi
 if [ "$SHOW_SPLASH" = "yes" ] ; then
 	cd $(dirname "$0")/$PLATFORM
 	if [ "$DEVICE" = "brick" ] || [ "$DEVICE" = "brickpro" ]; then
-		./show2.elf --mode=daemon --image="$LOGO_PATH" --text="Installing..." --logoheight=144 --fontsize=32 --progress=-1 &
+		./show2.elf --mode=daemon --image="$LOGO_PATH" --text="安装中..." --logoheight=144 --fontsize=32 --progress=-1 &
 	else
-		./show2.elf --mode=daemon --image="$LOGO_PATH" --text="Installing..." --logoheight=128 --progress=-1 &
+		./show2.elf --mode=daemon --image="$LOGO_PATH" --text="安装中..." --logoheight=128 --progress=-1 &
 	fi
 	#sleep 0.5
 	#SHOW_PID=$!
@@ -67,7 +67,7 @@ echo 0 > /sys/class/led_anim/max_scale
 for pakz in $PAKZ_PATH; do
 	if [ ! -e "$pakz" ]; then continue; fi
 	echo "正在安装 $pakz"
-	echo "TEXT:Extracting $pakz" > /tmp/show2.fifo
+	echo "TEXT:正在解压 $pakz" > /tmp/show2.fifo
 	cd $(dirname "$0")/$PLATFORM
 
 	./unzip -o -d "$SDCARD_PATH" "$pakz" # >> $pakz.txt
@@ -75,7 +75,7 @@ for pakz in $PAKZ_PATH; do
 
 	# run postinstall if present
 	if [ -f $SDCARD_PATH/post_install.sh ]; then
-		echo "TEXT:Installing $pakz" > /tmp/show2.fifo
+		echo "TEXT:正在安装 $pakz" > /tmp/show2.fifo
 		$SDCARD_PATH/post_install.sh # > $pakz_post.txt
 		rm -f $SDCARD_PATH/post_install.sh
 	fi
@@ -85,9 +85,9 @@ done
 if [ -f "$UPDATE_PATH" ]; then 
 	cd $(dirname "$0")/$PLATFORM
 	if [ -d "$SYSTEM_PATH" ]; then
-		echo "TEXT:Updating NextUI" > /tmp/show2.fifo
+		echo "TEXT:升级中..." > /tmp/show2.fifo
 	else
-		echo "TEXT:Installing NextUI" > /tmp/show2.fifo
+		echo "TEXT:安装中..." > /tmp/show2.fifo
 	fi
 
 	# clean replacement for core paths
