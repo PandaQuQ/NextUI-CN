@@ -136,6 +136,36 @@ static std::vector<FontEntry> enumerateFonts() {
         closedir(dir);
     }
 
+    // NextUI-CN: user fonts from SD:/Fonts, stored as "custom:<filename>"
+    std::vector<std::string> custom;
+    dir = opendir(SDCARD_PATH "/" CFG_CUSTOM_FONT_DIR);
+    if (dir) {
+        struct dirent *ent;
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_name[0] == '.') continue; // also skips macOS "._" files
+            size_t len = strlen(ent->d_name);
+            if (len < 5 || len > 200) continue;
+            const char *ext = ent->d_name + len - 4;
+            if (strcasecmp(ext, ".ttf") != 0 && strcasecmp(ext, ".otf") != 0)
+                continue;
+            custom.push_back(ent->d_name);
+        }
+        closedir(dir);
+    }
+    std::sort(custom.begin(), custom.end(), [](const std::string &a, const std::string &b) {
+        return strcasecmp(a.c_str(), b.c_str()) < 0;
+    });
+    const size_t maxCustomFonts = 64;
+    if (custom.size() > maxCustomFonts)
+        custom.resize(maxCustomFonts);
+    for (const auto &name : custom) {
+        std::string base(name, 0, name.size() - 4);
+        std::replace(base.begin(), base.end(), '_', ' ');
+        char label[256];
+        snprintf(label, sizeof(label), TR("settings.font_name.custom_fmt"), base.c_str());
+        fonts.push_back({std::string(CFG_CUSTOM_FONT_PREFIX) + name, label});
+    }
+
     return fonts;
 }
 

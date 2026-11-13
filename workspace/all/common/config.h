@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // portability, deprecated
 extern uint32_t THEME_COLOR1_255;
@@ -200,6 +201,10 @@ typedef struct
 #define TRANSITION_COMFY  2
 
 #define CFG_DEFAULT_FONT_FILE "font1.ttf"  // Next
+// NextUI-CN: user fonts dropped into SDCARD_PATH "/Fonts" are stored in the
+// settings file as "custom:<filename>" (e.g. font=custom:MyFont.ttf).
+#define CFG_CUSTOM_FONT_PREFIX "custom:"
+#define CFG_CUSTOM_FONT_DIR "Fonts"
 #define CFG_DEFAULT_FONT_STYLE 0x01 // TTF_STYLE_BOLD (MinUI default)
 #define CFG_DEFAULT_COLOR1 0xffffffffU
 #define CFG_DEFAULT_COLOR2 0x9b2257ffU
@@ -285,9 +290,13 @@ void CFG_get(const char *key, char * value);
 // void CFG_defaults(NextUISettings*);
 // The font filename to use as the UI font.
 // Built-in: "font1.ttf" (Next, default), "font2.ttf" (OG)
-// Custom fonts go in RES_PATH alongside built-in fonts.
+// Custom fonts go in RES_PATH alongside built-in fonts, or (NextUI-CN) in
+// SDCARD_PATH "/Fonts" referenced as "custom:<filename>".
 const char* CFG_getFontFile(void);
 void CFG_setFontFile(const char* filename);
+// Resolve a font setting value ("font1.ttf", "custom:X.ttf") to a full path.
+// Returns 0 on success, -1 if the value is invalid (e.g. contains a path).
+int CFG_resolveFontPath(const char* fontFile, char* out, size_t outSize);
 // The font style to use for the UI font.
 int CFG_getFontStyle(void);
 void CFG_setFontStyle(int style);
