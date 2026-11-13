@@ -108,9 +108,9 @@ endif
 	cp ./workspace/all/clock/build/$(PLATFORM)/clock.elf ./build/EXTRAS/Tools/$(PLATFORM)/Clock.pak/
 	cp ./workspace/all/minput/build/$(PLATFORM)/minput.elf ./build/EXTRAS/Tools/$(PLATFORM)/Input.pak/
 	cp ./workspace/all/settings/build/$(PLATFORM)/settings.elf ./build/EXTRAS/Tools/$(PLATFORM)/Settings.pak/
-ifeq ($(PLATFORM), tg5040)
-	cp ./workspace/all/airlock/build/$(PLATFORM)/airlock.elf ./build/EXTRAS/Tools/$(PLATFORM)/Airlock.pak/
-endif
+# NextUI-CN: Airlock is kept in-tree (workspace/all/airlock) but is not
+# built or copied into EXTRAS/Tools. package also deletes any leftover pak
+# so it cannot land in MinUI.zip (fresh install / updates) or extras.zip.
 ifneq (,$(filter $(PLATFORM),tg5040 tg5050 h700))
 	cp ./workspace/all/ledcontrol/build/$(PLATFORM)/ledcontrol.elf ./build/EXTRAS/Tools/$(PLATFORM)/LedControl.pak/
 ifeq ($(PLATFORM), tg5040)
@@ -264,6 +264,9 @@ package: tidy
 
 	# Remove Loading app from extras (don't include in package)
 	rm -rf "./build/EXTRAS/Tools/tg5040/Remove Loading.pak"
+	# NextUI-CN: do not ship Airlock in the base MinUI.zip payload or extras
+	rm -rf ./build/EXTRAS/Tools/tg5040/Airlock.pak
+	rm -rf ./build/EXTRAS/Tools/*/Airlock.pak
 
 	mkdir -p ./build/PAYLOAD
 	mv ./build/SYSTEM ./build/PAYLOAD/.system

@@ -54,9 +54,10 @@ endif
 	cd ./all/syncsettings/ && make
 	cd ./all/nextval/ && make
 	cd ./all/settings/ && make
-ifeq ($(PLATFORM), tg5040)
-	cd ./all/airlock/ && make
-endif
+# NextUI-CN: Airlock is not built or packaged.
+# ifeq ($(PLATFORM), tg5040)
+# 	cd ./all/airlock/ && make
+# endif
 ifneq (,$(filter $(PLATFORM),tg5040 tg5050 h700))
 	cd ./all/ledcontrol/ && make
 endif
