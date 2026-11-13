@@ -11,5 +11,7 @@ const char* Minarch_trOr(const char* key, const char* fallback);
 const char* Minarch_translateCategoryLabel(const char* label);
 char** Minarch_buildCommonValueLabels(char** values);
 void Minarch_initFrontendI18nOnce(void);
+// Display-only translation for shortcut names (the English name stays the config key).
+const char* Minarch_trShortcutName(const char* name);
 
 #endif

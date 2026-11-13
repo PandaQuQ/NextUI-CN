@@ -415,7 +415,7 @@ int OptionShortcuts_openMenu(MenuList* list, int i) {
 			ButtonMapping* button = &config.shortcuts[j];
 			MenuItem* item = &OptionShortcuts_menu.items[j];
 			item->id = j;
-			item->name = button->name;
+			item->name = (char*)Minarch_trShortcutName(button->name); // display only; config key stays button->name
 			item->desc = NULL;
 			item->value = button->local + 1;
 			if (button->mod) item->value += LOCAL_BUTTON_COUNT;

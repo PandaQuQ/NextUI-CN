@@ -16,6 +16,7 @@
 #define RA_UTIL_NEED_SDL
 #include "ra_util.h"
 #include "ra_event_queue.h"
+#include "i18n.h" // NextUI-CN
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -927,7 +928,7 @@ static void ra_show_game_summary(rc_client_t* client, const rc_client_game_t* ga
 	}
 	
 	char message[NOTIFICATION_MAX_MESSAGE];
-	snprintf(message, sizeof(message), "%s - %u/%u achievements",
+	snprintf(message, sizeof(message), TR("minarch.ra.game_summary_fmt"),
 	         game->title, display_unlocked, display_total);
 	Notification_push(NOTIFICATION_ACHIEVEMENT, message, NULL);
 }
@@ -1288,7 +1289,7 @@ static void ra_event_handler(const rc_client_event_t* event, rc_client_t* client
 			RA_LOG_DEBUG("Skipping hidden achievement notification\n");
 			break;
 		}
-		snprintf(message, sizeof(message), "Achievement Unlocked: %s",
+		snprintf(message, sizeof(message), TR("minarch.ra.unlocked_fmt"),
 		         event->achievement->title);
 		// Get the unlocked badge icon (not locked)
 		badge_icon = RA_Badges_getNotificationSize(event->achievement->badge_name, false);
@@ -1371,7 +1372,7 @@ static void ra_event_handler(const rc_client_event_t* event, rc_client_t* client
 		break;
 		
 	case RC_CLIENT_EVENT_LEADERBOARD_STARTED:
-		snprintf(message, sizeof(message), "Leaderboard: %s",
+		snprintf(message, sizeof(message), TR("minarch.ra.leaderboard_fmt"),
 		         event->leaderboard->title);
 		Notification_push(NOTIFICATION_ACHIEVEMENT, message, NULL);
 		RA_LOG_INFO("Leaderboard started: %s\n", event->leaderboard->title);
@@ -1382,7 +1383,7 @@ static void ra_event_handler(const rc_client_event_t* event, rc_client_t* client
 		break;
 		
 	case RC_CLIENT_EVENT_LEADERBOARD_SUBMITTED:
-		snprintf(message, sizeof(message), "Submitted %s to %s",
+		snprintf(message, sizeof(message), TR("minarch.ra.leaderboard_submitted_fmt"),
 		         event->leaderboard->tracker_value, event->leaderboard->title);
 		Notification_push(NOTIFICATION_ACHIEVEMENT, message, NULL);
 		RA_LOG_INFO("Leaderboard submitted: %s - %s\n",
@@ -1390,7 +1391,7 @@ static void ra_event_handler(const rc_client_event_t* event, rc_client_t* client
 		break;
 		
 	case RC_CLIENT_EVENT_GAME_COMPLETED:
-		Notification_push(NOTIFICATION_ACHIEVEMENT, "Game Mastered!", NULL);
+		Notification_push(NOTIFICATION_ACHIEVEMENT, TR("minarch.ra.game_mastered"), NULL);
 		RA_LOG_INFO("Game mastered!\n");
 		break;
 		
@@ -1402,8 +1403,8 @@ static void ra_event_handler(const rc_client_event_t* event, rc_client_t* client
 		RA_LOG_ERROR("Server error: %s\n",
 		       event->server_error ? event->server_error->error_message : "unknown");
 		// Show notification for server errors
-		snprintf(message, sizeof(message), "RA Server Error: %s",
-		         event->server_error ? event->server_error->error_message : "unknown");
+		snprintf(message, sizeof(message), TR("minarch.ra.server_error_fmt"),
+		         event->server_error ? event->server_error->error_message : TR("minarch.ra.unknown"));
 		Notification_push(NOTIFICATION_ACHIEVEMENT, message, NULL);
 		break;
 		
@@ -1505,14 +1506,14 @@ static void ra_login_callback(int result, const char* error_message,
 			if (ra_login_retry.count == 1 && !ra_login_retry.notified_connecting) {
 				ra_login_retry.notified_connecting = true;
 				Notification_push(NOTIFICATION_ACHIEVEMENT, 
-				                  "Connecting to RetroAchievements...", NULL);
+				                  TR("minarch.ra.connecting"), NULL);
 			}
 		} else {
 			// All retries exhausted — transition to FAILED
 			ra_login_state = LOGIN_FAILED;
 			RA_LOG_ERROR("All login retries exhausted\n");
 			Notification_push(NOTIFICATION_ACHIEVEMENT, 
-			                  "RetroAchievements: Connection failed", NULL);
+			                  TR("minarch.ra.connection_failed"), NULL);
 			ra_reset_login_retry();
 			if (ra_game_state == GAME_PENDING_LOGIN) {
 				ra_game_state = GAME_NONE;
@@ -1619,8 +1620,7 @@ static int ra_sync_thread_func(void* data) {
 	// Show sync progress in top-left (same area as badge download notifications)
 	if (display_count > 0) {
 		char msg[NOTIFICATION_MAX_MESSAGE];
-		snprintf(msg, sizeof(msg), "Syncing %u offline achievement%s...",
-		         display_count, display_count == 1 ? "" : "s");
+		snprintf(msg, sizeof(msg), TR("minarch.ra.syncing_fmt"), display_count);
 		Notification_setProgressIndicatorPersistent(true);
 		Notification_showProgressIndicator(msg, "", NULL);
 	}
@@ -1678,14 +1678,12 @@ static int ra_sync_thread_func(void* data) {
 	{
 		char msg[NOTIFICATION_MAX_MESSAGE];
 		if (result.failed > 0) {
-			snprintf(msg, sizeof(msg), "Sync incomplete: %u synced, will retry later",
+			snprintf(msg, sizeof(msg), TR("minarch.ra.sync_incomplete_fmt"),
 			         result.synced);
 		} else if (result.synced > 0) {
-			snprintf(msg, sizeof(msg), "Synced %u offline achievement%s",
-			         result.synced, result.synced == 1 ? "" : "s");
+			snprintf(msg, sizeof(msg), TR("minarch.ra.synced_fmt"), result.synced);
 		} else if (result.skipped > 0) {
-			snprintf(msg, sizeof(msg), "Sync: %u achievement%s skipped",
-			         result.skipped, result.skipped == 1 ? "" : "s");
+			snprintf(msg, sizeof(msg), TR("minarch.ra.sync_skipped_fmt"), result.skipped);
 		}
 		if (result.synced > 0 || result.failed > 0 || result.skipped > 0) {
 			// Show first (resets start_time), THEN clear persistent.
@@ -2012,7 +2010,7 @@ static void ra_game_loaded_callback(int result, const char* error_message,
 		} else {
 			RA_LOG_WARN("Game not recognized by RetroAchievements\n");
 			Notification_push(NOTIFICATION_ACHIEVEMENT,
-			                  "No achievements found for this game", NULL);
+			                  TR("minarch.ra.no_achievements"), NULL);
 		}
 	} else {
 		RA_LOG_ERROR("Game load failed: %s\n", error_message ? error_message : "unknown error");
@@ -2028,7 +2026,7 @@ static void ra_game_loaded_callback(int result, const char* error_message,
 			ra_game_state = GAME_NONE;
 			ra_clear_pending_game();
 			Notification_push(NOTIFICATION_ACHIEVEMENT,
-			                  "No achievements found for this game", NULL);
+			                  TR("minarch.ra.no_achievements"), NULL);
 		}
 	}
 }

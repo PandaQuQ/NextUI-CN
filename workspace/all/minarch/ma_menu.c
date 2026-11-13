@@ -406,9 +406,9 @@ static int OptionAchievements_showDetail(MenuList* list, int i) {
 			// Points (singular/plural) - use tiny font like other metadata
 			char points_str[32];
 			if (ach->points == 1) {
-				snprintf(points_str, sizeof(points_str), "1 point");
+				snprintf(points_str, sizeof(points_str), "%s", TR("minarch.ach.one_point"));
 			} else {
-				snprintf(points_str, sizeof(points_str), "%u points", ach->points);
+				snprintf(points_str, sizeof(points_str), TR("minarch.ach.points_fmt"), ach->points);
 			}
 			SDL_Surface* points_text = TTF_RenderUTF8_Blended(font.tiny, points_str, COLOR_LIGHT_TEXT);
 			SDL_BlitSurface(points_text, NULL, screen, &(SDL_Rect){
@@ -459,7 +459,7 @@ static int OptionAchievements_showDetail(MenuList* list, int i) {
 			// Unlock rate/rarity (smaller font, gray)
 			if (ach->rarity > 0) {
 				char rarity_buf[32];
-				snprintf(rarity_buf, sizeof(rarity_buf), "%.2f%% unlock rate", ach->rarity);
+				snprintf(rarity_buf, sizeof(rarity_buf), TR("minarch.ach.unlock_rate_fmt"), ach->rarity);
 				SDL_Surface* rarity_text = TTF_RenderUTF8_Blended(font.tiny, rarity_buf, COLOR_LIGHT_TEXT);
 				SDL_BlitSurface(rarity_text, NULL, screen, &(SDL_Rect){
 					center_x - rarity_text->w / 2, content_y
@@ -472,13 +472,13 @@ static int OptionAchievements_showDetail(MenuList* list, int i) {
 			const char* type_str = NULL;
 			switch (ach->type) {
 				case RC_CLIENT_ACHIEVEMENT_TYPE_MISSABLE:
-					type_str = "[Missable]";
+					type_str = TR("minarch.ach.type.missable");
 					break;
 				case RC_CLIENT_ACHIEVEMENT_TYPE_PROGRESSION:
-					type_str = "[Progression]";
+					type_str = TR("minarch.ach.type.progression");
 					break;
 				case RC_CLIENT_ACHIEVEMENT_TYPE_WIN:
-					type_str = "[Win Condition]";
+					type_str = TR("minarch.ach.type.win_condition");
 					break;
 				default:
 					break;
@@ -753,7 +753,7 @@ static int OptionAchievements_openMenu(MenuList* list, int i) {
 
 			// Status text at top, aligned with hardware pill (not part of centered content)
 			char status_text[64];
-			snprintf(status_text, sizeof(status_text), "%u/%u unlocked", unlocked, total);
+			snprintf(status_text, sizeof(status_text), TR("minarch.ach.status_unlocked_fmt"), unlocked, total);
 			SDL_Surface* status_surface = TTF_RenderUTF8_Blended(font.tiny, status_text, COLOR_WHITE);
 			SDL_BlitSurface(status_surface, NULL, screen, &(SDL_Rect){
 				(screen->w - status_surface->w) / 2,

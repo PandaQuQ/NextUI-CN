@@ -22,58 +22,59 @@ typedef enum {
 	STATE_MESSAGE
 } AirlockState;
 
+// NextUI-CN: entries are i18n keys; translated with TR() at draw time.
 static const char *menu_items[] = {
-	"Read Me",
-	"Connections",
-	"New Wallet",
-	"Import Wallet",
-	"System Info",
-	"Official Site",
-	"Shutdown",
-	"Reboot"
+	"airlock.menu.readme",
+	"airlock.menu.connections",
+	"airlock.menu.new_wallet",
+	"airlock.menu.import_wallet",
+	"airlock.menu.system_info",
+	"airlock.menu.official_site",
+	"airlock.menu.shutdown",
+	"airlock.menu.reboot"
 };
 static const int menu_item_count = sizeof(menu_items) / sizeof(menu_items[0]);
 
 static const char *readme_lines[] = {
-	"For asset safety, please read carefully:",
-	"1. Seed phrase is the ONLY key to your funds;",
-	"2. Ensure no cameras/people are watching;",
-	"3. AirLock is offline, NEVER connect to internet;",
-	"4. Verify device authenticity before use;",
-	"5. Double-check address/amount before signing;",
-	"6. Keep device fire/waterproof;",
-	"7. Lost device? Recover via seed on new wallet;",
-	"8. Obey local laws, no illegal activities.",
-	"Visit website for help. Stay Safe!"
+	"airlock.readme.0",
+	"airlock.readme.1",
+	"airlock.readme.2",
+	"airlock.readme.3",
+	"airlock.readme.4",
+	"airlock.readme.5",
+	"airlock.readme.6",
+	"airlock.readme.7",
+	"airlock.readme.8",
+	"airlock.readme.9"
 };
 static const int readme_line_count = sizeof(readme_lines) / sizeof(readme_lines[0]);
 
 static const char *info_lines[] = {
-	"Name: Airlock",
-	"HW: TrimUI Brick (tg5040)",
-	"Screen: 1024x768",
-	"OS: TinaLinux",
-	"Version: 1.0"
+	"airlock.info.name",
+	"airlock.info.hw",
+	"airlock.info.screen",
+	"airlock.info.os",
+	"airlock.info.version"
 };
 static const int info_line_count = sizeof(info_lines) / sizeof(info_lines[0]);
 
 static const char *site_lines[] = {
-	"Official Website",
-	"Beware of phishing sites"
+	"airlock.site.title",
+	"airlock.site.phishing"
 };
 static const int site_line_count = sizeof(site_lines) / sizeof(site_lines[0]);
 
 static const char *power_lines[] = {
-	"Power Options",
-	"Shutdown System?",
-	"Reboot System?",
-	"(Not wired yet)"
+	"airlock.power.title",
+	"airlock.power.shutdown",
+	"airlock.power.reboot",
+	"airlock.power.not_wired"
 };
 static const int power_line_count = sizeof(power_lines) / sizeof(power_lines[0]);
 
 static const char *placeholder_lines[] = {
-	"Not implemented yet.",
-	"Porting in progress."
+	"airlock.placeholder.not_implemented",
+	"airlock.placeholder.porting"
 };
 static const int placeholder_line_count = sizeof(placeholder_lines) / sizeof(placeholder_lines[0]);
 
@@ -148,7 +149,7 @@ static int compute_visible_rows(int start_y, int line_height, int footer_height)
 
 static void draw_footer(SDL_Surface *screen, SDL_Color color)
 {
-	blit_left(screen, font.tiny, "B: Back   A: Select", color, SCALE1(16), FIXED_HEIGHT - SCALE1(32));
+	blit_left(screen, font.tiny, TR("airlock.footer.menu"), color, SCALE1(16), FIXED_HEIGHT - SCALE1(32));
 }
 
 static void draw_list(SDL_Surface *screen, const char *title, const char **lines, int line_count, int scroll)
@@ -160,12 +161,12 @@ static void draw_list(SDL_Surface *screen, const char *title, const char **lines
 	int visible_rows = compute_visible_rows(content_y, line_height, SCALE1(40));
 
 	GFX_clear(screen);
-	blit_centered(screen, font.large, title, text, title_y);
+	blit_centered(screen, font.large, TR(title), text, title_y);
 
 	for (int i = 0; i < visible_rows; i++) {
 		int idx = scroll + i;
 		if (idx >= line_count) break;
-		blit_left(screen, font.medium, lines[idx], text, SCALE1(24), content_y + i * line_height);
+		blit_left(screen, font.medium, TR(lines[idx]), text, SCALE1(24), content_y + i * line_height);
 	}
 
 	draw_footer(screen, text);
@@ -186,7 +187,7 @@ static void draw_menu(SDL_Surface *screen, int selected)
 	}
 
 	GFX_clear(screen);
-	blit_centered(screen, font.large, "Airlock", text, title_y);
+	blit_centered(screen, font.large, TR("airlock.title"), text, title_y);
 
 	for (int i = 0; i < visible_rows; i++) {
 		int idx = scroll + i;
@@ -195,9 +196,9 @@ static void draw_menu(SDL_Surface *screen, int selected)
 		if (idx == selected) {
 			SDL_Rect rect = {SCALE1(16), y - SCALE1(2), FIXED_WIDTH - SCALE1(32), line_height};
 			SDL_FillRect(screen, &rect, RGB_WHITE);
-			blit_left(screen, font.medium, menu_items[idx], invert, SCALE1(24), y);
+			blit_left(screen, font.medium, TR(menu_items[idx]), invert, SCALE1(24), y);
 		} else {
-			blit_left(screen, font.medium, menu_items[idx], text, SCALE1(24), y);
+			blit_left(screen, font.medium, TR(menu_items[idx]), text, SCALE1(24), y);
 		}
 	}
 
@@ -207,9 +208,9 @@ static void draw_menu(SDL_Surface *screen, int selected)
 static const char *kb_key_label(const char *key)
 {
 	if (!key || key[0] == '\0') return "";
-	if (strcmp(key, "shift") == 0) return "SHIFT";
-	if (strcmp(key, "space") == 0) return "SPACE";
-	if (strcmp(key, "enter") == 0) return "ENTER";
+	if (strcmp(key, "shift") == 0) return TR("keyboard.shift");
+	if (strcmp(key, "space") == 0) return TR("keyboard.space");
+	if (strcmp(key, "enter") == 0) return TR("keyboard.enter");
 	return key;
 }
 
@@ -307,9 +308,9 @@ static void kb_draw(SDL_Surface *screen, const KeyboardState *kb)
 	int col_spacing = 5;
 
 	int shift_w = 0, space_w = 0, enter_w = 0;
-	TTF_SizeUTF8(font.medium, "SHIFT", &shift_w, NULL);
-	TTF_SizeUTF8(font.medium, "SPACE", &space_w, NULL);
-	TTF_SizeUTF8(font.medium, "ENTER", &enter_w, NULL);
+	TTF_SizeUTF8(font.medium, TR("keyboard.shift"), &shift_w, NULL);
+	TTF_SizeUTF8(font.medium, TR("keyboard.space"), &space_w, NULL);
+	TTF_SizeUTF8(font.medium, TR("keyboard.enter"), &enter_w, NULL);
 	int special_key_w = shift_w;
 	if (space_w > special_key_w) special_key_w = space_w;
 	if (enter_w > special_key_w) special_key_w = enter_w;
@@ -356,7 +357,7 @@ static void kb_draw(SDL_Surface *screen, const KeyboardState *kb)
 		}
 	}
 
-	blit_left(screen, font.tiny, "A: Select  B: Backspace  X: OK  Y: Cancel", text, SCALE1(16), FIXED_HEIGHT - SCALE1(32));
+	blit_left(screen, font.tiny, TR("airlock.footer.keyboard"), text, SCALE1(16), FIXED_HEIGHT - SCALE1(32));
 }
 
 static int kb_handle_input(KeyboardState *kb)
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
 					kb.row = 0;
 					kb.col = 0;
 					kb.max_len = (int)sizeof(kb.text);
-					snprintf(kb.title, sizeof(kb.title), "Set 25th Phrase");
+					snprintf(kb.title, sizeof(kb.title), "%s", TR("airlock.kb.set_25th_phrase"));
 					break;
 				case 3:
 					state = STATE_KEYBOARD;
@@ -514,7 +515,7 @@ int main(int argc, char *argv[])
 					kb.row = 0;
 					kb.col = 0;
 					kb.max_len = (int)sizeof(kb.text);
-					snprintf(kb.title, sizeof(kb.title), "Set Payment Password");
+					snprintf(kb.title, sizeof(kb.title), "%s", TR("airlock.kb.set_payment_password"));
 					break;
 				case 4: state = STATE_INFO; break;
 				case 5: state = STATE_SITE; break;
@@ -530,7 +531,7 @@ int main(int argc, char *argv[])
 			if (action == 1) {
 				state = STATE_MENU;
 			} else if (action == 2) {
-				msg.title = "Saved";
+				msg.title = "airlock.msg.saved";
 				msg.lines = placeholder_lines;
 				msg.line_count = placeholder_line_count;
 				state = STATE_MESSAGE;
@@ -571,25 +572,25 @@ int main(int argc, char *argv[])
 			draw_menu(screen, menu_idx);
 			break;
 		case STATE_README:
-			draw_list(screen, "Important Notice", readme_lines, readme_line_count, scroll);
+			draw_list(screen, "airlock.readme.title", readme_lines, readme_line_count, scroll);
 			break;
 		case STATE_INFO:
-			draw_list(screen, "System Info", info_lines, info_line_count, scroll);
+			draw_list(screen, "airlock.menu.system_info", info_lines, info_line_count, scroll);
 			break;
 		case STATE_SITE:
-			draw_list(screen, "Official Website", site_lines, site_line_count, scroll);
+			draw_list(screen, "airlock.site.title", site_lines, site_line_count, scroll);
 			break;
 		case STATE_POWER:
-			draw_list(screen, "Power Options", power_lines, power_line_count, scroll);
+			draw_list(screen, "airlock.power.title", power_lines, power_line_count, scroll);
 			break;
 		case STATE_CONNECTIONS:
-			draw_list(screen, "Connections", placeholder_lines, placeholder_line_count, scroll);
+			draw_list(screen, "airlock.menu.connections", placeholder_lines, placeholder_line_count, scroll);
 			break;
 		case STATE_NEW_WALLET:
-			draw_list(screen, "New Wallet", placeholder_lines, placeholder_line_count, scroll);
+			draw_list(screen, "airlock.menu.new_wallet", placeholder_lines, placeholder_line_count, scroll);
 			break;
 		case STATE_IMPORT_WALLET:
-			draw_list(screen, "Import Wallet", placeholder_lines, placeholder_line_count, scroll);
+			draw_list(screen, "airlock.menu.import_wallet", placeholder_lines, placeholder_line_count, scroll);
 			break;
 		case STATE_KEYBOARD:
 			kb_draw(screen, &kb);

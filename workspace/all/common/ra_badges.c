@@ -8,6 +8,7 @@
 #include "api.h"
 #include "sdl.h"
 #include "notification.h"
+#include "i18n.h" // NextUI-CN
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -426,7 +427,7 @@ void RA_Badges_prefetch(const char** badge_names, size_t count) {
 	// Show progress indicator if downloads were queued
 	if (download_queue.count > 0) {
 		Notification_setProgressIndicatorPersistent(true);
-		Notification_showProgressIndicator("Loading achievement badges...", "", NULL);
+		Notification_showProgressIndicator(TR("minarch.ra.loading_badges"), "", NULL);
 		notification_start_time = SDL_GetTicks();
 		
 		// Start processing the queue (up to MAX_CONCURRENT_DOWNLOADS)

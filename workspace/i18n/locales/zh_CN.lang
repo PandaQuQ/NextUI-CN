@@ -1061,3 +1061,103 @@ minarch.rewind.accel.2=2（默认）
 minarch.rewind.accel.4=4（快）
 minarch.rewind.accel.8=8（更快）
 minarch.rewind.accel.12=12（最快）
+
+# ---- v6.15.0-CN-fix1 ----
+# minarch: frontend option descriptions
+minarch.frontend.screen_scaling.desc=原生：整数倍缩放。\n原生比例：使用核心报告的宽高比。\n屏幕比例：使用屏幕宽高比。\n全屏：像素非正方形。
+minarch.frontend.screen_scaling.desc_overscan=原生：整数倍缩放。原生比例：使用核心\n报告的宽高比。屏幕比例：使用屏幕宽高比。\n全屏：像素非正方形。\n裁切：先整数倍缩放再裁切。
+minarch.frontend.audio_resampling_quality.desc=质量越高，CPU 占用越多。
+minarch.frontend.ambient_mode.desc=让 LED 灯跟随屏幕颜色变化。
+minarch.frontend.screen_effect.desc=像素网格：模拟 LCD 网格。\n扫描线：模拟 CRT 扫描线。\n效果通常在原生缩放下最佳。
+minarch.frontend.overlay.desc=从 Overlays 文件夹选择自定义叠加层 PNG。
+minarch.frontend.offset_screen_x.desc=水平偏移像素数
+minarch.frontend.offset_screen_y.desc=垂直偏移像素数
+minarch.frontend.screen_sharpness.desc=线性会让线条更平滑，但在最终画面分辨率较高时\n效果更好（核心输出高分辨率或用着色器放大）。
+minarch.frontend.core_sync.desc=选择帧率的参考来源。\n“原生刷新率”使用模拟器帧率，\n“屏幕刷新率”使用屏幕刷新率。
+minarch.frontend.cpu_speed.desc=选择 CPU 调频方式。\n大多数情况下推荐“自动”。
+minarch.frontend.debug_hud.desc=显示帧率、CPU 负载、\n分辨率和缩放器信息。
+minarch.frontend.max_ff_speed.desc=快进速度不会超过所选倍率\n（实际速度可能更低，\n取决于游戏和模拟器）。
+minarch.frontend.ff_audio.desc=快进时播放或静音音频。
+
+# minarch: shortcut names (display only; config keys stay English)
+minarch.shortcut.save_state=保存即时存档
+minarch.shortcut.load_state=读取即时存档
+minarch.shortcut.reset_game=重置游戏
+minarch.shortcut.save_quit=保存并退出
+minarch.shortcut.cycle_scaling=切换缩放模式
+minarch.shortcut.cycle_effect=切换屏幕效果
+minarch.shortcut.toggle_ff=快进开关
+minarch.shortcut.hold_ff=按住快进
+minarch.shortcut.toggle_rewind=倒带开关
+minarch.shortcut.hold_rewind=按住倒带
+minarch.shortcut.game_switcher=游戏切换器
+minarch.shortcut.screenshot=截图
+minarch.shortcut.toggle_turbo_fmt=%s 连发开关
+
+# minarch: RetroAchievements
+minarch.ach.type.missable=[可错过]
+minarch.ach.type.progression=[主线进度]
+minarch.ach.type.win_condition=[通关条件]
+minarch.ach.one_point=1 点
+minarch.ach.points_fmt=%u 点
+minarch.ach.unlock_rate_fmt=解锁率 %.2f%%
+minarch.ach.status_unlocked_fmt=已解锁 %u/%u
+minarch.ra.game_summary_fmt=%s - 已解锁 %u/%u 个成就
+minarch.ra.unlocked_fmt=成就解锁：%s
+minarch.ra.leaderboard_fmt=排行榜：%s
+minarch.ra.leaderboard_submitted_fmt=已提交 %s 到 %s
+minarch.ra.game_mastered=游戏已精通！
+minarch.ra.server_error_fmt=RA 服务器错误：%s
+minarch.ra.unknown=未知
+minarch.ra.connecting=正在连接 RetroAchievements...
+minarch.ra.connection_failed=RetroAchievements：连接失败
+minarch.ra.syncing_fmt=正在同步 %u 个离线成就...
+minarch.ra.sync_incomplete_fmt=同步未完成：已同步 %u 个，稍后重试
+minarch.ra.synced_fmt=已同步 %u 个离线成就
+minarch.ra.sync_skipped_fmt=同步：跳过 %u 个成就
+minarch.ra.no_achievements=未找到此游戏的成就
+minarch.ra.loading_badges=正在加载成就徽章...
+
+# clock
+clock.am=上午
+clock.pm=下午
+
+# airlock
+airlock.title=Airlock
+airlock.menu.readme=使用须知
+airlock.menu.connections=连接
+airlock.menu.new_wallet=新建钱包
+airlock.menu.import_wallet=导入钱包
+airlock.menu.system_info=系统信息
+airlock.menu.official_site=官方网站
+airlock.menu.shutdown=关机
+airlock.menu.reboot=重启
+airlock.readme.title=重要提示
+airlock.readme.0=为了资产安全，请仔细阅读：
+airlock.readme.1=1. 助记词是你资金的唯一钥匙；
+airlock.readme.2=2. 确保周围没有摄像头或他人窥视；
+airlock.readme.3=3. AirLock 为离线设备，切勿连接互联网；
+airlock.readme.4=4. 使用前请确认设备真伪；
+airlock.readme.5=5. 签名前请再次核对地址和金额；
+airlock.readme.6=6. 注意设备防火防水；
+airlock.readme.7=7. 设备丢失？可用助记词在新钱包中恢复；
+airlock.readme.8=8. 遵守当地法律，禁止任何违法活动。
+airlock.readme.9=如需帮助请访问官网。注意安全！
+airlock.info.name=名称：Airlock
+airlock.info.hw=硬件：TrimUI Brick (tg5040)
+airlock.info.screen=屏幕：1024x768
+airlock.info.os=系统：TinaLinux
+airlock.info.version=版本：1.0
+airlock.site.title=官方网站
+airlock.site.phishing=谨防钓鱼网站
+airlock.power.title=电源选项
+airlock.power.shutdown=关闭系统？
+airlock.power.reboot=重启系统？
+airlock.power.not_wired=（尚未接入）
+airlock.placeholder.not_implemented=尚未实现。
+airlock.placeholder.porting=正在移植中。
+airlock.footer.menu=B：返回   A：选择
+airlock.footer.keyboard=A：选择  B：退格  X：确定  Y：取消
+airlock.kb.set_25th_phrase=设置第 25 个助记词
+airlock.kb.set_payment_password=设置支付密码
+airlock.msg.saved=已保存

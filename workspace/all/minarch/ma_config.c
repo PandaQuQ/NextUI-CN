@@ -1335,6 +1335,49 @@ const char* Minarch_trOr(const char* key, const char* fallback) {
 	return (tr && strcmp(tr, key) != 0) ? tr : fallback;
 }
 
+// NextUI-CN: config.shortcuts[].name is also the "bind <name>" key written to
+// minarch.cfg, so it must stay English. Translate only for display.
+const char* Minarch_trShortcutName(const char* name) {
+	static const struct { const char* name; const char* key; } map[] = {
+		{"Save State",    "minarch.shortcut.save_state"},
+		{"Load State",    "minarch.shortcut.load_state"},
+		{"Reset Game",    "minarch.shortcut.reset_game"},
+		{"Save & Quit",   "minarch.shortcut.save_quit"},
+		{"Cycle Scaling", "minarch.shortcut.cycle_scaling"},
+		{"Cycle Effect",  "minarch.shortcut.cycle_effect"},
+		{"Toggle FF",     "minarch.shortcut.toggle_ff"},
+		{"Hold FF",       "minarch.shortcut.hold_ff"},
+		{"Toggle Rewind", "minarch.shortcut.toggle_rewind"},
+		{"Hold Rewind",   "minarch.shortcut.hold_rewind"},
+		{"Game Switcher", "minarch.shortcut.game_switcher"},
+		{"Screenshot",    "minarch.shortcut.screenshot"},
+		{NULL, NULL}
+	};
+	if (!name) return name;
+	for (int i = 0; map[i].name; i++) {
+		if (!strcmp(name, map[i].name)) return Minarch_trOr(map[i].key, name);
+	}
+	// "Toggle Turbo <BTN>" -> "<BTN> 连发切换" via a format key (one %s).
+	static const char* prefix = "Toggle Turbo ";
+	size_t plen = strlen(prefix);
+	if (!strncmp(name, prefix, plen)) {
+		const char* fmt = TR("minarch.shortcut.toggle_turbo_fmt");
+		if (strcmp(fmt, "minarch.shortcut.toggle_turbo_fmt") != 0) {
+			// Small fixed set of turbo shortcuts; cache per name so the pointer stays valid.
+			static struct { const char* name; char label[64]; } cache[16];
+			for (int i = 0; i < 16; i++) {
+				if (cache[i].name == name) return cache[i].label;
+				if (!cache[i].name) {
+					snprintf(cache[i].label, sizeof(cache[i].label), fmt, name + plen);
+					cache[i].name = name;
+					return cache[i].label;
+				}
+			}
+		}
+	}
+	return name;
+}
+
 const char* Minarch_translateCategoryLabel(const char* label) {
 	if (!label) return label;
 	if (!strcasecmp(label, "Video")) return TR("minarch.corecat.video");
@@ -1813,6 +1856,21 @@ static void Minarch_applyFrontendI18n(void) {
 
 	Option* fe = config.frontend.options;
 	fe[FE_OPT_SCALING].name = (char*)TR("minarch.frontend.screen_scaling");
+	fe[FE_OPT_SCALING].desc = (char*)Minarch_trOr(GFX_supportsOverscan()
+		? "minarch.frontend.screen_scaling.desc_overscan"
+		: "minarch.frontend.screen_scaling.desc", fe[FE_OPT_SCALING].desc);
+	fe[FE_OPT_RESAMPLING].desc = (char*)Minarch_trOr("minarch.frontend.audio_resampling_quality.desc", fe[FE_OPT_RESAMPLING].desc);
+	fe[FE_OPT_AMBIENT].desc = (char*)Minarch_trOr("minarch.frontend.ambient_mode.desc", fe[FE_OPT_AMBIENT].desc);
+	fe[FE_OPT_EFFECT].desc = (char*)Minarch_trOr("minarch.frontend.screen_effect.desc", fe[FE_OPT_EFFECT].desc);
+	fe[FE_OPT_OVERLAY].desc = (char*)Minarch_trOr("minarch.frontend.overlay.desc", fe[FE_OPT_OVERLAY].desc);
+	fe[FE_OPT_SCREENX].desc = (char*)Minarch_trOr("minarch.frontend.offset_screen_x.desc", fe[FE_OPT_SCREENX].desc);
+	fe[FE_OPT_SCREENY].desc = (char*)Minarch_trOr("minarch.frontend.offset_screen_y.desc", fe[FE_OPT_SCREENY].desc);
+	fe[FE_OPT_SHARPNESS].desc = (char*)Minarch_trOr("minarch.frontend.screen_sharpness.desc", fe[FE_OPT_SHARPNESS].desc);
+	fe[FE_OPT_SYNC_REFERENCE].desc = (char*)Minarch_trOr("minarch.frontend.core_sync.desc", fe[FE_OPT_SYNC_REFERENCE].desc);
+	fe[FE_OPT_OVERCLOCK].desc = (char*)Minarch_trOr("minarch.frontend.cpu_speed.desc", fe[FE_OPT_OVERCLOCK].desc);
+	fe[FE_OPT_DEBUG].desc = (char*)Minarch_trOr("minarch.frontend.debug_hud.desc", fe[FE_OPT_DEBUG].desc);
+	fe[FE_OPT_MAXFF].desc = (char*)Minarch_trOr("minarch.frontend.max_ff_speed.desc", fe[FE_OPT_MAXFF].desc);
+	fe[FE_OPT_FF_AUDIO].desc = (char*)Minarch_trOr("minarch.frontend.ff_audio.desc", fe[FE_OPT_FF_AUDIO].desc);
 	fe[FE_OPT_SCALING].labels = i18n_scaling_labels;
 	fe[FE_OPT_RESAMPLING].name = (char*)TR("minarch.frontend.audio_resampling_quality");
 	fe[FE_OPT_RESAMPLING].labels = i18n_resample_labels;
