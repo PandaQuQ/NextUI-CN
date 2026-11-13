@@ -17,7 +17,7 @@ REQUIRES_FILEMGR=other/NextCommander
 
 # Use the CN fork so the file manager follows NextUI-CN system fonts.
 NEXTCOMMANDER_REPO_URL ?= https://github.com/PandaQuQ/NextCommander-CN.git
-NEXTCOMMANDER_REPO_REF ?= feature/system-font
+NEXTCOMMANDER_REPO_REF ?= master
 
 all: readmes
 
