@@ -18,6 +18,11 @@ on:
         description: "Optional manual tag (vX.Y.Z-CN[-suffix] or vX.Y.Z; empty = auto bump)"
         required: false
         type: string
+      prerelease:
+        description: "Publish as pre-release (not marked Latest)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   attestations: write
@@ -386,5 +391,6 @@ jobs:
         with:
           files: releases/*
           tag_name: ${{ needs.prepare.outputs.next-tag }}
-          make_latest: "true"
+          prerelease: ${{ inputs.prerelease }}
+          make_latest: ${{ inputs.prerelease && 'false' || 'true' }}
           body_path: notes_zh.txt
